@@ -1,0 +1,33 @@
+{
+	"name": "JejakNusantara",
+	"globIgnorePaths": ["**/_*.luau", "docs/**", "tooling/**"],
+	"tree": {
+		"$className": "DataModel",
+		"ReplicatedStorage": {
+			"$className": "ReplicatedStorage",
+			"JN": {
+				"$className": "Folder",
+				"Modules": {
+					"$path": "src/ReplicatedStorage/Modules"
+				}
+			}
+		},
+		"ServerScriptService": {
+			"$className": "ServerScriptService",
+			"$path": "src/ServerScriptService"
+		},
+		"StarterPlayer": {
+			"$className": "StarterPlayer",
+			"StarterPlayerScripts": {
+				"$className": "StarterFolder",
+				"$path": "src/StarterPlayer/StarterPlayerScripts"
+			}
+		},
+		"SoundService": {
+			"$className": "SoundService"
+		},
+		"Lighting": {
+			"$className": "Lighting"
+		}
+	}
+}

@@ -1,0 +1,30 @@
+# Build artifacts
+build/
+.luau_err
+.selene_out
+.stylua_out
+.rojo_out
+
+# Virtual env
+.venv/
+
+# Extracted PDF text (intermediate)
+docs/_extracted_*.txt
+docs/_extract.py
+
+# Local tooling binaries (downloaded, not committed)
+tooling/bin/
+tooling/bin_*/
+tooling/*.zip
+tooling/roblox-types.d.luau
+tooling/roblox-types-ovr.d.luau
+tooling/roblox-types-test.d.luau
+
+# Keep configs
+!tooling/selene.toml
+!tooling/stylua.toml
+!tooling/verify.sh
+
+# OS
+.DS_Store
+*.luau.bytecode
