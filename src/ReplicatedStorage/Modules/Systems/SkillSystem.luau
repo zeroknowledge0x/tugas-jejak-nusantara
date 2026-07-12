@@ -70,23 +70,28 @@ function SkillSystem.IsUnlocked(kind: Types.UnlockKind, id: string): boolean
 	return save.unlocked[kind][id] == true
 end
 
--- Internal: flip unlocks based on thresholds (TDD §6 mapping)
+-- Internal: flip unlocks based on thresholds (TDD §6 mapping).
+-- Independent `if` blocks so a single level-up can satisfy multiple gates.
 function SkillSystem._applyUnlocks(skill: Types.SkillId, lvl: number)
 	assert(save, "SkillSystem not initialized")
 	local u = save.unlocked
 	if skill == "Communication" and lvl >= 1 then
 		u.dialogue["intro"] = true
 		SkillSystem.OnUnlock:Fire("dialogue", "intro")
-	elseif skill == "CulturalUnderstanding" and lvl >= 1 then
+	end
+	if skill == "CulturalUnderstanding" and lvl >= 1 then
 		u.dialogue["culture"] = true
 		SkillSystem.OnUnlock:Fire("dialogue", "culture")
-	elseif (skill == "Observation" or skill == "DecisionMaking") and lvl >= 2 then
+	end
+	if (skill == "Observation" or skill == "DecisionMaking") and lvl >= 2 then
 		u.secrets["tier2"] = true
 		SkillSystem.OnUnlock:Fire("secrets", "tier2")
-	elseif (skill == "DecisionMaking" or skill == "CulturalUnderstanding") and lvl >= 2 then
+	end
+	if (skill == "DecisionMaking" or skill == "CulturalUnderstanding") and lvl >= 2 then
 		u.quests["alt"] = true
 		SkillSystem.OnUnlock:Fire("quests", "alt")
-	elseif skill == "DecisionMaking" and lvl >= 3 then
+	end
+	if skill == "DecisionMaking" and lvl >= 3 then
 		u.npcs["hidden"] = true
 		SkillSystem.OnUnlock:Fire("npcs", "hidden")
 	end

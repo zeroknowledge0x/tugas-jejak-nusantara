@@ -28,3 +28,8 @@ tooling/roblox-types-test.d.luau
 # OS
 .DS_Store
 *.luau.bytecode
+
+# Runtime test artifacts
+tooling/bundle.luau
+tooling/_convert_assert.py
+.smoke_out
