@@ -41,6 +41,7 @@ fi
 
 # 4) rojo build (place compiles -> package structure valid)
 echo "[4/4] rojo build (place file)"
+mkdir -p "$ROOT/build"
 if ! "$BIN/rojo" build --output "$ROOT/build/JejakNusantara.rbxlx" >"$ROOT/.rojo_out" 2>&1; then
   echo "  ROJO BUILD FAILED:"; cat "$ROOT/.rojo_out"; fail=1
 else
