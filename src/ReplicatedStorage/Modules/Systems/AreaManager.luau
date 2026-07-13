@@ -83,4 +83,9 @@ function AreaManager.GetState(area: Types.AreaId): Types.AreaState?
 	return save.areaProgress[area]
 end
 
+function AreaManager.GetStates(): { [Types.AreaId]: Types.AreaState }
+	assert(save, "AreaManager not initialized")
+	return save.areaProgress
+end
+
 return AreaManager

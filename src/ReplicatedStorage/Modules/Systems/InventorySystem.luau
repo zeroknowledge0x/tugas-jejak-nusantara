@@ -17,6 +17,7 @@ export type InventorySystemApi = {
 	Remove: (item: string, count: number?) -> boolean,
 	Has: (item: string, count: number?) -> boolean,
 	Count: (item: string) -> number,
+	GetAll: () -> { [string]: number },
 	OnAdd: Signal.Signal<string, number>,
 }
 
@@ -54,6 +55,11 @@ end
 function InventorySystem.Count(item: string): number
 	assert(save, "InventorySystem not initialized")
 	return save.inventory[item] or 0
+end
+
+function InventorySystem.GetAll(): { [string]: number }
+	assert(save, "InventorySystem not initialized")
+	return save.inventory
 end
 
 return InventorySystem

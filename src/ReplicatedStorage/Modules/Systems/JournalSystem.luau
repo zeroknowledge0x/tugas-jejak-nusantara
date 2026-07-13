@@ -16,6 +16,7 @@ export type JournalSystemApi = {
 	Record: (category: Types.JournalCategory, key: string) -> (),
 	IsLogged: (category: Types.JournalCategory, key: string) -> boolean,
 	GetCompletion: () -> number,
+	GetCategory: (category: Types.JournalCategory) -> { string },
 	OnRecord: Signal.Signal<Types.JournalCategory, string>,
 }
 
@@ -64,6 +65,18 @@ end
 function JournalSystem.GetCompletion(): number
 	assert(save, "JournalSystem not initialized")
 	return save.journal.completion
+end
+
+function JournalSystem.GetCategory(category: Types.JournalCategory): { string }
+	assert(save, "JournalSystem not initialized")
+	local out = {}
+	local t = save.journal.logged[category]
+	if t ~= nil then
+		for k in pairs(t) do
+			table.insert(out, k)
+		end
+	end
+	return out
 end
 
 function JournalSystem._recompute()

@@ -19,6 +19,8 @@ for p in glob.glob(os.path.join(ROOT, "Systems", "*.luau")):
     modules[os.path.basename(p)[:-5]] = p
 for p in glob.glob(os.path.join(ROOT, "Systems", "MiniGames", "*.luau")):
     modules[os.path.basename(p)[:-5]] = p
+for p in glob.glob(os.path.join(ROOT, "UI", "*.luau")):
+    modules[os.path.basename(p)[:-5]] = p
 modules["Data"] = os.path.join(ROOT, "Data", "Data.luau")
 modules["Game"] = os.path.join(ROOT, "Game.luau")
 
@@ -64,15 +66,54 @@ game = {
 
 -- Stub Roblox constructors that appear in data/logic so the bundle can run headless.
 local function stubCtor(name)
-    return setmetatable({ Name = name }, { __index = function() return function() end end })
+	return setmetatable({ Name = name }, { __index = function() return function() end end })
 end
 Vector3 = { new = function(x, y, z) return { x = x or 0, y = y or 0, z = z or 0 } end }
 CFrame = { new = function(...) return {} end }
-Color3 = { new = function(...) return {} end }
-UDim2 = { new = function(...) return {} end }
+Color3 = { fromRGB = function(...) return {} end, new = function(...) return {} end }
 UDim = { new = function(...) return {} end }
-Instance = { new = function(...) return stubCtor("Instance") end }
-Enum = { EasingStyle = { Quad = 0 }, EasingDirection = { Out = 0 } }
+UDim2 = { new = function(...) return {} end }
+Enum = {
+	EasingStyle = { Quad = 0 },
+	EasingDirection = { Out = 0 },
+	Font = { Gotham = 0 },
+}
+Instance = {}
+function Instance.new(class)
+	local inst = {
+		ClassName = class,
+		Name = "",
+		Visible = true,
+		Parent = nil,
+		Children = {},
+		Connections = {},
+	}
+	function inst:FindFirstChild(name)
+		for _, c in ipairs(inst.Children) do
+			if c.Name == name then return c end
+		end
+		return nil
+	end
+	function inst:GetChildren() return inst.Children end
+	function inst:Destroy() inst.Parent = nil end
+	function inst:IsA(t) return inst.ClassName == t end
+	function inst:Connect(fn) table.insert(inst.Connections, fn) end
+	local activated = { Connections = {}, Connect = function(s, fn) table.insert(s.Connections, fn) end, Fire = function(s) for _, f in ipairs(s.Connections) do f() end end }
+	local mt = {
+		__index = function(_, k)
+			if k == "Activated" then return activated end
+			return nil
+		end,
+		__newindex = function(t, k, v)
+			if k == "Parent" and type(v) == "table" and v.Children ~= nil then
+				table.insert(v.Children, t)
+			end
+			rawset(t, k, v)
+		end,
+	}
+	setmetatable(inst, mt)
+	return inst
+end
 Random = {
 	new = function(seed)
 		seed = seed or 1
@@ -91,7 +132,7 @@ Random = {
 		}
 	end,
 }
-task = { wait = function() end, spawn = function(fn) fn() end }
+task = { wait = function() end, spawn = function(fn) fn() end, delay = function(_, fn) fn() end }
 script = { Parent = { Parent = {} } }
 
 local _mods = {}
@@ -280,6 +321,26 @@ local completed = false
 MiniGameSystem.OnComplete:Connect(function(_id, _res) completed = true end)
 MiniGameSystem.Submit(mid2, Rhythm.Evaluate(inst2, inst2.pattern))
 check("MiniGameSystem submit fires OnComplete", completed == true)
+
+-- =========================================================
+-- UI SMOKE CHECKS (screens build + bind)
+-- =========================================================
+local UIController = require("UIController")
+local fakeGui = Instance.new("ScreenGui")
+UIController.Init(fakeGui)
+check("UIController builds root ScreenGui", fakeGui.ClassName == "ScreenGui")
+local QuestTracker = require("QuestTracker")
+local qt = QuestTracker.Build(fakeGui)
+check("QuestTracker builds frame", qt.ClassName == "Frame")
+QuestTracker.Refresh(qt) -- should not error even with no active quests
+local EndingSummaryUI = require("EndingSummaryUI")
+local es = EndingSummaryUI.Build(fakeGui)
+EndingSummaryUI.Show(es, "Guardian")
+check("EndingSummary shows title", es:FindFirstChild("Title").Text ~= "")
+local JournalUI = require("JournalUI")
+local jui = JournalUI.Build(fakeGui)
+JournalUI.Refresh(jui)
+check("JournalUI builds + refreshes", jui.ClassName == "Frame")
 
 print("")
 print("RESULT: passed=" .. passed .. " failed=" .. failed)

@@ -8,6 +8,8 @@
 --!   AudioManager.Sfx(name: string)
 --!   AudioManager.StopAll()
 --!   AudioManager.OnSfx: Signal(name)
+--!   AudioManager.ToggleMusic(): boolean
+--!   AudioManager.ToggleSfx(): boolean
 
 local Types = require(script.Parent.Parent.Types)
 local Signal = require(script.Parent.Parent.Util.Signal)
@@ -18,6 +20,8 @@ export type AudioManagerApi = {
 	SetAmbient: (area: Types.AreaId) -> (),
 	Sfx: (name: string) -> (),
 	StopAll: () -> (),
+	ToggleMusic: () -> boolean,
+	ToggleSfx: () -> boolean,
 	OnSfx: Signal.Signal<string>,
 }
 
@@ -26,28 +30,29 @@ AudioManager.OnSfx = Signal.new()
 
 local service: SoundService? = nil
 local currentBgm: Sound? = nil
+local musicOn = true
+local sfxOn = true
 
 function AudioManager.Init(soundService: SoundService)
 	service = soundService
 end
 
 function AudioManager.PlayBgm(area: Types.AreaId)
-	if service == nil then
+	if service == nil or not musicOn then
 		return
 	end
-	-- Asset assignments live in Data in Phase 6; here we only guard existence.
 	AudioManager.OnSfx:Fire("bgm:" .. area)
 end
 
 function AudioManager.SetAmbient(area: Types.AreaId)
-	if service == nil then
+	if service == nil or not musicOn then
 		return
 	end
 	AudioManager.OnSfx:Fire("ambient:" .. area)
 end
 
 function AudioManager.Sfx(name: string)
-	if service == nil then
+	if service == nil or not sfxOn then
 		return
 	end
 	AudioManager.OnSfx:Fire(name)
@@ -58,6 +63,16 @@ function AudioManager.StopAll()
 		currentBgm:Stop()
 		currentBgm = nil
 	end
+end
+
+function AudioManager.ToggleMusic(): boolean
+	musicOn = not musicOn
+	return musicOn
+end
+
+function AudioManager.ToggleSfx(): boolean
+	sfxOn = not sfxOn
+	return sfxOn
 end
 
 return AudioManager

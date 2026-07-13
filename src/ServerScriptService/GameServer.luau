@@ -1,28 +1,18 @@
 --! GameServer.luau (ServerScriptService)
---! Server bootstrap: loads save, inits all systems, runs core loop.
---! Entry point on the server.
+--! Server bootstrap: per-player session via the Game orchestrator.
+--! The orchestrator inits + wires ALL systems, so the core loop is consistent.
 
 local Replicated = game:GetService("ReplicatedStorage")
 local Players = game:GetService("Players")
 
 local Modules = Replicated:WaitForChild("JN"):WaitForChild("Modules")
-local Systems = Modules:WaitForChild("Systems")
 local Data = require(Modules:WaitForChild("Data"):WaitForChild("Data"))
+local Game = require(Modules:WaitForChild("Game"))
 
-local SaveSystem = require(Systems:WaitForChild("SaveSystem"))
-local SkillSystem = require(Systems:WaitForChild("SkillSystem"))
-local DialogueSystem = require(Systems:WaitForChild("DialogueSystem"))
-local QuestSystem = require(Systems:WaitForChild("QuestSystem"))
-local NPCSystem = require(Systems:WaitForChild("NPCSystem"))
-local MiniGameSystem = require(Systems:WaitForChild("MiniGameSystem"))
-local JournalSystem = require(Systems:WaitForChild("JournalSystem"))
-local InventorySystem = require(Systems:WaitForChild("InventorySystem"))
-local InteractionSystem = require(Systems:WaitForChild("InteractionSystem"))
-local AreaManager = require(Systems:WaitForChild("AreaManager"))
-local GameManager = require(Systems:WaitForChild("GameManager"))
-local AchievementSystem = require(Systems:WaitForChild("AchievementSystem"))
-local EndingSystem = require(Systems:WaitForChild("EndingSystem"))
-local NotificationSystem = require(Systems:WaitForChild("NotificationSystem"))
+local SaveSystem = require(Modules:WaitForChild("Systems"):WaitForChild("SaveSystem"))
+local AreaManager = require(Modules:WaitForChild("Systems"):WaitForChild("AreaManager"))
+local GameManager = require(Modules:WaitForChild("Systems"):WaitForChild("GameManager"))
+local NotificationSystem = require(Modules:WaitForChild("Systems"):WaitForChild("NotificationSystem"))
 
 SaveSystem.Init()
 NotificationSystem.Init()
@@ -31,35 +21,22 @@ local sessions: { [Player]: any } = {}
 
 local function startSession(player: Player)
 	local save = SaveSystem.Load(player)
-	-- Init systems with this player's save
-	SkillSystem.Init(save)
-	DialogueSystem.Init(save, Data.Dialogue)
-	QuestSystem.Init(save, Data.Quests)
-	NPCSystem.Init(save, Data.NPCs)
-	MiniGameSystem.Init(save)
-	JournalSystem.Init(save)
-	InventorySystem.Init(save)
-	InteractionSystem.Init(save)
-	AreaManager.Init(save, Data.Areas)
-	AchievementSystem.Init(save, Data.Achievements)
-	EndingSystem.Init(save, Data.Endings)
-	GameManager.Init(save)
+	local gameSession = Game.new(save, player)
+	sessions[player] = gameSession
 
-	sessions[player] = save
+	-- Rule 1: first area is open from the start.
 	AreaManager.Unlock("RumahBudaya")
 	AreaManager.Load("RumahBudaya")
 	GameManager.Start()
 
-	-- Wire skill unlocks -> notifications
-	SkillSystem.OnUnlock:Connect(function(kind, id)
-		NotificationSystem.Toast("Unlocked: " .. kind .. " / " .. id, "unlock")
-	end)
+	-- Persist on key milestones.
+	gameSession:Save()
 end
 
 local function endSession(player: Player)
-	local save = sessions[player]
-	if save ~= nil then
-		SaveSystem.Save(player, save)
+	local session = sessions[player]
+	if session ~= nil then
+		session:Save()
 		sessions[player] = nil
 	end
 end
