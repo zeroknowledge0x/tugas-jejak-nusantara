@@ -106,11 +106,14 @@ export type SaveData = {
 
 -- Dialogue
 export type DialogueEffect = {
-	skillGain: { skill: SkillId, amount: number }?,
+	skill: SkillId?, -- grants XP to a skill
+	skillXp: number?, -- amount (default 10)
 	unlock: { kind: UnlockKind, id: string }?,
 	relationship: { npc: string, delta: number }?,
 	flag: { key: string, value: boolean }?,
 	journal: { category: JournalCategory, key: string }?,
+	item: string?, -- grants an inventory item
+	itemCount: number?, -- default 1
 }
 
 export type DialogueChoice = {
@@ -127,6 +130,42 @@ export type DialogueNode = {
 	choices: { DialogueChoice }?,
 	requires: { skill: SkillId, min: number }?,
 	onEnter: string?,
+}
+
+-- Quest definition (data-driven, in Data.Quests)
+export type QuestDef = {
+	id: string,
+	kind: QuestKind,
+	title: string,
+	desc: string,
+	area: AreaId,
+	goal: number,
+	reward: {
+		item: string?,
+		count: number?,
+		skill: SkillId?,
+		skillXp: number?,
+	}?,
+	unlocksArea: AreaId?, -- Rule 1: main quest completion unlocks next area
+	miniGame: MiniGameKind?, -- optional required mini-game
+	hidden: boolean?, -- hidden quest
+	gatedBy: { completedArea: AreaId? }?, -- appears after prerequisite
+}
+
+-- Mini-game runtime instance
+export type MiniGameInstance = {
+	id: string,
+	kind: MiniGameKind,
+	cfg: table,
+	startedAt: number,
+}
+
+-- Achievement definition
+export type AchievementDef = {
+	id: string,
+	name: string,
+	desc: string,
+	test: (save: SaveData) -> boolean,
 }
 
 -- NPC

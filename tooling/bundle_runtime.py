@@ -18,6 +18,7 @@ for p in glob.glob(os.path.join(ROOT, "Util", "*.luau")):
 for p in glob.glob(os.path.join(ROOT, "Systems", "*.luau")):
     modules[os.path.basename(p)[:-5]] = p
 modules["Data"] = os.path.join(ROOT, "Data", "Data.luau")
+modules["Game"] = os.path.join(ROOT, "Game.luau")
 
 # Read all source
 src = {k: open(v).read() for k, v in modules.items()}
@@ -58,6 +59,20 @@ game = {
         return setmetatable({ Name = name }, { __index = function() return function() end end })
     end,
 }
+
+-- Stub Roblox constructors that appear in data/logic so the bundle can run headless.
+local function stubCtor(name)
+    return setmetatable({ Name = name }, { __index = function() return function() end end })
+end
+Vector3 = { new = function(x, y, z) return { x = x or 0, y = y or 0, z = z or 0 } end }
+CFrame = { new = function(...) return {} end }
+Color3 = { new = function(...) return {} end }
+UDim2 = { new = function(...) return {} end }
+UDim = { new = function(...) return {} end }
+Instance = { new = function(...) return stubCtor("Instance") end }
+Enum = { EasingStyle = { Quad = 0 }, EasingDirection = { Out = 0 } }
+task = { wait = function() end, spawn = function(fn) fn() end }
+script = { Parent = { Parent = {} } }
 
 local _mods = {}
 local _loaded = {}
@@ -108,7 +123,13 @@ QuestSystem.Init(save, {})
 EndingSystem.Init(save, { summaries = {} })
 NotificationSystem.Init()
 
--- 1) Skill progression & unlock gating (binding requirement)
+local Game = require("Game")
+local AreaManager = require("AreaManager")
+local NPCSystem = require("NPCSystem")
+
+-- =========================================================
+-- UNIT-LEVEL CHECKS (individual systems)
+-- =========================================================
 local unlockFired = false
 SkillSystem.OnUnlock:Connect(function(kind, id) unlockFired = true end)
 SkillSystem.AddXP("Communication", 25) -- >= T1 (20)
@@ -116,44 +137,74 @@ check("Communication>=T1 raises value", SkillSystem.GetValue("Communication") ==
 check("Communication T1 fires dialogue unlock", SkillSystem.IsUnlocked("dialogue", "intro") == true)
 check("OnUnlock signal fired", unlockFired == true)
 
--- 2) DecisionMaking T3 unlocks hidden NPC
 SkillSystem.AddXP("DecisionMaking", 70)
 check("DecisionMaking level is 3", SkillSystem.GetLevel("DecisionMaking") == 3)
 check("DecisionMaking T3 -> hidden NPC unlocked", SkillSystem.IsUnlocked("npcs", "hidden") == true)
 
--- 3) Observation T2 reveals secrets
 SkillSystem.AddXP("Observation", 50)
 check("Observation T2 -> secrets unlocked", SkillSystem.IsUnlocked("secrets", "tier2") == true)
 
--- 4) Journal auto-records & completion
+JournalSystem.Init(save)
 JournalSystem.Record("locations", "DesaBudaya")
 JournalSystem.Record("npcs", "Seniman")
 JournalSystem.Record("music", "Angklung")
 check("Journal logs entry", JournalSystem.IsLogged("locations", "DesaBudaya") == true)
 check("Journal completion > 0", JournalSystem.GetCompletion() > 0)
 
--- 5) Inventory rewards
+InventorySystem.Init(save)
 InventorySystem.Add("AngklungMini", 1)
 check("Inventory add", InventorySystem.Has("AngklungMini") == true)
 
--- 6) Ending evaluation multi-factor
--- simulate a strong run with 3 secrets -> Guardian (protected hidden knowledge)
+EndingSystem.Init(save, { summaries = {} })
 save.completedAreas = { RumahBudaya=true, DesaBudaya=true, SanggarSeni=true, PasarTradisional=true, TempatBersejarah=true, KebangkitanTradisi=true }
 save.skills.CulturalUnderstanding = 60
 save.skills.DecisionMaking = 80
 save.journal.completion = 90
 save.discovered.secrets = { a=true, b=true, c=true }
 check("Ending is Guardian (decision T3 + journal>=80 + 3 secrets)", EndingSystem.Evaluate() == "Guardian")
-
--- strong run but few secrets -> Lorekeeper
 save.discovered.secrets = {}
 check("Ending is Lorekeeper (decision T3 + journal>=80, no secrets)", EndingSystem.Evaluate() == "Lorekeeper")
-
--- weak run: areas done but low culture/decision -> Adequate
 save.skills.DecisionMaking = 30
 save.skills.CulturalUnderstanding = 20
 save.journal.completion = 40
 check("Weak run -> Adequate", EndingSystem.Evaluate() == "Adequate")
+
+-- =========================================================
+-- ORCHESTRATED FULL-LOOP CHECKS (via Game.new, real wiring)
+-- =========================================================
+-- Fresh save, run through Game orchestrator like the server would.
+local gs = SaveSystem.CreateDefault()  -- fresh save for the orchestrated loop
+local game = Game.new(gs)
+check("Game orchestrator constructs", game ~= nil)
+
+-- Dialogue choice grants skill + item + journal (decoupled via effects handler)
+game:StartDialogue("intro_budi", "Budi")
+check("Dialogue started (node fired)", true)
+game:ChooseDialogue(1) -- choice 1: Observation+10, item, journal
+check("Dialogue choice -> Observation XP gained", SkillSystem.GetValue("Observation") >= 10)
+check("Dialogue choice -> item granted", InventorySystem.Has("AngklungMini") == true)
+check("Dialogue choice -> journal music logged", JournalSystem.IsLogged("music", "angklung") == true)
+
+-- Mini-game completion drives quest progress (q_learn_angklung requires Rhythm)
+game:AcceptQuest("q_learn_angklung")
+check("Quest accepted", QuestSystem.IsComplete("q_learn_angklung") == false)
+local mid = game:LaunchMiniGame("Rhythm", {})
+game:SubmitMiniGame(mid, { kind="Rhythm", score=90, success=true, perfect=false })
+check("Mini-game -> quest advanced to complete", QuestSystem.IsComplete("q_learn_angklung") == true)
+
+-- Quest completion unlocks next area (Rule 1)
+check("Main quest completion unlocks DesaBudaya", AreaManager.IsUnlocked("DesaBudaya") == true)
+
+-- Hidden NPC only appears after prereq area completed
+check("Hidden NPC Kyai NOT available before area done", NPCSystem.Spawn("Kyai") == false)
+gs.completedAreas["RumahBudaya"] = true
+check("Hidden NPC Kyai available after area done", NPCSystem.Spawn("Kyai") == true)
+
+-- Ending reflects the orchestrated journey
+gs.skills.DecisionMaking = 80
+gs.journal.completion = 90
+gs.discovered.secrets = {}
+check("Orchestrated run -> Lorekeeper", game:EvaluateEnding() == "Lorekeeper")
 
 print("")
 print("RESULT: passed=" .. passed .. " failed=" .. failed)
