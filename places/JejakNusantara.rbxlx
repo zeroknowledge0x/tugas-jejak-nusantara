@@ -1,0 +1,3756 @@
+<roblox version="4">
+  <Item class="Lighting" referent="0">
+    <Properties>
+      <string name="Name">Lighting</string>
+    </Properties>
+  </Item>
+  <Item class="ReplicatedStorage" referent="1">
+    <Properties>
+      <string name="Name">ReplicatedStorage</string>
+    </Properties>
+    <Item class="Folder" referent="2">
+      <Properties>
+        <string name="Name">JN</string>
+      </Properties>
+      <Item class="Folder" referent="3">
+        <Properties>
+          <string name="Name">Modules</string>
+        </Properties>
+        <Item class="Folder" referent="4">
+          <Properties>
+            <string name="Name">Data</string>
+          </Properties>
+          <Item class="ModuleScript" referent="5">
+            <Properties>
+              <string name="Name">Data</string>
+              <string name="Source"><![CDATA[--! Data.luau (content layer)
+--! All narrative/content lives here as data. Phase 6: full 5-level expansion,
+--! faithful to the GDD PDFs (rhythm L1, dance L2, negotiation L3, history L4,
+--! revival finale L5). Each level carries story, NPCs, dialogue, quests,
+--! mini-game configs, secrets, and journal entries.
+
+local Types = require(script.Parent.Types)
+
+local Data = {}
+
+-- =========================================================
+-- LEVEL 1 — Rumah Budaya (Angklung / Rhythm / Observation)
+-- =========================================================
+Data.NPCs = {
+	Budi = {
+		id = "Budi",
+		name = "Budi",
+		personality = "Hangat, sabar, penuh tawa. Pengrajin angklung desa.",
+		homeArea = "RumahBudaya",
+		relationshipStart = 10,
+		teaching = "Laras angklung: nada diatur dari ruang tabung bambu.",
+		quests = { "q_learn_angklung" },
+		reactions = { happy = "Wah, kamu cepat tangkap!", neutral = "Coba lagi, pelan-pelan." },
+		schedule = {
+			{ from = 6, to = 12, position = Vector3.new(10, 0, 0), activity = "menganyam" },
+			{ from = 12, to = 18, position = Vector3.new(20, 0, 0), activity = "mengajar" },
+		},
+	},
+	IbuSari = {
+		id = "IbuSari",
+		name = "Ibu Sari",
+		personality = "Ramah, suka bercerita soal asal-usul desa.",
+		homeArea = "RumahBudaya",
+		relationshipStart = 5,
+		teaching = "Rumah budaya menyimpan memori leluhur.",
+		quests = { "q_listen_story" },
+		reactions = { neutral = "Duduklah, anak muda." },
+	},
+	Kyai = {
+		id = "Kyai",
+		name = "Kyai",
+		personality = "Bijaksana, sedikit misterius. Penjaga rumah budaya.",
+		homeArea = "RumahBudaya",
+		relationshipStart = 0,
+		teaching = "Sejarah adalah jejak yang bicara jika kita mau mengamati.",
+		appearanceGate = { completedArea = "RumahBudaya" },
+		quests = { "q_hidden_scroll" },
+		reactions = { neutral = "Kamu sudah siap mendengar yang tersembunyi?" },
+	},
+}
+
+Data.Dialogue = {
+	intro_budi = {
+		id = "intro_budi",
+		npc = "Budi",
+		speaker = "NPC",
+		text = "Halo! Mau belajar angklung? Ikuti iramanya.",
+		choices = {
+			{
+				text = "Ajari saya! (Observation +10, dapat AngklungMini)",
+				next = "budi_teach",
+				effect = {
+					skill = "Observation",
+					skillXp = 10,
+					item = "AngklungMini",
+					journal = { category = "music", key = "angklung" },
+				},
+			},
+			{ text = "Nanti saja.", next = nil },
+		},
+	},
+	budi_teach = {
+		id = "budi_teach",
+		npc = "Budi",
+		speaker = "NPC",
+		text = "Bagus! Sekarang mainkan irama sederhana di alat ini.",
+		choices = nil,
+	},
+	ibu_story = {
+		id = "ibu_story",
+		npc = "IbuSari",
+		speaker = "NPC",
+		text = "Desa ini dulu riuh dengan gamelan tiap panen.",
+		choices = {
+			{
+				text = "Ceritakan lagi! (CulturalUnderstanding +10)",
+				next = nil,
+				effect = {
+					skill = "CulturalUnderstanding",
+					skillXp = 10,
+					journal = { category = "history", key = "desa_panen" },
+				},
+			},
+		},
+	},
+	kyai_secret = {
+		id = "kyai_secret",
+		npc = "Kyai",
+		speaker = "NPC",
+		text = "Ada naskah tersembunyi. Hanya yang sungguh mencari yang boleh tahu.",
+		requires = { skill = "DecisionMaking", min = 70 },
+		choices = {
+			{
+				text = "Saya akan menjaganya. (flag: protectKnowledge)",
+				next = nil,
+				effect = { flag = { key = "protectKnowledge", value = true } },
+			},
+		},
+	},
+}
+
+Data.Quests = {
+	q_learn_angklung = {
+		id = "q_learn_angklung",
+		kind = "Main",
+		title = "Belajar Angklung",
+		area = "RumahBudaya",
+		desc = "Mainkan irama angklung bersama Budi.",
+		goal = 1,
+		miniGame = "Rhythm",
+		reward = { item = "AngklungMini", count = 1, skill = "CulturalUnderstanding", skillXp = 15 },
+		unlocksArea = "DesaBudaya",
+	},
+	q_listen_story = {
+		id = "q_listen_story",
+		kind = "Side",
+		title = "Kisah Desa",
+		area = "RumahBudaya",
+		desc = "Dengarkan cerita Ibu Sari.",
+		goal = 1,
+		reward = { skill = "CulturalUnderstanding", skillXp = 10 },
+	},
+	q_observe_courtyard = {
+		id = "q_observe_courtyard",
+		kind = "Exploration",
+		title = "Amati Halaman",
+		area = "RumahBudaya",
+		desc = "Temukan 3 benda unik di halaman rumah budaya.",
+		goal = 3,
+		miniGame = "Observation",
+		reward = { skill = "Observation", skillXp = 10 },
+	},
+	q_hidden_scroll = {
+		id = "q_hidden_scroll",
+		kind = "Hidden",
+		title = "Naskah Tersembunyi",
+		area = "RumahBudaya",
+		desc = "Temukan naskah yang dijaga Kyai.",
+		goal = 1,
+		hidden = true,
+		gatedBy = { completedArea = "RumahBudaya" },
+		reward = { item = "NaskahKuno", count = 1 },
+	},
+}
+
+-- =========================================================
+-- LEVEL 2 — Sanggar Seni (Traditional Dance / Movement)
+-- =========================================================
+Data.NPCs.Seniman = {
+	id = "Seniman",
+	name = "Seniman",
+	personality = "Ekspresif, disiplin, mencintai gerak.",
+	homeArea = "SanggarSeni",
+	relationshipStart = 5,
+	teaching = "Tari bukan sekadar gerak, tapi narasi tubuh.",
+	quests = { "q_learn_dance" },
+	reactions = { happy = "Gerakmu mulai hidup!", neutral = "Rasakan iramanya." },
+}
+Data.Dialogue.dance_intro = {
+	id = "dance_intro",
+	npc = "Seniman",
+	speaker = "NPC",
+	text = "Mari belajar langkah tari tradisi. Ikuti polanya.",
+	choices = {
+		{ text = "Ayo! (Communication +10)", next = nil, effect = { skill = "Communication", skillXp = 10 } },
+	},
+}
+Data.Quests.q_learn_dance = {
+	id = "q_learn_dance",
+	kind = "Main",
+	title = "Tarian Tradisi",
+	area = "SanggarSeni",
+	desc = "Praktikkan urutan gerak tari bersama Seniman.",
+	goal = 1,
+	miniGame = "Dance",
+	reward = { item = "Selendang", count = 1, skill = "CulturalUnderstanding", skillXp = 15 },
+	unlocksArea = "PasarTradisional",
+}
+Data.Quests.q_dance_rehearsal = {
+	id = "q_dance_rehearsal",
+	kind = "Npc",
+	title = "Latihan Bersama",
+	area = "SanggarSeni",
+	desc = "Selesaikan 2 kali latihan tari.",
+	goal = 2,
+	miniGame = "Dance",
+	reward = { skill = "CulturalUnderstanding", skillXp = 10 },
+}
+
+-- =========================================================
+-- LEVEL 3 — Pasar Tradisional (Negotiation / Food / Economy)
+-- =========================================================
+Data.NPCs.Pedagang = {
+	id = "Pedagang",
+	name = "Pedagang",
+	personality = "Cerdik, ramah, pandai menawar.",
+	homeArea = "PasarTradisional",
+	relationshipStart = 5,
+	teaching = "Harga adalah seni; adil bagi penjual dan pembeli.",
+	quests = { "q_negotiate" },
+	reactions = { happy = "Transaksi yang saling menguntungkan!", neutral = "Berapa kau sanggup bayar?" },
+}
+Data.Dialogue.market_intro = {
+	id = "market_intro",
+	npc = "Pedagang",
+	speaker = "NPC",
+	text = "Mau beli kerajinan? Kita bisa sepakat.",
+	choices = {
+		{
+			text = "Tawar dengan bijak. (DecisionMaking +10)",
+			next = nil,
+			effect = { skill = "DecisionMaking", skillXp = 10, journal = { category = "food", key = "makanan_pasar" } },
+		},
+	},
+}
+Data.Quests.q_negotiate = {
+	id = "q_negotiate",
+	kind = "Main",
+	title = "Tawar Menawar",
+	area = "PasarTradisional",
+	desc = "Capai harga adil dengan Pedagang.",
+	goal = 1,
+	miniGame = "Negotiation",
+	reward = { item = "KerajinanTangan", count = 1, skill = "Communication", skillXp = 15 },
+	unlocksArea = "TempatBersejarah",
+}
+Data.Quests.q_find_food = {
+	id = "q_find_food",
+	kind = "Exploration",
+	title = "Cicipi Kuliner",
+	area = "PasarTradisional",
+	desc = "Temukan 3 makanan tradisional di pasar.",
+	goal = 3,
+	reward = { skill = "CulturalUnderstanding", skillXp = 10 },
+}
+
+-- =========================================================
+-- LEVEL 4 — Tempat Bersejarah (Puzzles / Observation)
+-- =========================================================
+Data.NPCs.PenjagaSejarah = {
+	id = "PenjagaSejarah",
+	name = "Penjaga Sejarah",
+	personality = "Tenang, berwibawa, menjaga kebenaran masa lalu.",
+	homeArea = "TempatBersejarah",
+	relationshipStart = 5,
+	teaching = "Simbol tersembunyi menuntun pada kisah yang hilang.",
+	quests = { "q_history_puzzle" },
+	reactions = { neutral = "Amati dinding ini baik-baik." },
+}
+Data.Quests.q_history_puzzle = {
+	id = "q_history_puzzle",
+	kind = "Main",
+	title = "Rekonstruksi Sejarah",
+	area = "TempatBersejarah",
+	desc = "Susun peristiwa bersejarah ke urutan yang benar.",
+	goal = 1,
+	miniGame = "HistoryPuzzle",
+	reward = { item = "ArtefakKuno", count = 1, skill = "ProblemSolving", skillXp = 15 },
+	unlocksArea = "KebangkitanTradisi",
+}
+Data.Quests.q_find_symbols = {
+	id = "q_find_symbols",
+	kind = "Exploration",
+	title = "Simbol Tersembunyi",
+	area = "TempatBersejarah",
+	desc = "Temukan 4 simbol terukir di situs.",
+	goal = 4,
+	miniGame = "Observation",
+	reward = { skill = "Observation", skillXp = 10 },
+}
+
+-- =========================================================
+-- LEVEL 5 — Kebangkitan Tradisi (Finale / uses everything)
+-- =========================================================
+Data.NPCs.KepalaDesa = {
+	id = "KepalaDesa",
+	name = "Kepala Desa",
+	personality = "Bijak, menggalang persatuan warga.",
+	homeArea = "KebangkitanTradisi",
+	relationshipStart = 10,
+	teaching = "Tradisi hidup bila diturunkan, bukan disimpan.",
+	quests = { "q_revival" },
+}
+Data.Quests.q_revival = {
+	id = "q_revival",
+	kind = "Main",
+	title = "Kebangkitan Tradisi",
+	area = "KebangkitanTradisi",
+	desc = "Satukan warga dan pentaskan tradisi yang dihidupkan kembali.",
+	goal = 1,
+	miniGame = "CultureActivity",
+	reward = { item = "MahkotaBudaya", count = 1, skill = "CulturalUnderstanding", skillXp = 20 },
+	-- Rule 5: completing the final main quest triggers the ending (no further area)
+}
+
+-- =========================================================
+-- Mini-game configs (per quest/area)
+-- =========================================================
+Data.MiniGames = {
+	q_learn_angklung = { kind = "Rhythm", cfg = { beats = 6, seed = 11 } },
+	q_observe_courtyard = {
+		kind = "Observation",
+		cfg = { targets = { "Prasasti", "GamelanTua", "UkiranPintu" }, distractors = { "BatuBiasa" } },
+	},
+	q_learn_dance = { kind = "Dance", cfg = { steps = 5, seed = 22 } },
+	q_dance_rehearsal = { kind = "Dance", cfg = { steps = 4, seed = 33 } },
+	q_negotiate = { kind = "Negotiation", cfg = { fairPrice = 5000 } },
+	q_find_food = {
+		kind = "Observation",
+		cfg = { targets = { "Sate", "KueTradisional", "MinumanHerbal" }, distractors = { "MakananModern" } },
+	},
+	q_history_puzzle = {
+		kind = "HistoryPuzzle",
+		cfg = {
+			events = {
+				{ id = 1, year = 1600 },
+				{ id = 2, year = 1750 },
+				{ id = 3, year = 1900 },
+				{ id = 4, year = 1945 },
+			},
+		},
+	},
+	q_find_symbols = {
+		kind = "Observation",
+		cfg = { targets = { "Matahari", "Naga", "Bunga", "Perahu" }, distractors = { "Coretan" } },
+	},
+	q_revival = {
+		kind = "CultureActivity",
+		cfg = { steps = { "KumpulkanWarga", "PentaskanTari", "MainkanGamelan", "BagikanKisah" } },
+	},
+}
+
+-- =========================================================
+-- Areas
+-- =========================================================
+Data.Areas = {
+	RumahBudaya = { id = "RumahBudaya", name = "Rumah Budaya", music = "ambient_culture" },
+	DesaBudaya = { id = "DesaBudaya", name = "Desa Budaya", music = "ambient_village" },
+	SanggarSeni = { id = "SanggarSeni", name = "Sanggar Seni", music = "ambient_art" },
+	PasarTradisional = { id = "PasarTradisional", name = "Pasar Tradisional", music = "ambient_market" },
+	TempatBersejarah = { id = "TempatBersejarah", name = "Tempat Bersejarah", music = "ambient_history" },
+	KebangkitanTradisi = { id = "KebangkitanTradisi", name = "Kebangkitan Tradisi", music = "ambient_finale" },
+}
+
+-- =========================================================
+-- Achievements
+-- =========================================================
+Data.Achievements = {
+	first_step = {
+		id = "first_step",
+		name = "Langkah Pertama",
+		desc = "Selesaikan satu quest.",
+		test = function(s)
+			for _ in pairs(s.quests.completed) do
+				return true
+			end
+			return false
+		end,
+	},
+	culture_scholar = {
+		id = "culture_scholar",
+		name = "Cendekia Budaya",
+		desc = "CulturalUnderstanding mencapai T2.",
+		test = function(s)
+			return (s.skills.CulturalUnderstanding or 0) >= Types.Constants.SKILL_T2
+		end,
+	},
+	rhythm_master = {
+		id = "rhythm_master",
+		name = "Mahir Angklung",
+		desc = "Menang mini-game Rhythm sempurna.",
+		test = function(s)
+			return s.achievements.rhythm_master == true
+		end,
+	},
+	guardian = {
+		id = "guardian",
+		name = "Penjaga Jejak",
+		desc = "Lindungi naskah tersembunyi.",
+		test = function(s)
+			return s.endingFlags.protectKnowledge == true
+		end,
+	},
+}
+
+-- =========================================================
+-- Endings
+-- =========================================================
+Data.Endings = {
+	summaries = {
+		Success = { title = "Pewaris Budaya", desc = "Kamu membangkitkan tradisi dan menyatukan desa." },
+		Adequate = { title = "Pengembara Bisu", desc = "Kamu lewat, tapi banyak yang tak kau pahami." },
+		Explorative = { title = "Penjelajah Rasa", desc = "Kamu menjelajah luas namun dangkal." },
+		Guardian = { title = "Penjaga Jejak", desc = "Kamu melindungi rahasia yang seharusnya terjaga." },
+		Lorekeeper = { title = "Penyimpan Kisah", desc = "Kau jadi penutur kisah nusantara." },
+	},
+}
+
+return Data
+]]></string>
+            </Properties>
+          </Item>
+        </Item>
+        <Item class="ModuleScript" referent="6">
+          <Properties>
+            <string name="Name">Game</string>
+            <string name="Source"><![CDATA[--! Game.luau
+--! Central orchestrator. Requires all systems (no cycles: systems only depend on
+--! Types/Util). Wires cross-system effects so the core loop actually runs:
+--!   dialogue choice -> skill/relationship/journal/flag/inventory
+--!   mini-game complete -> skill XP + quest progress + reward + journal
+--!   quest complete -> area unlock (Rule 1) + reward + notification
+--!   skill level-up -> unlocks (binding requirement)
+--! This is the real game logic, shared by GameServer and the runtime test.
+
+local Types = require(script.Parent.Types)
+local Data = require(script.Parent.Data.Data)
+
+local SaveSystem = require(script.Parent.Systems.SaveSystem)
+local SkillSystem = require(script.Parent.Systems.SkillSystem)
+local DialogueSystem = require(script.Parent.Systems.DialogueSystem)
+local QuestSystem = require(script.Parent.Systems.QuestSystem)
+local NPCSystem = require(script.Parent.Systems.NPCSystem)
+local MiniGameSystem = require(script.Parent.Systems.MiniGameSystem)
+local JournalSystem = require(script.Parent.Systems.JournalSystem)
+local InventorySystem = require(script.Parent.Systems.InventorySystem)
+local InteractionSystem = require(script.Parent.Systems.InteractionSystem)
+local AreaManager = require(script.Parent.Systems.AreaManager)
+local GameManager = require(script.Parent.Systems.GameManager)
+local AchievementSystem = require(script.Parent.Systems.AchievementSystem)
+local EndingSystem = require(script.Parent.Systems.EndingSystem)
+local NotificationSystem = require(script.Parent.Systems.NotificationSystem)
+local AudioManager = require(script.Parent.Systems.AudioManager)
+
+local Game = {}
+Game.__index = Game
+
+-- Skill XP granted per mini-game success (by kind). Tunable in Data.
+local MiniGameSkill: { [Types.MiniGameKind]: Types.SkillId } = {
+	Rhythm = "CulturalUnderstanding",
+	Dance = "CulturalUnderstanding",
+	Negotiation = "Communication",
+	HistoryPuzzle = "ProblemSolving",
+	Observation = "Observation",
+	PatternMatching = "ProblemSolving",
+	HiddenObject = "Observation",
+	CultureActivity = "CulturalUnderstanding",
+}
+
+local function new(save: Types.SaveData, player: Player?)
+	local self = setmetatable({}, Game)
+
+	-- Init all systems with this save
+	SaveSystem.Init()
+	SkillSystem.Init(save)
+	DialogueSystem.Init(save, Data.Dialogue, self:_effectsHandler())
+	QuestSystem.Init(save, Data.Quests)
+	NPCSystem.Init(save, Data.NPCs)
+	MiniGameSystem.Init(save)
+	JournalSystem.Init(save)
+	InventorySystem.Init(save)
+	InteractionSystem.Init(save)
+	AreaManager.Init(save, Data.Areas)
+	AchievementSystem.Init(save, Data.Achievements)
+	EndingSystem.Init(save, Data.Endings)
+	GameManager.Init(save)
+	NotificationSystem.Init()
+	AudioManager.Init(game:GetService("SoundService"))
+
+	self.save = save
+	self.player = player
+
+	self:_wire()
+	return self
+end
+
+function Game.new(save: Types.SaveData, player: Player?)
+	return new(save, player)
+end
+
+-- Builds the effects handler injected into DialogueSystem (keeps it decoupled).
+function Game:_effectsHandler()
+	local self = self
+	return {
+		ApplySkillGain = function(skill: Types.SkillId, amount: number)
+			SkillSystem.AddXP(skill, amount)
+		end,
+		ApplyUnlock = function(kind: Types.UnlockKind, id: string)
+			self.save.unlocked[kind][id] = true
+			SkillSystem.OnUnlock:Fire(kind, id)
+		end,
+		ApplyRelationship = function(npc: string, delta: number)
+			NPCSystem.SetRelationship(npc, delta)
+		end,
+		ApplyFlag = function(key: string, value: boolean)
+			self.save.endingFlags[key] = value
+		end,
+		ApplyJournal = function(category: Types.JournalCategory, key: string)
+			JournalSystem.Record(category, key)
+			self.save.discovered[category][key] = true
+		end,
+		ApplyInventory = function(item: string, count: number)
+			InventorySystem.Add(item, count)
+		end,
+	}
+end
+
+function Game:_wire()
+	-- Skill unlocks -> notification
+	SkillSystem.OnUnlock:Connect(function(kind, id)
+		NotificationSystem.Toast("Unlock: " .. kind .. " / " .. id, "unlock")
+		AudioManager.Sfx("unlock")
+	end)
+
+	-- Mini-game complete -> rewards
+	MiniGameSystem.OnComplete:Connect(function(_instanceId, result: Types.MiniGameResult)
+		local skill = MiniGameSkill[result.kind] or "CulturalUnderstanding"
+		local xp = math.floor(result.score / 10) -- 0..10
+		if result.success then
+			xp += 5
+		end
+		SkillSystem.AddXP(skill, xp)
+		JournalSystem.Record("discoveries", result.kind .. "_played")
+		NotificationSystem.Toast(
+			result.kind .. ": " .. (result.success and "sukses" or "gagal") .. " (" .. result.score .. ")",
+			result.success and "good" or "bad"
+		)
+		AudioManager.Sfx(result.success and "minigame_win" or "minigame_lose")
+		-- Advance any matching quest progress
+		self:_advanceMiniGameQuests(result.kind, result.success)
+	end)
+
+	-- Quest complete -> reward + area unlock (Rule 1) + journal
+	QuestSystem.OnComplete:Connect(function(id, _kind)
+		local def = Data.Quests[id]
+		if def ~= nil and def.reward ~= nil then
+			if def.reward.item ~= nil then
+				InventorySystem.Add(def.reward.item, def.reward.count or 1)
+			end
+			if def.reward.skill ~= nil then
+				SkillSystem.AddXP(def.reward.skill, def.reward.skillXp or 0)
+			end
+		end
+		JournalSystem.Record("completedQuests", id)
+		NotificationSystem.Toast("Quest selesai: " .. id, "quest")
+		AudioManager.Sfx("quest_done")
+		-- Rule 1: completing a main quest unlocks the next area
+		if def ~= nil and def.unlocksArea ~= nil then
+			AreaManager.Unlock(def.unlocksArea)
+			AreaManager.Load(def.unlocksArea)
+			GameManager.AdvanceArea(def.unlocksArea)
+		end
+		-- Achievement checks
+		for aid, _ in pairs(Data.Achievements) do
+			if AchievementSystem.Check(aid) then
+				AchievementSystem.Unlock(aid)
+			end
+		end
+	end)
+
+	-- NPC relationship milestones
+	NPCSystem.OnRelationship:Connect(function(npc, value)
+		if value >= 100 then
+			NotificationSystem.Toast(npc .. " memandangmu sebagai sahabat budaya", "friend")
+		end
+	end)
+
+	-- Achievement unlock -> notification
+	AchievementSystem.OnUnlock:Connect(function(id)
+		NotificationSystem.Achievement(id, id)
+		AudioManager.Sfx("achievement")
+	end)
+end
+
+function Game:_advanceMiniGameQuests(kind: Types.MiniGameKind, success: boolean)
+	if not success then
+		return
+	end
+	for id, q in pairs(self.save.quests.active) do
+		local def = Data.Quests[id]
+		if def ~= nil and def.miniGame == kind then
+			QuestSystem.Update(id, 1)
+		end
+	end
+end
+
+-- Public high-level actions used by UI / server
+function Game:StartDialogue(nodeId: string, npc: string)
+	DialogueSystem.Start(nodeId, npc)
+end
+
+function Game:ChooseDialogue(optionIndex: number)
+	DialogueSystem.Choose(optionIndex)
+end
+
+function Game:LaunchMiniGame(kind: Types.MiniGameKind, cfg: table): string
+	AudioManager.Sfx("minigame_start")
+	return MiniGameSystem.Launch(kind, cfg)
+end
+
+function Game:SubmitMiniGame(instanceId: string, result: Types.MiniGameResult)
+	MiniGameSystem.Submit(instanceId, result)
+end
+
+function Game:AcceptQuest(id: string)
+	QuestSystem.Accept(id)
+end
+
+function Game:Interact(objectId: string)
+	if self.player ~= nil then
+		InteractionSystem.Prompt(self.player, objectId)
+	else
+		InteractionSystem.Prompt(game:GetService("Players"):GetPlayers()[1], objectId)
+	end
+end
+
+function Game:SpawnNPC(id: string): boolean
+	return NPCSystem.Spawn(id)
+end
+
+function Game:EvaluateEnding(): Types.EndingId
+	return EndingSystem.Evaluate()
+end
+
+function Game:GetSave(): Types.SaveData
+	return self.save
+end
+
+function Game:Save()
+	if self.player ~= nil then
+		SaveSystem.Save(self.player, self.save)
+	end
+end
+
+return Game
+]]></string>
+          </Properties>
+        </Item>
+        <Item class="Folder" referent="7">
+          <Properties>
+            <string name="Name">Systems</string>
+          </Properties>
+          <Item class="ModuleScript" referent="8">
+            <Properties>
+              <string name="Name">AchievementSystem</string>
+              <string name="Source"><![CDATA[--! AchievementSystem.luau
+--! Evaluates achievement definitions against save state.
+--! Public API:
+--!   AchievementSystem.Init(save: SaveData, defs: {[string]:any})
+--!   AchievementSystem.Check(id: string): boolean
+--!   AchievementSystem.Unlock(id: string)
+--!   AchievementSystem.IsUnlocked(id: string): boolean
+--!   AchievementSystem.OnUnlock: Signal(id)
+
+local Types = require(script.Parent.Parent.Types)
+local Signal = require(script.Parent.Parent.Util.Signal)
+
+export type AchievementSystemApi = {
+	Init: (save: Types.SaveData, defs: { [string]: any }) -> (),
+	Check: (id: string) -> boolean,
+	Unlock: (id: string) -> (),
+	IsUnlocked: (id: string) -> boolean,
+	OnUnlock: Signal.Signal<string>,
+}
+
+local AchievementSystem = {} :: AchievementSystemApi
+AchievementSystem.OnUnlock = Signal.new()
+
+local save: Types.SaveData? = nil
+local defs: { [string]: any }? = nil
+
+function AchievementSystem.Init(s: Types.SaveData, d: { [string]: any })
+	save = s
+	defs = d
+end
+
+function AchievementSystem.IsUnlocked(id: string): boolean
+	assert(save, "AchievementSystem not initialized")
+	return save.achievements[id] == true
+end
+
+function AchievementSystem.Check(id: string): boolean
+	assert(save, "AchievementSystem not initialized")
+	assert(defs, "AchievementSystem not initialized")
+	local def = defs[id]
+	if def == nil or def.test == nil then
+		return false
+	end
+	return def.test(save)
+end
+
+function AchievementSystem.Unlock(id: string)
+	assert(save, "AchievementSystem not initialized")
+	if save.achievements[id] then
+		return
+	end
+	save.achievements[id] = true
+	AchievementSystem.OnUnlock:Fire(id)
+end
+
+return AchievementSystem
+]]></string>
+            </Properties>
+          </Item>
+          <Item class="ModuleScript" referent="9">
+            <Properties>
+              <string name="Name">AreaManager</string>
+              <string name="Source"><![CDATA[--! AreaManager.luau
+--! Loads/unloads area content; tracks world living-state & unlocks.
+--! Public API:
+--!   AreaManager.Init(save: SaveData, data: {[any]:any})
+--!   AreaManager.Load(area: AreaId)
+--!   AreaManager.Unload(area: AreaId)
+--!   AreaManager.IsUnlocked(area: AreaId): boolean
+--!   AreaManager.Unlock(area: AreaId)
+--!   AreaManager.GetState(area: AreaId): AreaState?
+--!   AreaManager.OnLoaded: Signal(area), OnUnlocked: Signal(area)
+
+local Types = require(script.Parent.Parent.Types)
+local Signal = require(script.Parent.Parent.Util.Signal)
+
+export type AreaManagerApi = {
+	Init: (save: Types.SaveData, data: { [any]: any }) -> (),
+	Load: (area: Types.AreaId) -> (),
+	Unload: (area: Types.AreaId) -> (),
+	IsUnlocked: (area: Types.AreaId) -> boolean,
+	Unlock: (area: Types.AreaId) -> (),
+	GetState: (area: Types.AreaId) -> Types.AreaState?,
+	OnLoaded: Signal.Signal<Types.AreaId>,
+	OnUnlocked: Signal.Signal<Types.AreaId>,
+}
+
+local AreaManager = {} :: AreaManagerApi
+AreaManager.OnLoaded = Signal.new()
+AreaManager.OnUnlocked = Signal.new()
+
+local save: Types.SaveData? = nil
+local defs: { [any]: any }? = nil
+local loaded: { [Types.AreaId]: boolean } = {}
+
+function AreaManager.Init(s: Types.SaveData, d: { [any]: any })
+	save = s
+	defs = d
+end
+
+function AreaManager.IsUnlocked(area: Types.AreaId): boolean
+	assert(save, "AreaManager not initialized")
+	if save.areaProgress[area] == nil then
+		return area == "RumahBudaya"
+	end
+	return save.areaProgress[area].unlocked
+end
+
+function AreaManager.Unlock(area: Types.AreaId)
+	assert(save, "AreaManager not initialized")
+	if save.areaProgress[area] == nil then
+		save.areaProgress[area] = {
+			id = area,
+			unlocked = false,
+			entered = false,
+			mainComplete = false,
+			secretsFound = 0,
+			secretsTotal = 0,
+			optionalComplete = 0,
+			optionalTotal = 0,
+		}
+	end
+	save.areaProgress[area].unlocked = true
+	AreaManager.OnUnlocked:Fire(area)
+end
+
+function AreaManager.Load(area: Types.AreaId)
+	assert(save, "AreaManager not initialized")
+	if not AreaManager.IsUnlocked(area) then
+		return
+	end
+	loaded[area] = true
+	if save.areaProgress[area] ~= nil then
+		save.areaProgress[area].entered = true
+	end
+	AreaManager.OnLoaded:Fire(area)
+end
+
+function AreaManager.Unload(area: Types.AreaId)
+	loaded[area] = false
+end
+
+function AreaManager.GetState(area: Types.AreaId): Types.AreaState?
+	assert(save, "AreaManager not initialized")
+	return save.areaProgress[area]
+end
+
+function AreaManager.GetStates(): { [Types.AreaId]: Types.AreaState }
+	assert(save, "AreaManager not initialized")
+	return save.areaProgress
+end
+
+return AreaManager
+]]></string>
+            </Properties>
+          </Item>
+          <Item class="ModuleScript" referent="10">
+            <Properties>
+              <string name="Name">AudioManager</string>
+              <string name="Source"><![CDATA[--! AudioManager.luau
+--! Ambient loops, area BGM, NPC/SFX cues, mini-game & reward feedback.
+--! Graceful no-op if assets absent (headless-safe).
+--! Public API:
+--!   AudioManager.Init(soundService: SoundService)
+--!   AudioManager.PlayBgm(area: AreaId)
+--!   AudioManager.SetAmbient(area: AreaId)
+--!   AudioManager.Sfx(name: string)
+--!   AudioManager.StopAll()
+--!   AudioManager.OnSfx: Signal(name)
+--!   AudioManager.ToggleMusic(): boolean
+--!   AudioManager.ToggleSfx(): boolean
+
+local Types = require(script.Parent.Parent.Types)
+local Signal = require(script.Parent.Parent.Util.Signal)
+
+export type AudioManagerApi = {
+	Init: (soundService: SoundService) -> (),
+	PlayBgm: (area: Types.AreaId) -> (),
+	SetAmbient: (area: Types.AreaId) -> (),
+	Sfx: (name: string) -> (),
+	StopAll: () -> (),
+	ToggleMusic: () -> boolean,
+	ToggleSfx: () -> boolean,
+	OnSfx: Signal.Signal<string>,
+}
+
+local AudioManager = {} :: AudioManagerApi
+AudioManager.OnSfx = Signal.new()
+
+local service: SoundService? = nil
+local currentBgm: Sound? = nil
+local musicOn = true
+local sfxOn = true
+
+function AudioManager.Init(soundService: SoundService)
+	service = soundService
+end
+
+function AudioManager.PlayBgm(area: Types.AreaId)
+	if service == nil or not musicOn then
+		return
+	end
+	AudioManager.OnSfx:Fire("bgm:" .. area)
+end
+
+function AudioManager.SetAmbient(area: Types.AreaId)
+	if service == nil or not musicOn then
+		return
+	end
+	AudioManager.OnSfx:Fire("ambient:" .. area)
+end
+
+function AudioManager.Sfx(name: string)
+	if service == nil or not sfxOn then
+		return
+	end
+	AudioManager.OnSfx:Fire(name)
+end
+
+function AudioManager.StopAll()
+	if currentBgm ~= nil then
+		currentBgm:Stop()
+		currentBgm = nil
+	end
+end
+
+function AudioManager.ToggleMusic(): boolean
+	musicOn = not musicOn
+	return musicOn
+end
+
+function AudioManager.ToggleSfx(): boolean
+	sfxOn = not sfxOn
+	return sfxOn
+end
+
+return AudioManager
+]]></string>
+            </Properties>
+          </Item>
+          <Item class="ModuleScript" referent="11">
+            <Properties>
+              <string name="Name">DialogueSystem</string>
+              <string name="Source"><![CDATA[--! DialogueSystem.luau
+--! Drives branching dialogue trees with Rule-3 gating & choice effects.
+--! NPCs never behave like quiz terminals: choices have real consequences.
+--! Public API:
+--!   DialogueSystem.Init(save: SaveData, data: table, effects: DialogueEffects?)
+--!   DialogueSystem.Start(nodeId: string, npc: string)
+--!   DialogueSystem.Choose(optionIndex: number)
+--!   DialogueSystem.IsNodeAvailable(node): boolean
+--!   DialogueSystem.OnNode: Signal(node, npc)
+--!   DialogueSystem.OnEnd: Signal(npc)
+
+local Types = require(script.Parent.Parent.Types)
+local Signal = require(script.Parent.Parent.Util.Signal)
+
+export type DialogueEffects = {
+	ApplySkillGain: (skill: Types.SkillId, amount: number) -> (),
+	ApplyUnlock: (kind: Types.UnlockKind, id: string) -> (),
+	ApplyRelationship: (npc: string, delta: number) -> (),
+	ApplyFlag: (key: string, value: boolean) -> (),
+	ApplyJournal: (category: Types.JournalCategory, key: string) -> (),
+	ApplyInventory: (item: string, count: number) -> (),
+}
+
+export type DialogueSystemApi = {
+	Init: (save: Types.SaveData, data: { [string]: Types.DialogueNode }, effects: DialogueEffects?) -> (),
+	Start: (nodeId: string, npc: string) -> (),
+	Choose: (optionIndex: number) -> (),
+	IsNodeAvailable: (node: Types.DialogueNode) -> boolean,
+	OnNode: Signal.Signal<Types.DialogueNode, string>,
+	OnEnd: Signal.Signal<string>,
+}
+
+local DialogueSystem = {} :: DialogueSystemApi
+DialogueSystem.OnNode = Signal.new()
+DialogueSystem.OnEnd = Signal.new()
+
+local save: Types.SaveData? = nil
+local tree: { [string]: Types.DialogueNode }? = nil
+local fx: DialogueEffects? = nil
+local current: Types.DialogueNode? = nil
+
+function DialogueSystem.Init(s: Types.SaveData, d: { [string]: Types.DialogueNode }, effects: DialogueEffects?)
+	save = s
+	tree = d
+	fx = effects
+end
+
+function DialogueSystem.IsNodeAvailable(node: Types.DialogueNode): boolean
+	if node.requires == nil then
+		return true
+	end
+	local req = node.requires
+	assert(save, "DialogueSystem not initialized")
+	return (save.skills[req.skill] or 0) >= req.min
+end
+
+function DialogueSystem.Start(nodeId: string, npc: string)
+	assert(tree, "DialogueSystem not initialized")
+	local node = tree[nodeId]
+	if node == nil then
+		return
+	end
+	current = node
+	DialogueSystem.OnNode:Fire(node, npc)
+end
+
+function DialogueSystem.Choose(optionIndex: number)
+	assert(current, "No active dialogue")
+	local node = current
+	local choices = node.choices
+	if choices == nil then
+		DialogueSystem.OnEnd:Fire(node.npc)
+		current = nil
+		return
+	end
+	local choice = choices[optionIndex]
+	if choice == nil then
+		return
+	end
+	-- apply effect (skill/unlock/relationship/flag/journal/inventory)
+	if choice.effect ~= nil then
+		DialogueSystem._apply(choice.effect)
+	end
+	if choice.next ~= nil then
+		DialogueSystem.Start(choice.next, node.npc)
+	else
+		DialogueSystem.OnEnd:Fire(node.npc)
+		current = nil
+	end
+end
+
+-- Effects are delegated to the injected handler so DialogueSystem stays decoupled
+-- from other systems (no require cycles). Falls back to recording flags locally.
+function DialogueSystem._apply(effect: Types.DialogueEffect)
+	assert(save, "system not initialized")
+	if effect.skill ~= nil then
+		if fx ~= nil then
+			fx.ApplySkillGain(effect.skill, effect.skillXp or 10)
+		end
+	end
+	if effect.unlock ~= nil then
+		if fx ~= nil then
+			fx.ApplyUnlock(effect.unlock.kind, effect.unlock.id)
+		else
+			save.unlocked[effect.unlock.kind][effect.unlock.id] = true
+		end
+	end
+	if effect.relationship ~= nil then
+		if fx ~= nil then
+			fx.ApplyRelationship(effect.relationship.npc, effect.relationship.delta)
+		end
+	end
+	if effect.flag ~= nil then
+		save.endingFlags[effect.flag.key] = effect.flag.value
+		if fx ~= nil then
+			fx.ApplyFlag(effect.flag.key, effect.flag.value)
+		end
+	end
+	if effect.journal ~= nil then
+		if fx ~= nil then
+			fx.ApplyJournal(effect.journal.category, effect.journal.key)
+		end
+	end
+	if effect.item ~= nil then
+		if fx ~= nil then
+			fx.ApplyInventory(effect.item, effect.itemCount or 1)
+		end
+	end
+end
+
+return DialogueSystem
+]]></string>
+            </Properties>
+          </Item>
+          <Item class="ModuleScript" referent="12">
+            <Properties>
+              <string name="Name">EndingSystem</string>
+              <string name="Source"><![CDATA[--! EndingSystem.luau
+--! Multi-factor ending scoring (not XP-only). Binding requirement.
+--! Public API:
+--!   EndingSystem.Init(save: SaveData, data: {[any]:any})
+--!   EndingSystem.Evaluate(): EndingId
+--!   EndingSystem.GetSummary(ending: EndingId): {title:string, body:string}
+--!   EndingSystem.OnEnding: Signal(EndingId)
+
+local Types = require(script.Parent.Parent.Types)
+local Signal = require(script.Parent.Parent.Util.Signal)
+
+export type EndingSystemApi = {
+	Init: (save: Types.SaveData, data: { [any]: any }) -> (),
+	Evaluate: () -> Types.EndingId,
+	GetSummary: (ending: Types.EndingId) -> { title: string, body: string },
+	OnEnding: Signal.Signal<Types.EndingId>,
+}
+
+local EndingSystem = {} :: EndingSystemApi
+EndingSystem.OnEnding = Signal.new()
+
+local save: Types.SaveData? = nil
+local data: { [any]: any }? = nil
+
+function EndingSystem.Init(s: Types.SaveData, d: { [any]: any })
+	save = s
+	data = d
+end
+
+function EndingSystem.Evaluate(): Types.EndingId
+	assert(save, "EndingSystem not initialized")
+	local s = save
+	local journal = JournalCompletionCached(s)
+	local decision = s.skills.DecisionMaking
+	local culture = s.skills.CulturalUnderstanding
+	local secrets = 0
+	for _ in pairs(s.discovered.secrets) do
+		secrets += 1
+	end
+	local completed = 0
+	for _ in pairs(s.completedAreas) do
+		completed += 1
+	end
+
+	-- Alternative endings require DecisionMaking>=T3 and high journal completion
+	if decision >= Types.Constants.SKILL_T3 and journal >= 80 then
+		if secrets >= 3 then
+			return "Guardian" -- protected the culture's hidden knowledge
+		end
+		return "Lorekeeper" -- mastered & documented the culture
+	end
+
+	-- Base PDF endings
+	if completed >= 5 and culture >= Types.Constants.SKILL_T2 then
+		return "Success"
+	elseif completed >= 5 then
+		return "Adequate"
+	end
+	return "Explorative"
+end
+
+function EndingSystem.GetSummary(ending: Types.EndingId): { title: string, body: string }
+	assert(data, "EndingSystem not initialized")
+	local d = data
+	if d ~= nil and d.summaries ~= nil and d.summaries[ending] ~= nil then
+		return d.summaries[ending]
+	end
+	return { title = ending, body = "Ending." }
+end
+
+-- Local helper to avoid cross-require during init ordering.
+function JournalCompletionCached(s: Types.SaveData): number
+	return s.journal.completion
+end
+
+return EndingSystem
+]]></string>
+            </Properties>
+          </Item>
+          <Item class="ModuleScript" referent="13">
+            <Properties>
+              <string name="Name">GameManager</string>
+              <string name="Source"><![CDATA[--! GameManager.luau
+--! Orchestrates the core game loop & area state machine.
+--! Public API:
+--!   GameManager.Init(save: SaveData)
+--!   GameManager.Start()              -> begins at checkpoint/opening
+--!   GameManager.AdvanceArea(area)    -> unlock + transition
+--!   GameManager.GetState(): { area: AreaId, phase: string }
+--!   GameManager.OnPhaseChanged: Signal(area, phase)
+--!   GameManager.OnAreaCompleted: Signal(area)
+
+local Types = require(script.Parent.Parent.Types)
+local Signal = require(script.Parent.Parent.Util.Signal)
+
+export type GameManagerApi = {
+	Init: (save: Types.SaveData) -> (),
+	Start: () -> (),
+	AdvanceArea: (area: Types.AreaId) -> (),
+	GetState: () -> { area: Types.AreaId, phase: string },
+	OnPhaseChanged: Signal.Signal<string, string>,
+	OnAreaCompleted: Signal.Signal<Types.AreaId>,
+}
+
+local GameManager = {} :: GameManagerApi
+GameManager.OnPhaseChanged = Signal.new()
+GameManager.OnAreaCompleted = Signal.new()
+
+local state = { area = "RumahBudaya" :: Types.AreaId, phase = "Init" }
+
+function GameManager.Init(save: Types.SaveData)
+	state.area = save.checkpoint
+	state.phase = "Init"
+end
+
+function GameManager.Start()
+	state.phase = "ReceiveMission"
+	GameManager.OnPhaseChanged:Fire(state.area, state.phase)
+end
+
+function GameManager.AdvanceArea(area: Types.AreaId)
+	state.area = area
+	state.phase = "ReceiveMission"
+	GameManager.OnAreaCompleted:Fire(area)
+	GameManager.OnPhaseChanged:Fire(area, state.phase)
+end
+
+function GameManager.GetState()
+	return { area = state.area, phase = state.phase }
+end
+
+return GameManager
+]]></string>
+            </Properties>
+          </Item>
+          <Item class="ModuleScript" referent="14">
+            <Properties>
+              <string name="Name">InteractionSystem</string>
+              <string name="Source"><![CDATA[--! InteractionSystem.luau
+--! Proximity prompts & activation of cultural/environmental objects.
+--! Public API:
+--!   InteractionSystem.Init(save: SaveData)
+--!   InteractionSystem.Register(object: {id:string, prompt:string, onInteract:()->()})
+--!   InteractionSystem.Prompt(player: Player, objectId: string)
+--!   InteractionSystem.Unregister(objectId: string)
+--!   InteractionSystem.OnInteract: Signal(objectId, player)
+
+local Types = require(script.Parent.Parent.Types)
+local Signal = require(script.Parent.Parent.Util.Signal)
+
+export type Interactable = {
+	id: string,
+	prompt: string,
+	onInteract: ((player: Player) -> ())?,
+	hiddenUntilSkill: Types.SkillId?,
+	hiddenThreshold: number?,
+}
+
+export type InteractionSystemApi = {
+	Init: (save: Types.SaveData) -> (),
+	Register: (object: Interactable) -> (),
+	Prompt: (player: Player, objectId: string) -> (),
+	Unregister: (objectId: string) -> (),
+	OnInteract: Signal.Signal<string, Player>,
+}
+
+local InteractionSystem = {} :: InteractionSystemApi
+InteractionSystem.OnInteract = Signal.new()
+
+local save: Types.SaveData? = nil
+local registry: { [string]: Interactable } = {}
+
+function InteractionSystem.Init(s: Types.SaveData)
+	save = s
+end
+
+function InteractionSystem.Register(object: Interactable)
+	registry[object.id] = object
+end
+
+function InteractionSystem.Prompt(player: Player, objectId: string)
+	local obj = registry[objectId]
+	if obj == nil then
+		return
+	end
+	if obj.hiddenUntilSkill ~= nil then
+		assert(save, "InteractionSystem not initialized")
+		local v = save.skills[obj.hiddenUntilSkill] or 0
+		if v < (obj.hiddenThreshold or Types.Constants.SKILL_T2) then
+			return -- hidden until skill threshold met (Observation reveals secrets)
+		end
+	end
+	if obj.onInteract ~= nil then
+		(obj.onInteract)(player)
+	end
+	InteractionSystem.OnInteract:Fire(objectId, player)
+end
+
+function InteractionSystem.Unregister(objectId: string)
+	registry[objectId] = nil
+end
+
+return InteractionSystem
+]]></string>
+            </Properties>
+          </Item>
+          <Item class="ModuleScript" referent="15">
+            <Properties>
+              <string name="Name">InventorySystem</string>
+              <string name="Source"><![CDATA[--! InventorySystem.luau
+--! Cultural items, foods, artifacts the player collects (rewards/exploration).
+--! Public API:
+--!   InventorySystem.Init(save: SaveData)
+--!   InventorySystem.Add(item: string, count: number?)
+--!   InventorySystem.Remove(item: string, count: number?): boolean
+--!   InventorySystem.Has(item: string, count: number?): boolean
+--!   InventorySystem.Count(item: string): number
+--!   InventorySystem.OnAdd: Signal(item, count)
+
+local Types = require(script.Parent.Parent.Types)
+local Signal = require(script.Parent.Parent.Util.Signal)
+
+export type InventorySystemApi = {
+	Init: (save: Types.SaveData) -> (),
+	Add: (item: string, count: number?) -> (),
+	Remove: (item: string, count: number?) -> boolean,
+	Has: (item: string, count: number?) -> boolean,
+	Count: (item: string) -> number,
+	GetAll: () -> { [string]: number },
+	OnAdd: Signal.Signal<string, number>,
+}
+
+local InventorySystem = {} :: InventorySystemApi
+InventorySystem.OnAdd = Signal.new()
+
+local save: Types.SaveData? = nil
+
+function InventorySystem.Init(s: Types.SaveData)
+	save = s
+end
+
+function InventorySystem.Add(item: string, count: number?)
+	assert(save, "InventorySystem not initialized")
+	local n = count or 1
+	save.inventory[item] = (save.inventory[item] or 0) + n
+	InventorySystem.OnAdd:Fire(item, n)
+end
+
+function InventorySystem.Remove(item: string, count: number?): boolean
+	assert(save, "InventorySystem not initialized")
+	local n = count or 1
+	local cur = save.inventory[item] or 0
+	if cur < n then
+		return false
+	end
+	save.inventory[item] = cur - n
+	return true
+end
+
+function InventorySystem.Has(item: string, count: number?): boolean
+	return InventorySystem.Count(item) >= (count or 1)
+end
+
+function InventorySystem.Count(item: string): number
+	assert(save, "InventorySystem not initialized")
+	return save.inventory[item] or 0
+end
+
+function InventorySystem.GetAll(): { [string]: number }
+	assert(save, "InventorySystem not initialized")
+	return save.inventory
+end
+
+return InventorySystem
+]]></string>
+            </Properties>
+          </Item>
+          <Item class="ModuleScript" referent="16">
+            <Properties>
+              <string name="Name">JournalSystem</string>
+              <string name="Source"><![CDATA[--! JournalSystem.luau
+--! Auto-records everything the player discovers; computes completion %.
+--! Journal completion influences endings (binding requirement).
+--! Public API:
+--!   JournalSystem.Init(save: SaveData)
+--!   JournalSystem.Record(category: JournalCategory, key: string)
+--!   JournalSystem.IsLogged(category: JournalCategory, key: string): boolean
+--!   JournalSystem.GetCompletion(): number (0..100)
+--!   JournalSystem.OnRecord: Signal(category, key)
+
+local Types = require(script.Parent.Parent.Types)
+local Signal = require(script.Parent.Parent.Util.Signal)
+
+export type JournalSystemApi = {
+	Init: (save: Types.SaveData) -> (),
+	Record: (category: Types.JournalCategory, key: string) -> (),
+	IsLogged: (category: Types.JournalCategory, key: string) -> boolean,
+	GetCompletion: () -> number,
+	GetCategory: (category: Types.JournalCategory) -> { string },
+	OnRecord: Signal.Signal<Types.JournalCategory, string>,
+}
+
+local JournalSystem = {} :: JournalSystemApi
+JournalSystem.OnRecord = Signal.new()
+
+local save: Types.SaveData? = nil
+
+-- Weights per category for completion %. Sum ~= 100; normalized at read time.
+local Weights: { [Types.JournalCategory]: number } = {
+	locations = 10,
+	npcs = 12,
+	food = 10,
+	music = 10,
+	dance = 10,
+	artifacts = 12,
+	history = 12,
+	discoveries = 8,
+	secrets = 10,
+	puzzleProgress = 6,
+	completedQuests = 10,
+}
+
+function JournalSystem.Init(s: Types.SaveData)
+	save = s
+end
+
+function JournalSystem.Record(category: Types.JournalCategory, key: string)
+	assert(save, "JournalSystem not initialized")
+	if save.journal.logged[category] == nil then
+		save.journal.logged[category] = {}
+	end
+	if save.journal.logged[category][key] then
+		return
+	end
+	save.journal.logged[category][key] = true
+	JournalSystem.OnRecord:Fire(category, key)
+	JournalSystem._recompute()
+end
+
+function JournalSystem.IsLogged(category: Types.JournalCategory, key: string): boolean
+	assert(save, "JournalSystem not initialized")
+	return save.journal.logged[category] ~= nil and save.journal.logged[category][key] == true
+end
+
+function JournalSystem.GetCompletion(): number
+	assert(save, "JournalSystem not initialized")
+	return save.journal.completion
+end
+
+function JournalSystem.GetCategory(category: Types.JournalCategory): { string }
+	assert(save, "JournalSystem not initialized")
+	local out = {}
+	local t = save.journal.logged[category]
+	if t ~= nil then
+		for k in pairs(t) do
+			table.insert(out, k)
+		end
+	end
+	return out
+end
+
+function JournalSystem._recompute()
+	assert(save, "JournalSystem not initialized")
+	local total = 0
+	for _, w in pairs(Weights) do
+		total += w
+	end
+	local got = 0
+	for cat, w in pairs(Weights) do
+		local n = 0
+		local t = save.journal.logged[cat]
+		if t ~= nil then
+			for _ in pairs(t) do
+				n += 1
+			end
+		end
+		got += w * math.min(1, n / 4) -- assume ~4 entries per category to "fill"
+	end
+	save.journal.completion = math.floor((got / total) * 100)
+end
+
+return JournalSystem
+]]></string>
+            </Properties>
+          </Item>
+          <Item class="ModuleScript" referent="17">
+            <Properties>
+              <string name="Name">MiniGameSystem</string>
+              <string name="Source"><![CDATA[--! MiniGameSystem.luau
+--! Mini-game framework + catalog (primary gameplay, not quizzes).
+--! Routes each kind to a dedicated sub-module with real scoring logic.
+--! Public API:
+--!   MiniGameSystem.Init(save: SaveData)
+--!   MiniGameSystem.Launch(kind: MiniGameKind, cfg: table): string
+--!   MiniGameSystem.Submit(instanceId: string, result: MiniGameResult)
+--!   MiniGameSystem.Get(instanceId): table?
+--!   MiniGameSystem.OnComplete: Signal(instanceId, MiniGameResult)
+
+local Types = require(script.Parent.Parent.Types)
+local Signal = require(script.Parent.Parent.Util.Signal)
+
+local Rhythm = require(script.Parent.MiniGames.Rhythm)
+local Dance = require(script.Parent.MiniGames.Dance)
+local Negotiation = require(script.Parent.MiniGames.Negotiation)
+local HistoryPuzzle = require(script.Parent.MiniGames.HistoryPuzzle)
+local Observation = require(script.Parent.MiniGames.Observation)
+local PatternMatching = require(script.Parent.MiniGames.PatternMatching)
+local HiddenObject = require(script.Parent.MiniGames.HiddenObject)
+local CultureActivity = require(script.Parent.MiniGames.CultureActivity)
+
+export type MiniGameSystemApi = {
+	Init: (save: Types.SaveData) -> (),
+	Launch: (kind: Types.MiniGameKind, cfg: table) -> string,
+	Submit: (instanceId: string, result: Types.MiniGameResult) -> (),
+	Get: (instanceId: string) -> table?,
+	OnComplete: Signal.Signal<string, Types.MiniGameResult>,
+}
+
+local MiniGameSystem = {} :: MiniGameSystemApi
+MiniGameSystem.OnComplete = Signal.new()
+
+local FACTORY: { [Types.MiniGameKind]: (cfg: table) -> table } = {
+	Rhythm = Rhythm.Create,
+	Dance = Dance.Create,
+	Negotiation = Negotiation.Create,
+	HistoryPuzzle = HistoryPuzzle.Create,
+	Observation = Observation.Create,
+	PatternMatching = PatternMatching.Create,
+	HiddenObject = HiddenObject.Create,
+	CultureActivity = CultureActivity.Create,
+}
+
+local save: Types.SaveData? = nil
+local instances: { [string]: table } = {}
+local counter = 0
+
+function MiniGameSystem.Init(s: Types.SaveData)
+	save = s
+end
+
+function MiniGameSystem.Launch(kind: Types.MiniGameKind, cfg: table): string
+	local factory = FACTORY[kind]
+	if factory == nil then
+		error("Unknown mini-game kind: " .. tostring(kind))
+	end
+	counter += 1
+	local id = kind .. "_" .. tostring(counter)
+	instances[id] = factory(cfg or {})
+	return id
+end
+
+function MiniGameSystem.Get(instanceId: string): table?
+	return instances[instanceId]
+end
+
+function MiniGameSystem.Submit(instanceId: string, result: Types.MiniGameResult)
+	local inst = instances[instanceId]
+	if inst == nil then
+		return
+	end
+	result.kind = inst.kind
+	instances[instanceId] = nil
+	MiniGameSystem.OnComplete:Fire(instanceId, result)
+end
+
+return MiniGameSystem
+]]></string>
+            </Properties>
+          </Item>
+          <Item class="Folder" referent="18">
+            <Properties>
+              <string name="Name">MiniGames</string>
+            </Properties>
+            <Item class="ModuleScript" referent="19">
+              <Properties>
+                <string name="Name">CultureActivity</string>
+                <string name="Source"><![CDATA[--! MiniGames/CultureActivity.luau
+--! Interactive culture activity (e.g. arrange offerings, prepare food).
+--! Player performs an ordered set of steps; scored on correctness.
+--! Public API: CultureActivity.Create(cfg), CultureActivity.Evaluate(inst, steps)
+
+local Types = require(script.Parent.Parent.Parent.Types)
+
+export type CultureActivityInstance = {
+	kind: "CultureActivity",
+	correctSteps: { string },
+}
+
+local CultureActivity = {}
+
+function CultureActivity.Create(cfg: table): CultureActivityInstance
+	return { kind = "CultureActivity", correctSteps = (cfg and cfg.steps) or {} }
+end
+
+function CultureActivity.Evaluate(inst: CultureActivityInstance, steps: { string }): Types.MiniGameResult
+	local correct = 0
+	for i, want in ipairs(inst.correctSteps) do
+		if steps[i] == want then
+			correct += 1
+		end
+	end
+	local n = math.max(1, #inst.correctSteps)
+	local score = math.floor((correct / n) * 100)
+	return { kind = "CultureActivity", score = score, success = score >= 60, perfect = correct == n }
+end
+
+return CultureActivity
+]]></string>
+              </Properties>
+            </Item>
+            <Item class="ModuleScript" referent="20">
+              <Properties>
+                <string name="Name">Dance</string>
+                <string name="Source"><![CDATA[--! MiniGames/Dance.luau
+--! Traditional dance movement mini-game (Level 2). Player follows a sequence
+--! of directional poses; scored by timing + correctness.
+--! Public API: Dance.Create(cfg), Dance.Evaluate(inst, seq)
+
+local RNG = require(script.Parent.Parent.Parent.Util.RNG)
+local Types = require(script.Parent.Parent.Parent.Types)
+
+export type Pose = "Up" | "Down" | "Left" | "Right" | "Spin"
+export type DanceInstance = {
+	kind: "Dance",
+	sequence: { Pose },
+	tolerance: number,
+}
+
+local POSES: { Pose } = { "Up", "Down", "Left", "Right", "Spin" }
+
+local Dance = {}
+
+function Dance.Create(cfg: table): DanceInstance
+	local rng = RNG.new((cfg and cfg.seed) or 99)
+	local n = (cfg and cfg.steps) or 5
+	local seq = {}
+	for _ = 1, n do
+		table.insert(seq, POSES[math.floor(rng:Next() * #POSES) + 1])
+	end
+	return { kind = "Dance", sequence = seq, tolerance = (cfg and cfg.tolerance) or 0.1 }
+end
+
+function Dance.Evaluate(inst: DanceInstance, seq: { Pose }): Types.MiniGameResult
+	local correct = 0
+	for i, target in ipairs(inst.sequence) do
+		if seq[i] == target then
+			correct += 1
+		end
+	end
+	local score = math.floor((correct / #inst.sequence) * 100)
+	return { kind = "Dance", score = score, success = score >= 60, perfect = correct == #inst.sequence }
+end
+
+return Dance
+]]></string>
+              </Properties>
+            </Item>
+            <Item class="ModuleScript" referent="21">
+              <Properties>
+                <string name="Name">HiddenObject</string>
+                <string name="Source"><![CDATA[--! MiniGames/HiddenObject.luau
+--! Hidden object search (secrets/scavenger). Player locates items by clue.
+--! Public API: HiddenObject.Create(cfg), HiddenObject.Evaluate(inst, foundIds)
+
+local Types = require(script.Parent.Parent.Parent.Types)
+
+export type HiddenObjectInstance = {
+	kind: "HiddenObject",
+	secretIds: { string },
+}
+
+local HiddenObject = {}
+
+function HiddenObject.Create(cfg: table): HiddenObjectInstance
+	return { kind = "HiddenObject", secretIds = (cfg and cfg.secretIds) or {} }
+end
+
+function HiddenObject.Evaluate(inst: HiddenObjectInstance, foundIds: { string }): Types.MiniGameResult
+	local got = 0
+	local set = {}
+	for _, s in ipairs(inst.secretIds) do
+		set[s] = true
+	end
+	for _, f in ipairs(foundIds) do
+		if set[f] then
+			got += 1
+		end
+	end
+	local n = math.max(1, #inst.secretIds)
+	local score = math.floor((got / n) * 100)
+	return { kind = "HiddenObject", score = score, success = score >= 60, perfect = got == #inst.secretIds }
+end
+
+return HiddenObject
+]]></string>
+              </Properties>
+            </Item>
+            <Item class="ModuleScript" referent="22">
+              <Properties>
+                <string name="Name">HistoryPuzzle</string>
+                <string name="Source"><![CDATA[--! MiniGames/HistoryPuzzle.luau
+--! Historical reconstruction puzzle (Level 4). Player orders events into a
+--! correct chronological sequence.
+--! Public API: HistoryPuzzle.Create(cfg), HistoryPuzzle.Evaluate(inst, order)
+
+local Types = require(script.Parent.Parent.Parent.Types)
+
+export type HistoryPuzzleInstance = {
+	kind: "HistoryPuzzle",
+	correct: { number }, -- canonical order of event ids
+}
+
+local HistoryPuzzle = {}
+
+function HistoryPuzzle.Create(cfg: table): HistoryPuzzleInstance
+	-- cfg.events is an array of {id, year}; sort by year for the correct order.
+	local evs = (cfg and cfg.events) or {}
+	local sorted = {}
+	for i, e in ipairs(evs) do
+		sorted[i] = e
+	end
+	table.sort(sorted, function(a, b)
+		return a.year < b.year
+	end)
+	local correct = {}
+	for i, e in ipairs(sorted) do
+		correct[i] = e.id
+	end
+	return { kind = "HistoryPuzzle", correct = correct }
+end
+
+function HistoryPuzzle.Evaluate(inst: HistoryPuzzleInstance, order: { number }): Types.MiniGameResult
+	local correct = 0
+	local adjacent = 0
+	for i, id in ipairs(order) do
+		if id == inst.correct[i] then
+			correct += 1
+		end
+		if i > 1 and inst.correct[i - 1] == order[i - 1] and id == inst.correct[i] then
+			adjacent += 1
+		end
+	end
+	local n = #inst.correct
+	local score = math.floor(((correct / n) * 0.7 + (adjacent / math.max(1, n - 1)) * 0.3) * 100)
+	return { kind = "HistoryPuzzle", score = score, success = score >= 60, perfect = correct == n }
+end
+
+return HistoryPuzzle
+]]></string>
+              </Properties>
+            </Item>
+            <Item class="ModuleScript" referent="23">
+              <Properties>
+                <string name="Name">Negotiation</string>
+                <string name="Source"><![CDATA[--! MiniGames/Negotiation.luau
+--! Market negotiation mini-game (Level 3). Player picks offers; a hidden fair
+--! price exists; scoring rewards landing near fair value without overpaying.
+--! Public API: Negotiation.Create(cfg), Negotiation.Evaluate(inst, offer)
+
+local Types = require(script.Parent.Parent.Parent.Types)
+
+export type NegotiationInstance = {
+	kind: "Negotiation",
+	fairPrice: number,
+}
+
+local Negotiation = {}
+
+function Negotiation.Create(cfg: table): NegotiationInstance
+	return {
+		kind = "Negotiation",
+		fairPrice = (cfg and cfg.fairPrice) or 5000,
+	}
+end
+
+function Negotiation.Evaluate(inst: NegotiationInstance, offer: number): Types.MiniGameResult
+	local diff = offer - inst.fairPrice
+	local absd = math.abs(diff)
+	-- best: exact fair; overpay penalized more than underpay (merchant won't sell)
+	local penalty = diff > 0 and absd * 1.5 or absd
+	local score = math.max(0, math.floor(100 - (penalty / inst.fairPrice) * 200))
+	return { kind = "Negotiation", score = score, success = score >= 60, perfect = absd == 0 }
+end
+
+return Negotiation
+]]></string>
+              </Properties>
+            </Item>
+            <Item class="ModuleScript" referent="24">
+              <Properties>
+                <string name="Name">Observation</string>
+                <string name="Source"><![CDATA[--! MiniGames/Observation.luau
+--! Observation / hidden-object mini-game (shared by L1 observation & L4).
+--! Player identifies N target items among distractors from a described scene.
+--! Public API: Observation.Create(cfg), Observation.Evaluate(inst, picks)
+
+local Types = require(script.Parent.Parent.Parent.Types)
+
+export type ObservationInstance = {
+	kind: "Observation",
+	targets: { string },
+	distractors: { string },
+}
+
+local Observation = {}
+
+function Observation.Create(cfg: table): ObservationInstance
+	return {
+		kind = "Observation",
+		targets = (cfg and cfg.targets) or {},
+		distractors = (cfg and cfg.distractors) or {},
+	}
+end
+
+function Observation.Evaluate(inst: ObservationInstance, picks: { string }): Types.MiniGameResult
+	local found = 0
+	local wrong = 0
+	local targetSet = {}
+	for _, t in ipairs(inst.targets) do
+		targetSet[t] = true
+	end
+	for _, p in ipairs(picks) do
+		if targetSet[p] then
+			found += 1
+		else
+			wrong += 1
+		end
+	end
+	local n = #inst.targets
+	local score = math.max(0, math.floor(((found / n) - (wrong / math.max(1, n)) * 0.5) * 100))
+	return { kind = "Observation", score = score, success = score >= 60, perfect = found == n and wrong == 0 }
+end
+
+return Observation
+]]></string>
+              </Properties>
+            </Item>
+            <Item class="ModuleScript" referent="25">
+              <Properties>
+                <string name="Name">PatternMatching</string>
+                <string name="Source"><![CDATA[--! MiniGames/PatternMatching.luau
+--! Pattern matching (batik/weaving motifs). Player continues a sequence.
+--! Public API: PatternMatching.Create(cfg), PatternMatching.Evaluate(inst, next)
+
+local RNG = require(script.Parent.Parent.Parent.Util.RNG)
+local Types = require(script.Parent.Parent.Parent.Types)
+
+export type PatternInstance = {
+	kind: "PatternMatching",
+	sequence: { number },
+	answer: number,
+}
+
+local PatternMatching = {}
+
+-- Generates an arithmetic-ish motif sequence; answer is the next element.
+function PatternMatching.Create(cfg: table): PatternInstance
+	local rng = RNG.new((cfg and cfg.seed) or 7)
+	local start = math.floor(rng:Next() * 4) + 1
+	local step = math.floor(rng:Next() * 3) + 1
+	local seq = {}
+	local v = start
+	for _ = 1, 4 do
+		table.insert(seq, v)
+		v += step
+	end
+	return { kind = "PatternMatching", sequence = seq, answer = v }
+end
+
+function PatternMatching.Evaluate(inst: PatternInstance, guess: number): Types.MiniGameResult
+	local ok = guess == inst.answer
+	return { kind = "PatternMatching", score = ok and 100 or 0, success = ok, perfect = ok }
+end
+
+return PatternMatching
+]]></string>
+              </Properties>
+            </Item>
+            <Item class="ModuleScript" referent="26">
+              <Properties>
+                <string name="Name">Rhythm</string>
+                <string name="Source"><![CDATA[--! MiniGames/Rhythm.luau
+--! Angklung rhythm mini-game (Level 1). Player matches a beat pattern.
+--! Pure scoring logic (headless-testable). UI layer drives input.
+--! Public API:
+--!   Rhythm.Create(cfg): instance
+--!   Rhythm.Evaluate(inst, answer): MiniGameResult
+
+local RNG = require(script.Parent.Parent.Parent.Util.RNG)
+local Types = require(script.Parent.Parent.Parent.Types)
+
+export type RhythmInstance = {
+	kind: "Rhythm",
+	pattern: { number }, -- normalized beat times 0..1
+	tolerance: number,
+}
+
+local Rhythm = {}
+
+function Rhythm.Create(cfg: table): RhythmInstance
+	local seed = (cfg and cfg.seed) or 1234
+	local rng = RNG.new(seed)
+	local count = (cfg and cfg.beats) or 6
+	local pattern = {}
+	local t = 0.1
+	for _ = 1, count do
+		t = math.min(0.95, t + rng:Next() * 0.18 + 0.07)
+		table.insert(pattern, t)
+	end
+	return {
+		kind = "Rhythm",
+		pattern = pattern,
+		tolerance = (cfg and cfg.tolerance) or 0.08,
+	}
+end
+
+function Rhythm.Evaluate(inst: RhythmInstance, answer: { number }): Types.MiniGameResult
+	local pattern = inst.pattern
+	local tol = inst.tolerance
+	local hits = 0
+	for i, target in ipairs(pattern) do
+		local got = answer[i]
+		if got ~= nil and math.abs(got - target) <= tol then
+			hits += 1
+		end
+	end
+	local score = math.floor((hits / #pattern) * 100)
+	return {
+		kind = "Rhythm",
+		score = score,
+		success = score >= 60,
+		perfect = hits == #pattern,
+	}
+end
+
+return Rhythm
+]]></string>
+              </Properties>
+            </Item>
+          </Item>
+          <Item class="ModuleScript" referent="27">
+            <Properties>
+              <string name="Name">NPCSystem</string>
+              <string name="Source"><![CDATA[--! NPCSystem.luau
+--! NPC lifecycle: personality, memory, daily behavior, relationships, teaching,
+--! appearance gating. NPCs never behave like quiz terminals.
+--! Public API:
+--!   NPCSystem.Init(save: SaveData, data: {[string]:Types.NPCData})
+--!   NPCSystem.Spawn(id: string): boolean
+--!   NPCSystem.GetMemory(npc: string): {[string]:any}
+--!   SetRelationship(npc: string, delta: number)
+--!   GetRelationship(npc: string): number
+--!   DailyTick(hour: number)
+--!   IsAvailable(npc: NPCData): boolean
+--!   OnSpawn: Signal(id), OnRelationship: Signal(id, value)
+
+local Types = require(script.Parent.Parent.Types)
+local Signal = require(script.Parent.Parent.Util.Signal)
+
+export type NPCSystemApi = {
+	Init: (save: Types.SaveData, data: { [string]: Types.NPCData }) -> (),
+	Spawn: (id: string) -> boolean,
+	GetMemory: (npc: string) -> { [string]: any },
+	SetRelationship: (npc: string, delta: number) -> (),
+	GetRelationship: (npc: string) -> number,
+	DailyTick: (hour: number) -> (),
+	IsAvailable: (npc: Types.NPCData) -> boolean,
+	OnSpawn: Signal.Signal<string>,
+	OnRelationship: Signal.Signal<string, number>,
+}
+
+local NPCSystem = {} :: NPCSystemApi
+NPCSystem.OnSpawn = Signal.new()
+NPCSystem.OnRelationship = Signal.new()
+
+local save: Types.SaveData? = nil
+local data: { [string]: Types.NPCData }? = nil
+local memory: { [string]: { [string]: any } } = {}
+
+function NPCSystem.Init(s: Types.SaveData, d: { [string]: Types.NPCData })
+	save = s
+	data = d
+end
+
+function NPCSystem.IsAvailable(npc: Types.NPCData): boolean
+	if npc.appearanceGate == nil then
+		return true
+	end
+	assert(save, "NPCSystem not initialized")
+	return save.completedAreas[npc.appearanceGate.completedArea] == true
+end
+
+function NPCSystem.Spawn(id: string): boolean
+	assert(data, "NPCSystem not initialized")
+	local npc = data[id]
+	if npc == nil or not NPCSystem.IsAvailable(npc) then
+		return false
+	end
+	assert(save, "NPCSystem not initialized")
+	if save.relationships[id] == nil then
+		save.relationships[id] = npc.relationshipStart
+	end
+	if memory[id] == nil then
+		memory[id] = {}
+	end
+	NPCSystem.OnSpawn:Fire(id)
+	return true
+end
+
+function NPCSystem.GetMemory(npc: string): { [string]: any }
+	return memory[npc] or {}
+end
+
+function NPCSystem.SetRelationship(npc: string, delta: number)
+	assert(save, "NPCSystem not initialized")
+	local cur = save.relationships[npc] or 0
+	save.relationships[npc] = math.clamp(cur + delta, 0, Types.Constants.RELATIONSHIP_MAX)
+	NPCSystem.OnRelationship:Fire(npc, save.relationships[npc])
+end
+
+function NPCSystem.GetRelationship(npc: string): number
+	assert(save, "NPCSystem not initialized")
+	return save.relationships[npc] or 0
+end
+
+function NPCSystem.DailyTick(hour: number)
+	assert(data, "NPCSystem not initialized")
+	for id, npc in pairs(data) do
+		if npc.schedule == nil then
+			continue
+		end
+		for _, slot in ipairs(npc.schedule) do
+			if hour >= slot.from and hour < slot.to then
+				-- In a live build this moves the NPC model to slot.position.
+				break
+			end
+		end
+	end
+end
+
+return NPCSystem
+]]></string>
+            </Properties>
+          </Item>
+          <Item class="ModuleScript" referent="28">
+            <Properties>
+              <string name="Name">NotificationSystem</string>
+              <string name="Source"><![CDATA[--! NotificationSystem.luau
+--! Toasts & achievement popups. Client-presented; server-safe queue.
+--! Public API:
+--!   NotificationSystem.Init()
+--!   NotificationSystem.Toast(message: string, kind: string?)
+--!   NotificationSystem.Achievement(id: string, title: string)
+--!   NotificationSystem.OnToast: Signal(message, kind)
+--!   NotificationSystem.OnAchievement: Signal(id, title)
+
+local Signal = require(script.Parent.Parent.Util.Signal)
+
+export type NotificationSystemApi = {
+	Init: () -> (),
+	Toast: (message: string, kind: string?) -> (),
+	Achievement: (id: string, title: string) -> (),
+	OnToast: Signal.Signal<string, string?>,
+	OnAchievement: Signal.Signal<string, string>,
+}
+
+local NotificationSystem = {} :: NotificationSystemApi
+NotificationSystem.OnToast = Signal.new()
+NotificationSystem.OnAchievement = Signal.new()
+
+function NotificationSystem.Init() end
+
+function NotificationSystem.Toast(message: string, kind: string?)
+	NotificationSystem.OnToast:Fire(message, kind or "info")
+end
+
+function NotificationSystem.Achievement(id: string, title: string)
+	NotificationSystem.OnAchievement:Fire(id, title)
+end
+
+return NotificationSystem
+]]></string>
+            </Properties>
+          </Item>
+          <Item class="ModuleScript" referent="29">
+            <Properties>
+              <string name="Name">QuestSystem</string>
+              <string name="Source"><![CDATA[--! QuestSystem.luau
+--! Tracks the 6 quest kinds, progress, rewards, area gating (Rule 1/5).
+--! Public API:
+--!   QuestSystem.Init(save: SaveData, data: table)
+--!   QuestSystem.Accept(id: string)
+--!   QuestSystem.Update(id: string, amount: number)
+--!   QuestSystem.Complete(id: string)
+--!   QuestSystem.IsComplete(id: string): boolean
+--!   QuestSystem.GetActive(kind: QuestKind?): {Types.QuestState}
+--!   QuestSystem.OnComplete: Signal(id, QuestKind)
+
+local Types = require(script.Parent.Parent.Types)
+local Signal = require(script.Parent.Parent.Util.Signal)
+
+export type QuestSystemApi = {
+	Init: (save: Types.SaveData, data: { [string]: any }) -> (),
+	Accept: (id: string) -> (),
+	Update: (id: string, amount: number) -> (),
+	Complete: (id: string) -> (),
+	IsComplete: (id: string) -> boolean,
+	GetActive: (kind: Types.QuestKind?) -> { Types.QuestState },
+	OnComplete: Signal.Signal<string, Types.QuestKind>,
+}
+
+local QuestSystem = {} :: QuestSystemApi
+QuestSystem.OnComplete = Signal.new()
+
+local save: Types.SaveData? = nil
+local defs: { [string]: any }? = nil
+
+function QuestSystem.Init(s: Types.SaveData, d: { [string]: any })
+	save = s
+	defs = d
+end
+
+function QuestSystem.Accept(id: string)
+	assert(save, "QuestSystem not initialized")
+	local def = defs[id]
+	if def == nil then
+		return
+	end
+	save.quests.active[id] = {
+		id = id,
+		kind = def.kind,
+		active = true,
+		completed = false,
+		progress = 0,
+		goal = def.goal or 1,
+	}
+end
+
+function QuestSystem.Update(id: string, amount: number)
+	assert(save, "QuestSystem not initialized")
+	local q = save.quests.active[id]
+	if q == nil or q.completed then
+		return
+	end
+	q.progress = math.min(q.goal, q.progress + amount)
+	if q.progress >= q.goal then
+		QuestSystem.Complete(id)
+	end
+end
+
+function QuestSystem.Complete(id: string)
+	assert(save, "QuestSystem not initialized")
+	local q = save.quests.active[id]
+	if q == nil then
+		return
+	end
+	q.completed = true
+	q.active = false
+	save.quests.completed[id] = true
+	save.quests.active[id] = nil
+	QuestSystem.OnComplete:Fire(id, q.kind)
+end
+
+function QuestSystem.IsComplete(id: string): boolean
+	assert(save, "QuestSystem not initialized")
+	return save.quests.completed[id] == true
+end
+
+function QuestSystem.GetActive(kind: Types.QuestKind?): { Types.QuestState }
+	assert(save, "QuestSystem not initialized")
+	local out = {}
+	for _, q in pairs(save.quests.active) do
+		if kind == nil or q.kind == kind then
+			table.insert(out, q)
+		end
+	end
+	return out
+end
+
+return QuestSystem
+]]></string>
+            </Properties>
+          </Item>
+          <Item class="ModuleScript" referent="30">
+            <Properties>
+              <string name="Name">SaveSystem</string>
+              <string name="Source"><![CDATA[--! SaveSystem.luau
+--! Versioned save with DataStore + local fallback (playable in Studio).
+--! Public API:
+--!   SaveSystem.Init()
+--!   SaveSystem.Load(player: Player): SaveData
+--!   SaveSystem.Save(player: Player, save: SaveData)
+--!   SaveSystem.Reset(player: Player)
+--!   SaveSystem.CreateDefault(): SaveData
+
+local Types = require(script.Parent.Parent.Types)
+
+export type SaveSystemApi = {
+	Init: () -> (),
+	Load: (player: Player) -> Types.SaveData,
+	Save: (player: Player, save: Types.SaveData) -> (),
+	Reset: (player: Player) -> (),
+	CreateDefault: () -> Types.SaveData,
+}
+
+local SaveSystem = {} :: SaveSystemApi
+
+local SAVE_KEY_PREFIX = "JejakNusantara_"
+local CURRENT_VERSION = 1
+local store: any = nil
+
+function SaveSystem.Init()
+	local ok, ds = pcall(function()
+		return game:GetService("DataStoreService"):GetDataStore("JejakNusantara")
+	end)
+	if ok then
+		store = ds
+	end
+end
+
+local function newSave(): Types.SaveData
+	return {
+		version = CURRENT_VERSION,
+		skills = {
+			Observation = 0,
+			Communication = 0,
+			ProblemSolving = 0,
+			DecisionMaking = 0,
+			CulturalUnderstanding = 0,
+		},
+		unlocked = { dialogue = {}, secrets = {}, quests = {}, npcs = {} },
+		journal = { logged = {}, completion = 0 },
+		inventory = {},
+		quests = { active = {}, completed = {} },
+		areaProgress = {},
+		completedAreas = {},
+		endingFlags = {},
+		achievements = {},
+		discovered = {
+			locations = {},
+			npcs = {},
+			food = {},
+			music = {},
+			dance = {},
+			artifacts = {},
+			history = {},
+			secrets = {},
+		},
+		relationships = {},
+		checkpoint = "RumahBudaya",
+	}
+end
+
+function SaveSystem.CreateDefault(): Types.SaveData
+	return newSave()
+end
+
+function SaveSystem.Load(player: Player): Types.SaveData
+	local key = SAVE_KEY_PREFIX .. tostring(player.UserId)
+	local data: Types.SaveData? = nil
+	if store ~= nil then
+		local ok, res = pcall(function()
+			return store:GetAsync(key)
+		end)
+		if ok and res ~= nil then
+			data = res
+		end
+	end
+	if data == nil then
+		data = newSave()
+	end
+	-- migrate
+	if data.version ~= CURRENT_VERSION then
+		data.version = CURRENT_VERSION
+	end
+	return data
+end
+
+function SaveSystem.Save(player: Player, save: Types.SaveData)
+	local key = SAVE_KEY_PREFIX .. tostring(player.UserId)
+	save.version = CURRENT_VERSION
+	if store ~= nil then
+		pcall(function()
+			store:SetAsync(key, save)
+		end)
+	end
+end
+
+function SaveSystem.Reset(player: Player)
+	local key = SAVE_KEY_PREFIX .. tostring(player.UserId)
+	if store ~= nil then
+		pcall(function()
+			store:RemoveAsync(key)
+		end)
+	end
+end
+
+return SaveSystem
+]]></string>
+            </Properties>
+          </Item>
+          <Item class="ModuleScript" referent="31">
+            <Properties>
+              <string name="Name">SkillSystem</string>
+              <string name="Source"><![CDATA[--! SkillSystem.luau
+--! Player skill progression + threshold-gated unlocks (binding requirement).
+--! Public API:
+--!   SkillSystem.Init(save: SaveData)
+--!   SkillSystem.AddXP(skill: SkillId, amount: number)
+--!   SkillSystem.GetValue(skill: SkillId): number
+--!   SkillSystem.GetLevel(skill: SkillId): number   (0..3 tier)
+--!   SkillSystem.IsUnlocked(kind: UnlockKind, id: string): boolean
+--!   SkillSystem.OnLevelUp: Signal(skill, level)
+--!   SkillSystem.OnUnlock: Signal(kind, id)
+
+local Types = require(script.Parent.Parent.Types)
+local Signal = require(script.Parent.Parent.Util.Signal)
+
+export type SkillSystemApi = {
+	Init: (save: Types.SaveData) -> (),
+	AddXP: (skill: Types.SkillId, amount: number) -> (),
+	GetValue: (skill: Types.SkillId) -> number,
+	GetLevel: (skill: Types.SkillId) -> number,
+	IsUnlocked: (kind: Types.UnlockKind, id: string) -> boolean,
+	OnLevelUp: Signal.Signal<Types.SkillId, number>,
+	OnUnlock: Signal.Signal<Types.UnlockKind, string>,
+}
+
+local SkillSystem = {} :: SkillSystemApi
+SkillSystem.OnLevelUp = Signal.new()
+SkillSystem.OnUnlock = Signal.new()
+
+local save: Types.SaveData? = nil
+
+local function tier(value: number): number
+	local C = Types.Constants
+	if value >= C.SKILL_T3 then
+		return 3
+	elseif value >= C.SKILL_T2 then
+		return 2
+	elseif value >= C.SKILL_T1 then
+		return 1
+	end
+	return 0
+end
+
+function SkillSystem.Init(s: Types.SaveData)
+	save = s
+end
+
+function SkillSystem.AddXP(skill: Types.SkillId, amount: number)
+	assert(save, "SkillSystem not initialized")
+	local before = save.skills[skill] or 0
+	local after = math.clamp(before + amount, 0, Types.Constants.SKILL_MAX)
+	save.skills[skill] = after
+	local bT, aT = tier(before), tier(after)
+	if aT > bT then
+		SkillSystem.OnLevelUp:Fire(skill, aT)
+		SkillSystem._applyUnlocks(skill, aT)
+	end
+end
+
+function SkillSystem.GetValue(skill: Types.SkillId): number
+	assert(save, "SkillSystem not initialized")
+	return save.skills[skill] or 0
+end
+
+function SkillSystem.GetLevel(skill: Types.SkillId): number
+	return tier(SkillSystem.GetValue(skill))
+end
+
+function SkillSystem.IsUnlocked(kind: Types.UnlockKind, id: string): boolean
+	assert(save, "SkillSystem not initialized")
+	return save.unlocked[kind][id] == true
+end
+
+-- Internal: flip unlocks based on thresholds (TDD §6 mapping).
+-- Independent `if` blocks so a single level-up can satisfy multiple gates.
+function SkillSystem._applyUnlocks(skill: Types.SkillId, lvl: number)
+	assert(save, "SkillSystem not initialized")
+	local u = save.unlocked
+	if skill == "Communication" and lvl >= 1 then
+		u.dialogue["intro"] = true
+		SkillSystem.OnUnlock:Fire("dialogue", "intro")
+	end
+	if skill == "CulturalUnderstanding" and lvl >= 1 then
+		u.dialogue["culture"] = true
+		SkillSystem.OnUnlock:Fire("dialogue", "culture")
+	end
+	if (skill == "Observation" or skill == "DecisionMaking") and lvl >= 2 then
+		u.secrets["tier2"] = true
+		SkillSystem.OnUnlock:Fire("secrets", "tier2")
+	end
+	if (skill == "DecisionMaking" or skill == "CulturalUnderstanding") and lvl >= 2 then
+		u.quests["alt"] = true
+		SkillSystem.OnUnlock:Fire("quests", "alt")
+	end
+	if skill == "DecisionMaking" and lvl >= 3 then
+		u.npcs["hidden"] = true
+		SkillSystem.OnUnlock:Fire("npcs", "hidden")
+	end
+end
+
+return SkillSystem
+]]></string>
+            </Properties>
+          </Item>
+          <Item class="ModuleScript" referent="32">
+            <Properties>
+              <string name="Name">UIController</string>
+              <string name="Source"><![CDATA[--! UIController.luau
+--! Screen manager + transitions. Builds all 10+ UI screens into a PlayerGui and
+--! wires them to system signals so HUD stays live.
+--! Public API:
+--!   UIController.Init(playerGui: PlayerGui)
+--!   UIController.Open(screen: string)
+--!   UIController.Close(screen: string)
+--!   UIController.RefreshAll()
+--!   UIController.ShowEnding(ending: Types.EndingId)
+--!
+--! Path note: this module lives under Modules/Systems/, so Modules is
+--! script.Parent.Parent and UI is script.Parent.Parent.UI.
+
+local Types = require(script.Parent.Parent.Types)
+local UIBase = require(script.Parent.Parent.UI.UIBase)
+local QuestTracker = require(script.Parent.Parent.UI.QuestTracker)
+local DialogueUI = require(script.Parent.Parent.UI.DialogueUI)
+local JournalUI = require(script.Parent.Parent.UI.JournalUI)
+local InventoryUI = require(script.Parent.Parent.UI.InventoryUI)
+local SettingsUI = require(script.Parent.Parent.UI.SettingsUI)
+local PauseUI = require(script.Parent.Parent.UI.PauseUI)
+local MapUI = require(script.Parent.Parent.UI.MapUI)
+local AreaProgressUI = require(script.Parent.Parent.UI.AreaProgressUI)
+local SkillProgressUI = require(script.Parent.Parent.UI.SkillProgressUI)
+local EndingSummaryUI = require(script.Parent.Parent.UI.EndingSummaryUI)
+local AchievementToast = require(script.Parent.Parent.UI.AchievementToast)
+
+local QuestSystem = require(script.Parent.QuestSystem)
+local DialogueSystem = require(script.Parent.DialogueSystem)
+local JournalSystem = require(script.Parent.JournalSystem)
+local InventorySystem = require(script.Parent.InventorySystem)
+local AreaManager = require(script.Parent.AreaManager)
+local SkillSystem = require(script.Parent.SkillSystem)
+local AchievementSystem = require(script.Parent.AchievementSystem)
+
+export type UIControllerApi = {
+	Init: (pg: Instance) -> (),
+	Open: (screen: string) -> (),
+	Close: (screen: string) -> (),
+	RefreshAll: () -> (),
+	ShowEnding: (ending: Types.EndingId) -> (),
+}
+
+local UIController = {} :: UIControllerApi
+
+local root: Instance? = nil
+local screens: { [string]: Instance } = {}
+
+local TOGGLABLE = {
+	QuestTracker = true,
+	DialogueUI = true,
+	JournalUI = true,
+	InventoryUI = true,
+	SettingsUI = true,
+	PauseUI = true,
+	MapUI = true,
+	AreaProgressUI = true,
+	SkillProgressUI = true,
+	EndingSummaryUI = true,
+	AchievementToast = true,
+}
+
+function UIController.Init(pg: Instance)
+	root = Instance.new("ScreenGui")
+	root.Name = "JejakNusantaraUI"
+	root.ResetOnSpawn = false
+	root.Parent = pg
+
+	screens.QuestTracker = QuestTracker.Build(root)
+	screens.AreaProgressUI = AreaProgressUI.Build(root)
+	screens.SkillProgressUI = SkillProgressUI.Build(root)
+	screens.DialogueUI = DialogueUI.Build(root)
+	screens.JournalUI = JournalUI.Build(root)
+	screens.InventoryUI = InventoryUI.Build(root)
+	screens.SettingsUI = SettingsUI.Build(root)
+	screens.PauseUI = PauseUI.Build(root, function()
+		UIController.Close("PauseUI")
+	end, function()
+		UIController.Open("SettingsUI")
+	end)
+	screens.MapUI = MapUI.Build(root)
+	screens.EndingSummaryUI = EndingSummaryUI.Build(root)
+	screens.AchievementToast = AchievementToast.Build(root)
+
+	local refresh = function()
+		UIController.RefreshAll()
+	end
+	QuestSystem.OnComplete:Connect(refresh)
+	JournalSystem.OnRecord:Connect(refresh)
+	InventorySystem.OnAdd:Connect(refresh)
+	AreaManager.OnUnlocked:Connect(refresh)
+	SkillSystem.OnUnlock:Connect(refresh)
+	DialogueSystem.OnNode:Connect(function(node)
+		DialogueUI.Show(screens.DialogueUI, node)
+	end)
+	DialogueSystem.OnEnd:Connect(function()
+		if screens.DialogueUI ~= nil then
+			screens.DialogueUI.Visible = false
+		end
+	end)
+	AchievementSystem.OnUnlock:Connect(function(id)
+		AchievementToast.Pop(screens.AchievementToast, id)
+	end)
+
+	-- Always-on HUD
+	screens.QuestTracker.Visible = true
+	screens.AreaProgressUI.Visible = true
+	screens.SkillProgressUI.Visible = true
+end
+
+function UIController.Open(screen: string)
+	if TOGGLABLE[screen] and screens[screen] ~= nil then
+		screens[screen].Visible = true
+		UIController.RefreshAll()
+	end
+end
+
+function UIController.Close(screen: string)
+	if screens[screen] ~= nil then
+		screens[screen].Visible = false
+	end
+end
+
+function UIController.RefreshAll()
+	if screens.QuestTracker ~= nil then
+		QuestTracker.Refresh(screens.QuestTracker)
+	end
+	if screens.JournalUI ~= nil then
+		JournalUI.Refresh(screens.JournalUI)
+	end
+	if screens.InventoryUI ~= nil then
+		InventoryUI.Refresh(screens.InventoryUI)
+	end
+	if screens.MapUI ~= nil then
+		MapUI.Refresh(screens.MapUI)
+	end
+	if screens.AreaProgressUI ~= nil then
+		AreaProgressUI.Refresh(screens.AreaProgressUI)
+	end
+	if screens.SkillProgressUI ~= nil then
+		SkillProgressUI.Refresh(screens.SkillProgressUI)
+	end
+end
+
+function UIController.ShowEnding(ending: Types.EndingId)
+	if screens.EndingSummaryUI ~= nil then
+		EndingSummaryUI.Show(screens.EndingSummaryUI, ending)
+	end
+end
+
+return UIController
+]]></string>
+            </Properties>
+          </Item>
+        </Item>
+        <Item class="ModuleScript" referent="33">
+          <Properties>
+            <string name="Name">Types</string>
+            <string name="Source"><![CDATA[--! Types.luau
+--! Canonical type system & shared constants for Jejak Nusantara.
+--! Single source of truth for all enums/records. Every system module imports from here.
+--! PDFs are the product spec; this file encodes the binding interpretation.
+
+export type SkillId = "Observation" | "Communication" | "ProblemSolving" | "DecisionMaking" | "CulturalUnderstanding"
+
+export type AreaId =
+	"RumahBudaya"
+	| "DesaBudaya"
+	| "SanggarSeni"
+	| "PasarTradisional"
+	| "TempatBersejarah"
+	| "KebangkitanTradisi"
+
+export type QuestKind = "Main" | "Side" | "Hidden" | "Npc" | "Journal" | "Exploration"
+
+export type MiniGameKind =
+	"Rhythm"
+	| "Dance"
+	| "Negotiation"
+	| "HistoryPuzzle"
+	| "Observation"
+	| "PatternMatching"
+	| "HiddenObject"
+	| "CultureActivity"
+
+export type JournalCategory =
+	"locations"
+	| "npcs"
+	| "food"
+	| "music"
+	| "dance"
+	| "artifacts"
+	| "history"
+	| "discoveries"
+	| "secrets"
+	| "puzzleProgress"
+	| "completedQuests"
+
+export type UnlockKind = "dialogue" | "secrets" | "quests" | "npcs"
+
+export type EndingId = "Success" | "Adequate" | "Explorative" | "Guardian" | "Lorekeeper"
+
+export type SkillState = {
+	value: number, -- 0..SKILL_MAX
+	level: number, -- derived tier
+}
+
+export type UnlockState = {
+	dialogue: { [string]: boolean },
+	secrets: { [string]: boolean },
+	quests: { [string]: boolean },
+	npcs: { [string]: boolean },
+}
+
+export type DiscoveryState = {
+	locations: { [string]: boolean },
+	npcs: { [string]: boolean },
+	food: { [string]: boolean },
+	music: { [string]: boolean },
+	dance: { [string]: boolean },
+	artifacts: { [string]: boolean },
+	history: { [string]: boolean },
+	secrets: { [string]: boolean },
+}
+
+export type QuestState = {
+	id: string,
+	kind: QuestKind,
+	active: boolean,
+	completed: boolean,
+	progress: number,
+	goal: number,
+}
+
+export type AreaState = {
+	id: AreaId,
+	unlocked: boolean,
+	entered: boolean,
+	mainComplete: boolean,
+	secretsFound: number,
+	secretsTotal: number,
+	optionalComplete: number,
+	optionalTotal: number,
+}
+
+export type SaveData = {
+	version: number,
+	skills: { [SkillId]: number },
+	unlocked: UnlockState,
+	journal: {
+		logged: { [JournalCategory]: { [string]: boolean } },
+		completion: number, -- 0..100
+	},
+	inventory: { [string]: number },
+	quests: { active: { [string]: QuestState }, completed: { [string]: boolean } },
+	areaProgress: { [AreaId]: AreaState },
+	completedAreas: { [AreaId]: boolean },
+	endingFlags: { [string]: boolean },
+	achievements: { [string]: boolean },
+	discovered: DiscoveryState,
+	relationships: { [string]: number }, -- npcId -> 0..100
+	checkpoint: AreaId,
+}
+
+-- Dialogue
+export type DialogueEffect = {
+	skill: SkillId?, -- grants XP to a skill
+	skillXp: number?, -- amount (default 10)
+	unlock: { kind: UnlockKind, id: string }?,
+	relationship: { npc: string, delta: number }?,
+	flag: { key: string, value: boolean }?,
+	journal: { category: JournalCategory, key: string }?,
+	item: string?, -- grants an inventory item
+	itemCount: number?, -- default 1
+}
+
+export type DialogueChoice = {
+	text: string,
+	next: string?,
+	effect: DialogueEffect?,
+}
+
+export type DialogueNode = {
+	id: string,
+	npc: string,
+	speaker: "NPC" | "Player" | "Narration",
+	text: string,
+	choices: { DialogueChoice }?,
+	requires: { skill: SkillId, min: number }?,
+	onEnter: string?,
+}
+
+-- Quest definition (data-driven, in Data.Quests)
+export type QuestDef = {
+	id: string,
+	kind: QuestKind,
+	title: string,
+	desc: string,
+	area: AreaId,
+	goal: number,
+	reward: {
+		item: string?,
+		count: number?,
+		skill: SkillId?,
+		skillXp: number?,
+	}?,
+	unlocksArea: AreaId?, -- Rule 1: main quest completion unlocks next area
+	miniGame: MiniGameKind?, -- optional required mini-game
+	hidden: boolean?, -- hidden quest
+	gatedBy: { completedArea: AreaId? }?, -- appears after prerequisite
+}
+
+-- Mini-game runtime instance
+export type MiniGameInstance = {
+	id: string,
+	kind: MiniGameKind,
+	cfg: table,
+	startedAt: number,
+}
+
+-- Achievement definition
+export type AchievementDef = {
+	id: string,
+	name: string,
+	desc: string,
+	test: (save: SaveData) -> boolean,
+}
+
+-- NPC
+export type NPCDailySlot = {
+	from: number, -- hour 0..23
+	to: number,
+	position: Vector3,
+	activity: string,
+}
+
+export type NPCData = {
+	id: string,
+	name: string,
+	personality: string,
+	homeArea: AreaId,
+	relationshipStart: number,
+	teaching: string?,
+	quests: { string }?,
+	reactions: { [string]: string }?, -- keyed by mood/state
+	appearanceGate: { completedArea: AreaId }?, -- only appears after area done
+	schedule: { NPCDailySlot }?,
+}
+
+-- Mini-game result
+export type MiniGameResult = {
+	kind: MiniGameKind,
+	score: number, -- 0..100
+	success: boolean,
+	perfect: boolean,
+	meta: { [string]: any }?,
+}
+
+-- Constants (no magic numbers elsewhere)
+export type Constants = {
+	SKILL_MAX: number,
+	SKILL_T1: number,
+	SKILL_T2: number,
+	SKILL_T3: number,
+	RELATIONSHIP_MAX: number,
+}
+
+local Constants: Constants = {
+	SKILL_MAX = 100,
+	SKILL_T1 = 20,
+	SKILL_T2 = 45,
+	SKILL_T3 = 70,
+	RELATIONSHIP_MAX = 100,
+}
+
+local SkillOrder: { SkillId } = {
+	"Observation",
+	"Communication",
+	"ProblemSolving",
+	"DecisionMaking",
+	"CulturalUnderstanding",
+}
+
+local AreaOrder: { AreaId } = {
+	"RumahBudaya",
+	"DesaBudaya",
+	"SanggarSeni",
+	"PasarTradisional",
+	"TempatBersejarah",
+	"KebangkitanTradisi",
+}
+
+return {
+	Constants = Constants,
+	SkillOrder = SkillOrder,
+	AreaOrder = AreaOrder,
+}
+]]></string>
+          </Properties>
+        </Item>
+        <Item class="Folder" referent="34">
+          <Properties>
+            <string name="Name">UI</string>
+          </Properties>
+          <Item class="ModuleScript" referent="35">
+            <Properties>
+              <string name="Name">AchievementToast</string>
+              <string name="Source"><![CDATA[--! UI/AchievementToast.luau (achievement popups)
+local UIBase = require(script.Parent.Parent.UI.UIBase)
+
+export type AchievementToastApi = { Build: (parent: Instance) -> Frame, Pop: (self: Frame, name: string) -> () }
+
+local AchievementToast = {} :: AchievementToastApi
+
+function AchievementToast.Build(parent: Instance): Frame
+	local f = UIBase.Frame(parent, UDim2.new(0.3, 0, 0.12, 0), UDim2.new(0.35, 0, 0.02, 0), UIBase.Theme.accent)
+	f.Name = "AchievementToast"
+	f.Visible = false
+	UIBase.Label(f, "", UDim2.new(1, -20, 1, -10), UDim2.new(0, 10, 0, 5)).Name = "Text"
+	f.TextColor3 = Color3.fromRGB(20, 20, 20)
+	return f
+end
+
+function AchievementToast.Pop(self: Frame, name: string)
+	local t = self:FindFirstChild("Text")
+	if t ~= nil then
+		t.Text = "🏆 " .. name
+	end
+	self.Visible = true
+	task.delay(3, function()
+		if self:IsA("GuiObject") then
+			self.Visible = false
+		end
+	end)
+end
+
+return AchievementToast
+]]></string>
+            </Properties>
+          </Item>
+          <Item class="ModuleScript" referent="36">
+            <Properties>
+              <string name="Name">AreaProgressUI</string>
+              <string name="Source"><![CDATA[--! UI/AreaProgressUI.luau (per-area completion)
+local UIBase = require(script.Parent.Parent.UI.UIBase)
+local AreaManager = require(script.Parent.Parent.Systems.AreaManager)
+
+export type AreaProgressUIApi = { Build: (parent: Instance) -> Frame, Refresh: (self: Frame) -> () }
+
+local AreaProgressUI = {} :: AreaProgressUIApi
+
+function AreaProgressUI.Build(parent: Instance): Frame
+	local f = UIBase.Frame(parent, UDim2.new(0.3, 0, 0.4, 0), UDim2.new(0.02, 0, 0.5, 0), UIBase.Theme.panel)
+	f.Name = "AreaProgressUI"
+	UIBase.Label(f, "PROGRES AREA", UDim2.new(1, -20, 0, 30), UDim2.new(0, 10, 0, 6))
+	local body = UIBase.Frame(f, UDim2.new(1, -20, 1, -40), UDim2.new(0, 10, 0, 38), UIBase.Theme.bg)
+	body.Name = "Body"
+	AreaProgressUI.Refresh(f)
+	return f
+end
+
+function AreaProgressUI.Refresh(self: Frame)
+	local body = self:FindFirstChild("Body")
+	if body == nil then
+		return
+	end
+	for _, c in ipairs(body:GetChildren()) do
+		if c:IsA("TextLabel") then
+			c:Destroy()
+		end
+	end
+	local y = 0
+	for id, state in pairs(AreaManager.GetStates()) do
+		local pct = state.secretsTotal > 0 and math.floor((state.secretsFound / state.secretsTotal) * 100) or 0
+		UIBase.Label(
+			body,
+			id .. " — rahasia " .. pct .. "%" .. (state.mainComplete and " ✓" or ""),
+			UDim2.new(1, -8, 0, 24),
+			UDim2.new(0, 4, 0, y)
+		)
+		y += 28
+	end
+end
+
+return AreaProgressUI
+]]></string>
+            </Properties>
+          </Item>
+          <Item class="ModuleScript" referent="37">
+            <Properties>
+              <string name="Name">DialogueUI</string>
+              <string name="Source"><![CDATA[--! DialogueUI.luau
+--! Branching dialogue panel with choices. Binds to DialogueSystem.
+local Types = require(script.Parent.Parent.Types)
+local UIBase = require(script.Parent.UIBase)
+local DialogueSystem = require(script.Parent.Parent.Systems.DialogueSystem)
+
+export type DialogueUIApi = {
+	Build: (parent: Instance) -> Frame,
+	Show: (self: Frame, node: Types.DialogueNode) -> (),
+}
+
+local DialogueUI = {} :: DialogueUIApi
+
+function DialogueUI.Build(parent: Instance): Frame
+	local f = UIBase.Frame(parent, UDim2.new(0.6, 0, 0.3, 0), UDim2.new(0.2, 0, 0.65, 0), UIBase.Theme.panel)
+	f.Name = "DialogueUI"
+	f.Visible = false
+	local text = UIBase.Label(f, "", UDim2.new(1, -20, 0.5, 0), UDim2.new(0, 10, 0, 8))
+	text.Name = "Text"
+	local choices = UIBase.Frame(f, UDim2.new(1, -20, 0.5, -10), UDim2.new(0, 10, 0.5, 5), UIBase.Theme.panel)
+	choices.Name = "Choices"
+	return f
+end
+
+function DialogueUI.Show(self: Frame, node: Types.DialogueNode)
+	self.Visible = true
+	local txt = self:FindFirstChild("Text")
+	if txt ~= nil and txt:IsA("TextLabel") then
+		txt.Text = node.speaker .. ": " .. node.text
+	end
+	local choices = self:FindFirstChild("Choices")
+	if choices ~= nil then
+		for _, c in ipairs(choices:GetChildren()) do
+			if c:IsA("TextButton") then
+				c:Destroy()
+			end
+		end
+		local y = 0
+		if node.choices ~= nil then
+			for i, ch in ipairs(node.choices) do
+				UIBase.Button(choices, ch.text, UDim2.new(1, -8, 0, 28), UDim2.new(0, 4, 0, y), function()
+					DialogueSystem.Choose(i)
+				end)
+				y += 32
+			end
+		end
+	end
+end
+
+return DialogueUI
+]]></string>
+            </Properties>
+          </Item>
+          <Item class="ModuleScript" referent="38">
+            <Properties>
+              <string name="Name">EndingSummaryUI</string>
+              <string name="Source"><![CDATA[--! UI/EndingSummaryUI.luau (final ending based on whole journey)
+local UIBase = require(script.Parent.Parent.UI.UIBase)
+local EndingSystem = require(script.Parent.Parent.Systems.EndingSystem)
+local Data = require(script.Parent.Parent.Data.Data)
+
+export type EndingSummaryUIApi =
+	{ Build: (parent: Instance) -> Frame, Show: (self: Frame, ending: Types.EndingId) -> () }
+
+local EndingSummaryUI = {} :: EndingSummaryUIApi
+
+function EndingSummaryUI.Build(parent: Instance): Frame
+	local f = UIBase.Frame(parent, UDim2.new(0.7, 0, 0.8, 0), UDim2.new(0.15, 0, 0.1, 0), UIBase.Theme.panel)
+	f.Name = "EndingSummaryUI"
+	f.Visible = false
+	local title = UIBase.Label(f, "", UDim2.new(1, -20, 0, 50), UDim2.new(0, 10, 0, 20))
+	title.Name = "Title"
+	title.TextSize = 36
+	local desc = UIBase.Label(f, "", UDim2.new(1, -40, 0.6, 0), UDim2.new(0, 20, 0, 90))
+	desc.Name = "Desc"
+	desc.TextWrapped = true
+	return f
+end
+
+function EndingSummaryUI.Show(self: Frame, ending: Types.EndingId)
+	self.Visible = true
+	local sum = Data.Endings.summaries[ending]
+	local title = self:FindFirstChild("Title")
+	local desc = self:FindFirstChild("Desc")
+	if title ~= nil and sum ~= nil then
+		title.Text = sum.title
+	end
+	if desc ~= nil and sum ~= nil then
+		desc.Text = sum.desc
+	end
+end
+
+return EndingSummaryUI
+]]></string>
+            </Properties>
+          </Item>
+          <Item class="ModuleScript" referent="39">
+            <Properties>
+              <string name="Name">InventoryUI</string>
+              <string name="Source"><![CDATA[--! UI/InventoryUI.luau
+local UIBase = require(script.Parent.UIBase)
+local InventorySystem = require(script.Parent.Parent.Systems.InventorySystem)
+
+export type InventoryUIApi = { Build: (parent: Instance) -> Frame, Refresh: (self: Frame) -> () }
+
+local InventoryUI = {} :: InventoryUIApi
+
+function InventoryUI.Build(parent: Instance): Frame
+	local f = UIBase.Frame(parent, UDim2.new(0.5, 0, 0.7, 0), UDim2.new(0.25, 0, 0.15, 0), UIBase.Theme.panel)
+	f.Name = "InventoryUI"
+	f.Visible = false
+	UIBase.Label(f, "INVENTARIS", UDim2.new(1, -20, 0, 30), UDim2.new(0, 10, 0, 6))
+	local body = UIBase.Frame(f, UDim2.new(1, -20, 1, -44), UDim2.new(0, 10, 0, 38), UIBase.Theme.bg)
+	body.Name = "Body"
+	InventoryUI.Refresh(f)
+	return f
+end
+
+function InventoryUI.Refresh(self: Frame)
+	local body = self:FindFirstChild("Body")
+	if body == nil then
+		return
+	end
+	for _, c in ipairs(body:GetChildren()) do
+		if c:IsA("TextLabel") then
+			c:Destroy()
+		end
+	end
+	local y = 0
+	for item, count in pairs(InventorySystem.GetAll()) do
+		UIBase.Label(body, item .. " x" .. count, UDim2.new(1, -8, 0, 24), UDim2.new(0, 4, 0, y))
+		y += 28
+	end
+end
+
+return InventoryUI
+]]></string>
+            </Properties>
+          </Item>
+          <Item class="ModuleScript" referent="40">
+            <Properties>
+              <string name="Name">JournalUI</string>
+              <string name="Source"><![CDATA[--! UI/JournalUI.luau
+--! Journal with categories (locations, NPCs, food, music, dance, artifacts,
+--! history, discoveries, secrets, puzzle progress, completed quests).
+local UIBase = require(script.Parent.UIBase)
+local JournalSystem = require(script.Parent.Parent.Systems.JournalSystem)
+local Types = require(script.Parent.Parent.Types)
+
+export type JournalUIApi = { Build: (parent: Instance) -> Frame, Refresh: (self: Frame) -> () }
+
+local JournalUI = {} :: JournalUIApi
+
+function JournalUI.Build(parent: Instance): Frame
+	local f = UIBase.Frame(parent, UDim2.new(0.7, 0, 0.8, 0), UDim2.new(0.15, 0, 0.1, 0), UIBase.Theme.panel)
+	f.Name = "JournalUI"
+	f.Visible = false
+	UIBase.Label(
+		f,
+		"JURNAL  (Lengkap: " .. math.floor(JournalSystem.GetCompletion()) .. "%)",
+		UDim2.new(1, -20, 0, 30),
+		UDim2.new(0, 10, 0, 6)
+	)
+	local body = UIBase.Frame(f, UDim2.new(1, -20, 1, -44), UDim2.new(0, 10, 0, 38), UIBase.Theme.bg)
+	body.Name = "Body"
+	JournalUI.Refresh(f)
+	return f
+end
+
+function JournalUI.Refresh(self: Frame)
+	local body = self:FindFirstChild("Body")
+	if body == nil then
+		return
+	end
+	for _, c in ipairs(body:GetChildren()) do
+		if c:IsA("TextLabel") then
+			c:Destroy()
+		end
+	end
+	local y = 0
+	local cats: { Types.JournalCategory } = {
+		"locations",
+		"npcs",
+		"food",
+		"music",
+		"dance",
+		"artifacts",
+		"history",
+		"discoveries",
+		"secrets",
+		"puzzleProgress",
+		"completedQuests",
+	}
+	for _, cat in ipairs(cats) do
+		local entries = JournalSystem.GetCategory(cat)
+		if #entries > 0 then
+			UIBase.Label(
+				body,
+				cat .. ": " .. table.concat(entries, ", "),
+				UDim2.new(1, -8, 0, 36),
+				UDim2.new(0, 4, 0, y)
+			)
+			y += 40
+		end
+	end
+end
+
+return JournalUI
+]]></string>
+            </Properties>
+          </Item>
+          <Item class="ModuleScript" referent="41">
+            <Properties>
+              <string name="Name">MapUI</string>
+              <string name="Source"><![CDATA[--! UI/MapUI.luau (world map with area states)
+local UIBase = require(script.Parent.UIBase)
+local AreaManager = require(script.Parent.Parent.Systems.AreaManager)
+
+export type MapUIApi = { Build: (parent: Instance) -> Frame, Refresh: (self: Frame) -> () }
+
+local MapUI = {} :: MapUIApi
+
+function MapUI.Build(parent: Instance): Frame
+	local f = UIBase.Frame(parent, UDim2.new(0.6, 0, 0.7, 0), UDim2.new(0.2, 0, 0.15, 0), UIBase.Theme.panel)
+	f.Name = "MapUI"
+	f.Visible = false
+	UIBase.Label(f, "PETA DUNIA", UDim2.new(1, -20, 0, 30), UDim2.new(0, 10, 0, 6))
+	local body = UIBase.Frame(f, UDim2.new(1, -20, 1, -44), UDim2.new(0, 10, 0, 38), UIBase.Theme.bg)
+	body.Name = "Body"
+	MapUI.Refresh(f)
+	return f
+end
+
+function MapUI.Refresh(self: Frame)
+	local body = self:FindFirstChild("Body")
+	if body == nil then
+		return
+	end
+	for _, c in ipairs(body:GetChildren()) do
+		if c:IsA("TextLabel") then
+			c:Destroy()
+		end
+	end
+	local y = 0
+	for id, state in pairs(AreaManager.GetStates()) do
+		local mark = state.unlocked and (state.entered and "✓" or "🔒?") or "🔒"
+		UIBase.Label(body, mark .. " " .. id, UDim2.new(1, -8, 0, 24), UDim2.new(0, 4, 0, y))
+		y += 28
+	end
+end
+
+return MapUI
+]]></string>
+            </Properties>
+          </Item>
+          <Item class="ModuleScript" referent="42">
+            <Properties>
+              <string name="Name">PauseUI</string>
+              <string name="Source"><![CDATA[--! UI/PauseUI.luau
+local UIBase = require(script.Parent.UIBase)
+
+export type PauseUIApi = { Build: (parent: Instance, onResume: () -> (), onSettings: () -> ()) -> Frame }
+
+local PauseUI = {} :: PauseUIApi
+
+function PauseUI.Build(parent: Instance, onResume: () -> (), onSettings: () -> ()): Frame
+	local f = UIBase.Frame(parent, UDim2.new(1, 0, 1, 0), UDim2.new(0, 0, 0, 0), Color3.fromRGB(0, 0, 0))
+	f.BackgroundTransparency = 0.6
+	f.Name = "PauseUI"
+	f.Visible = false
+	UIBase.Label(f, "JEDA", UDim2.new(0, 200, 0, 40), UDim2.new(0.5, -100, 0.3, -20))
+	UIBase.Button(f, "Lanjut", UDim2.new(0, 200, 0, 36), UDim2.new(0.5, -100, 0.4, 0), onResume or function() end)
+	UIBase.Button(
+		f,
+		"Pengaturan",
+		UDim2.new(0, 200, 0, 36),
+		UDim2.new(0.5, -100, 0.4, 44),
+		onSettings or function() end
+	)
+	return f
+end
+
+return PauseUI
+]]></string>
+            </Properties>
+          </Item>
+          <Item class="ModuleScript" referent="43">
+            <Properties>
+              <string name="Name">QuestTracker</string>
+              <string name="Source"><![CDATA[--! UI/QuestTracker.luau
+--! Live quest tracker (top-right). Binds to QuestSystem active quests.
+local UIBase = require(script.Parent.UIBase)
+local QuestSystem = require(script.Parent.Parent.Systems.QuestSystem)
+local Data = require(script.Parent.Parent.Data.Data)
+
+export type QuestTrackerApi = {
+	Build: (parent: Instance) -> Frame,
+	Refresh: (self: Frame) -> (),
+}
+
+local QuestTracker = {} :: QuestTrackerApi
+
+function QuestTracker.Build(parent: Instance): Frame
+	local f = UIBase.Frame(parent, UDim2.new(0.28, 0, 0.35, 0), UDim2.new(0.7, 0, 0.02, 0), UIBase.Theme.panel)
+	f.Name = "QuestTracker"
+	UIBase.Label(f, "MISI", UDim2.new(1, -10, 0, 24), UDim2.new(0, 5, 0, 4))
+	local list = UIBase.Frame(f, UDim2.new(1, -10, 1, -30), UDim2.new(0, 5, 0, 28), UIBase.Theme.panel)
+	list.Name = "List"
+	QuestTracker.Refresh(f)
+	return f
+end
+
+function QuestTracker.Refresh(self: Frame)
+	local list = self:FindFirstChild("List")
+	if list == nil then
+		return
+	end
+	for _, c in ipairs(list:GetChildren()) do
+		if c:IsA("TextLabel") then
+			c:Destroy()
+		end
+	end
+	local y = 0
+	for _, q in ipairs(QuestSystem.GetActive()) do
+		local def = Data.Quests[q.id]
+		local title = if def ~= nil and def.title ~= nil then def.title else q.id
+		UIBase.Label(
+			list,
+			title .. " (" .. q.progress .. "/" .. q.goal .. ")",
+			UDim2.new(1, -8, 0, 20),
+			UDim2.new(0, 4, 0, y)
+		)
+		y += 22
+	end
+end
+
+return QuestTracker
+]]></string>
+            </Properties>
+          </Item>
+          <Item class="ModuleScript" referent="44">
+            <Properties>
+              <string name="Name">SettingsUI</string>
+              <string name="Source"><![CDATA[--! UI/SettingsUI.luau (audio/music volume, sfx toggle)
+local UIBase = require(script.Parent.UIBase)
+local AudioManager = require(script.Parent.Parent.Systems.AudioManager)
+
+export type SettingsUIApi = { Build: (parent: Instance) -> Frame }
+
+local SettingsUI = {} :: SettingsUIApi
+
+function SettingsUI.Build(parent: Instance): Frame
+	local f = UIBase.Frame(parent, UDim2.new(0.5, 0, 0.6, 0), UDim2.new(0.25, 0, 0.2, 0), UIBase.Theme.panel)
+	f.Name = "SettingsUI"
+	f.Visible = false
+	UIBase.Label(f, "PENGATURAN", UDim2.new(1, -20, 0, 30), UDim2.new(0, 10, 0, 6))
+
+	local musicBtn: TextButton
+	musicBtn = UIBase.Button(f, "Musik: Nyala", UDim2.new(1, -40, 0, 32), UDim2.new(0, 20, 0, 50), function()
+		local on = AudioManager.ToggleMusic()
+		musicBtn.Text = if on then "Musik: Nyala" else "Musik: Mati"
+	end)
+
+	local sfxBtn: TextButton
+	sfxBtn = UIBase.Button(f, "SFX: Nyala", UDim2.new(1, -40, 0, 32), UDim2.new(0, 20, 0, 90), function()
+		local on = AudioManager.ToggleSfx()
+		sfxBtn.Text = if on then "SFX: Nyala" else "SFX: Mati"
+	end)
+
+	return f
+end
+
+return SettingsUI
+]]></string>
+            </Properties>
+          </Item>
+          <Item class="ModuleScript" referent="45">
+            <Properties>
+              <string name="Name">SkillProgressUI</string>
+              <string name="Source"><![CDATA[--! UI/SkillProgressUI.luau
+local UIBase = require(script.Parent.Parent.UI.UIBase)
+local SkillSystem = require(script.Parent.Parent.Systems.SkillSystem)
+local Types = require(script.Parent.Parent.Types)
+
+export type SkillProgressUIApi = { Build: (parent: Instance) -> Frame, Refresh: (self: Frame) -> () }
+
+local SkillProgressUI = {} :: SkillProgressUIApi
+
+function SkillProgressUI.Build(parent: Instance): Frame
+	local f = UIBase.Frame(parent, UDim2.new(0.3, 0, 0.4, 0), UDim2.new(0.02, 0, 0.05, 0), UIBase.Theme.panel)
+	f.Name = "SkillProgressUI"
+	UIBase.Label(f, "KEMAMPUAN", UDim2.new(1, -20, 0, 30), UDim2.new(0, 10, 0, 6))
+	local body = UIBase.Frame(f, UDim2.new(1, -20, 1, -40), UDim2.new(0, 10, 0, 38), UIBase.Theme.bg)
+	body.Name = "Body"
+	SkillProgressUI.Refresh(f)
+	return f
+end
+
+function SkillProgressUI.Refresh(self: Frame)
+	local body = self:FindFirstChild("Body")
+	if body == nil then
+		return
+	end
+	for _, c in ipairs(body:GetChildren()) do
+		if c:IsA("TextLabel") then
+			c:Destroy()
+		end
+	end
+	local y = 0
+	for _, sid in ipairs(Types.SkillOrder) do
+		local v = SkillSystem.GetValue(sid)
+		local lvl = SkillSystem.GetLevel(sid)
+		UIBase.Label(body, sid .. " T" .. lvl .. " (" .. v .. ")", UDim2.new(1, -8, 0, 24), UDim2.new(0, 4, 0, y))
+		y += 28
+	end
+end
+
+return SkillProgressUI
+]]></string>
+            </Properties>
+          </Item>
+          <Item class="ModuleScript" referent="46">
+            <Properties>
+              <string name="Name">UIBase</string>
+              <string name="Source"><![CDATA[--! UI/UIBase.luau
+--! Shared helpers for building modern Roblox UI (ScreenGui + frames).
+--! All screens are data-bound and use smooth transitions via Tween util.
+--! Headless-safe: only uses Instance/UDim2/Color3 (no Player required at build).
+
+local Tween = require(script.Parent.Parent.Util.Tween)
+
+export type UITheme = {
+	bg: Color3,
+	panel: Color3,
+	accent: Color3,
+	text: Color3,
+	font: Enum.Font,
+}
+
+export type UIBaseApi = {
+	Theme: UITheme,
+	Frame: (parent: Instance, size: UDim2, pos: UDim2, color: Color3) -> Frame,
+	Label: (parent: Instance, text: string, size: UDim2, pos: UDim2) -> TextLabel,
+	Button: (parent: Instance, text: string, size: UDim2, pos: UDim2, onClick: () -> ()) -> TextButton,
+	FadeIn: (frame: GuiObject) -> (),
+	FadeOut: (frame: GuiObject, onDone: () -> ()?) -> (),
+}
+
+local UIBase = {} :: UIBaseApi
+
+UIBase.Theme = {
+	bg = Color3.fromRGB(18, 20, 28),
+	panel = Color3.fromRGB(30, 34, 46),
+	accent = Color3.fromRGB(240, 180, 60),
+	text = Color3.fromRGB(240, 240, 245),
+	font = Enum.Font.Gotham,
+}
+
+function UIBase.Frame(parent: Instance, size: UDim2, pos: UDim2, color: Color3): Frame
+	local f = Instance.new("Frame")
+	f.Size = size
+	f.Position = pos
+	f.BackgroundColor3 = color
+	f.BorderSizePixel = 0
+	f.Parent = parent
+	return f
+end
+
+function UIBase.Label(parent: Instance, text: string, size: UDim2, pos: UDim2): TextLabel
+	local l = Instance.new("TextLabel")
+	l.Size = size
+	l.Position = pos
+	l.BackgroundTransparency = 1
+	l.Text = text
+	l.TextColor3 = UIBase.Theme.text
+	l.Font = UIBase.Theme.font
+	l.TextScaled = true
+	l.Parent = parent
+	return l
+end
+
+function UIBase.Button(parent: Instance, text: string, size: UDim2, pos: UDim2, onClick: () -> ()): TextButton
+	local b = Instance.new("TextButton")
+	b.Size = size
+	b.Position = pos
+	b.BackgroundColor3 = UIBase.Theme.accent
+	b.TextColor3 = Color3.fromRGB(20, 20, 20)
+	b.Font = UIBase.Theme.font
+	b.Text = text
+	b.TextScaled = true
+	b.AutoButtonColor = true
+	b.Parent = parent
+	if onClick ~= nil then
+		b.Activated:Connect(onClick)
+	end
+	return b
+end
+
+function UIBase.FadeIn(frame: GuiObject)
+	frame.BackgroundTransparency = 1
+	Tween.To(frame, { BackgroundTransparency = 0 }, { time = 0.25 })
+end
+
+function UIBase.FadeOut(frame: GuiObject, onDone: () -> ()?)
+	Tween.To(frame, { BackgroundTransparency = 1 }, {
+		time = 0.25,
+		completed = function()
+			if frame:IsA("GuiObject") then
+				frame.Visible = false
+			end
+			if onDone ~= nil then
+				onDone()
+			end
+		end,
+	})
+end
+
+return UIBase
+]]></string>
+            </Properties>
+          </Item>
+        </Item>
+        <Item class="Folder" referent="47">
+          <Properties>
+            <string name="Name">Util</string>
+          </Properties>
+          <Item class="ModuleScript" referent="48">
+            <Properties>
+              <string name="Name">RNG</string>
+              <string name="Source"><![CDATA[--! RNG.luau
+--! Seedable RNG wrapper for deterministic mini-game layouts / secrets.
+
+local RNG = {}
+RNG.__index = RNG
+
+function RNG.new(seed: number?)
+	local self = setmetatable({}, RNG) :: any
+	self._rng = Random.new(seed or os.clock())
+	return self
+end
+
+function RNG:NextInteger(min: number, max: number): number
+	return self._rng:NextInteger(min, max)
+end
+
+function RNG:NextNumber(min: number?, max: number?): number
+	return self._rng:NextNumber(min or 0, max or 1)
+end
+
+-- Convenience: 0..1 float (used by mini-game layout generators).
+function RNG:Next(): number
+	return self._rng:NextNumber()
+end
+
+function RNG:Pick<T>(list: { T }): T
+	return list[self._rng:NextInteger(1, #list)]
+end
+
+function RNG:Shuffle<T>(list: { T }): { T }
+	local out = table.clone(list)
+	for i = #out, 2, -1 do
+		local j = self._rng:NextInteger(1, i)
+		out[i], out[j] = out[j], out[i]
+	end
+	return out
+end
+
+return RNG
+]]></string>
+            </Properties>
+          </Item>
+          <Item class="ModuleScript" referent="49">
+            <Properties>
+              <string name="Name">Signal</string>
+              <string name="Source"><![CDATA[--! Signal.luau
+--! Minimal typed signal (event emitter) for decoupled system communication.
+
+export type Connection = {
+	Disconnect: (self: Connection) -> (),
+}
+
+export type Signal<T...> = {
+	Connect: (self: Signal<T...>, fn: (T...) -> ()) -> Connection,
+	Fire: (self: Signal<T...>, T...) -> (),
+	Wait: (self: Signal<T...>) -> T...,
+	Destroy: (self: Signal<T...>) -> (),
+	_disconnectAll: (self: Signal<T...>) -> (),
+}
+
+type Listener = {
+	fn: any,
+	next: Listener?,
+}
+
+local Signal = {}
+Signal.__index = Signal
+
+function Signal.new<T...>(): Signal<T...>
+	local self = setmetatable({}, Signal) :: any
+	self._head = nil :: Listener?
+	self._yield = nil :: { (T...) -> () }?
+	return self
+end
+
+function Signal:Connect(fn)
+	local node = { fn = fn, next = nil } :: Listener
+	if self._head == nil then
+		self._head = node
+	else
+		local cur = self._head
+		while cur.next do
+			cur = cur.next
+		end
+		cur.next = node
+	end
+	local conn = {
+		Disconnect = function()
+			self:_remove(node)
+		end,
+	}
+	return conn
+end
+
+function Signal:Fire(...)
+	local cur = self._head
+	while cur do
+		(cur.fn)(...)
+		cur = cur.next
+	end
+end
+
+function Signal:Wait()
+	local thread = coroutine.running()
+	self._yield = self._yield or {}
+	table.insert(self._yield, thread)
+	return coroutine.yield()
+end
+
+function Signal:_remove(node)
+	local cur = self._head
+	local prev: Listener? = nil
+	while cur do
+		if cur == node then
+			if prev == nil then
+				self._head = cur.next
+			else
+				prev.next = cur.next
+			end
+			return
+		end
+		prev = cur
+		cur = cur.next
+	end
+end
+
+function Signal:_disconnectAll()
+	self._head = nil
+	self._yield = nil
+end
+
+function Signal:Destroy()
+	self:_disconnectAll()
+end
+
+return Signal
+]]></string>
+            </Properties>
+          </Item>
+          <Item class="ModuleScript" referent="50">
+            <Properties>
+              <string name="Name">Table</string>
+              <string name="Source"><![CDATA[--! Table.luau
+--! Small table utilities. Avoids reimplementing in every system.
+
+local Table = {}
+
+function Table.clone<T>(t: { [any]: T }): { [any]: T }
+	local out = {}
+	for k, v in pairs(t) do
+		out[k] = v
+	end
+	return out
+end
+
+function Table.keys<T>(t: { [any]: T }): { any }
+	local out = {}
+	for k, _ in pairs(t) do
+		table.insert(out, k)
+	end
+	return out
+end
+
+function Table.count(t: { [any]: any }): number
+	local n = 0
+	for _, _ in pairs(t) do
+		n += 1
+	end
+	return n
+end
+
+function Table.shallowEqual(a: { [any]: any }, b: { [any]: any }): boolean
+	if Table.count(a) ~= Table.count(b) then
+		return false
+	end
+	for k, v in pairs(a) do
+		if b[k] ~= v then
+			return false
+		end
+	end
+	return true
+end
+
+function Table.firstKey<T>(t: { [any]: T }): any
+	for k, _ in pairs(t) do
+		return k
+	end
+	return nil
+end
+
+return Table
+]]></string>
+            </Properties>
+          </Item>
+          <Item class="ModuleScript" referent="51">
+            <Properties>
+              <string name="Name">Tween</string>
+              <string name="Source"><![CDATA[--! Tween.luau
+--! Tween helpers with sane defaults and cleanup tracking.
+
+local TweenService = game:GetService("TweenService")
+
+export type TweenOpts = {
+	time: number?,
+	easingStyle: Enum.EasingStyle?,
+	easingDirection: Enum.EasingDirection?,
+	repeatCount: number?,
+	reverses: boolean?,
+	delayTime: number?,
+	completed: (() -> ())?,
+}
+
+local function defaultOpts(opts: TweenOpts?): TweenInfo
+	local o = opts or {}
+	return TweenInfo.new(
+		o.time or 0.3,
+		o.easingStyle or Enum.EasingStyle.Quad,
+		o.easingDirection or Enum.EasingDirection.Out,
+		o.repeatCount or 0,
+		o.reverses or false,
+		o.delayTime or 0
+	)
+end
+
+local Tween = {}
+
+function Tween.create(instance: Instance, props: { [string]: any }, opts: TweenOpts?): TweenBase
+	return TweenService:Create(instance, defaultOpts(opts), props)
+end
+
+function Tween.play(instance: Instance, props: { [string]: any }, opts: TweenOpts?): TweenBase
+	local t = Tween.create(instance, props, opts)
+	t:Play()
+	return t
+end
+
+-- Convenience used by UI fades. Mirrors Tween.play + optional completed callback.
+function Tween.To(instance: Instance, props: { [string]: any }, opts: TweenOpts?): TweenBase
+	local o = opts or {}
+	local t = Tween.create(instance, props, o)
+	if o.completed ~= nil then
+		t.Completed:Connect(o.completed)
+	end
+	t:Play()
+	return t
+end
+
+return Tween
+]]></string>
+            </Properties>
+          </Item>
+        </Item>
+      </Item>
+    </Item>
+  </Item>
+  <Item class="ServerScriptService" referent="52">
+    <Properties>
+      <string name="Name">ServerScriptService</string>
+    </Properties>
+    <Item class="Script" referent="53">
+      <Properties>
+        <string name="Name">GameServer</string>
+        <token name="RunContext">0</token>
+        <string name="Source"><![CDATA[--! GameServer.server.luau (ServerScriptService)
+--! Server bootstrap: per-player session via the Game orchestrator.
+--! Rojo maps *.server.luau -> Script (auto-runs on the server).
+
+local Replicated = game:GetService("ReplicatedStorage")
+local Players = game:GetService("Players")
+
+local Modules = Replicated:WaitForChild("JN"):WaitForChild("Modules")
+local Game = require(Modules:WaitForChild("Game"))
+
+local SaveSystem = require(Modules:WaitForChild("Systems"):WaitForChild("SaveSystem"))
+local AreaManager = require(Modules:WaitForChild("Systems"):WaitForChild("AreaManager"))
+local GameManager = require(Modules:WaitForChild("Systems"):WaitForChild("GameManager"))
+local NotificationSystem = require(Modules:WaitForChild("Systems"):WaitForChild("NotificationSystem"))
+
+SaveSystem.Init()
+NotificationSystem.Init()
+
+local sessions: { [Player]: any } = {}
+
+local function startSession(player: Player)
+	local save = SaveSystem.Load(player)
+	local gameSession = Game.new(save, player)
+	sessions[player] = gameSession
+
+	-- Rule 1: first area is open from the start.
+	AreaManager.Unlock("RumahBudaya")
+	AreaManager.Load("RumahBudaya")
+	GameManager.Start()
+
+	gameSession:Save()
+end
+
+local function endSession(player: Player)
+	local session = sessions[player]
+	if session ~= nil then
+		session:Save()
+		sessions[player] = nil
+	end
+end
+
+Players.PlayerAdded:Connect(startSession)
+Players.PlayerRemoving:Connect(endSession)
+
+-- Players already in-game when this script starts (Studio play solo).
+for _, player in ipairs(Players:GetPlayers()) do
+	task.spawn(startSession, player)
+end
+]]></string>
+      </Properties>
+    </Item>
+  </Item>
+  <Item class="SoundService" referent="54">
+    <Properties>
+      <string name="Name">SoundService</string>
+    </Properties>
+  </Item>
+  <Item class="StarterPlayer" referent="55">
+    <Properties>
+      <string name="Name">StarterPlayer</string>
+    </Properties>
+    <Item class="StarterFolder" referent="56">
+      <Properties>
+        <string name="Name">StarterPlayerScripts</string>
+      </Properties>
+      <Item class="LocalScript" referent="57">
+        <Properties>
+          <string name="Name">GameClient</string>
+          <string name="Source"><![CDATA[--! GameClient.client.luau (StarterPlayerScripts)
+--! Client bootstrap: requires systems, inits UI/audio, binds HUD.
+--! Rojo maps *.client.luau -> LocalScript (auto-runs on the client).
+
+local Replicated = game:GetService("ReplicatedStorage")
+local Players = game:GetService("Players")
+
+local Modules = Replicated:WaitForChild("JN"):WaitForChild("Modules")
+local Systems = Modules:WaitForChild("Systems")
+
+local UIController = require(Systems:WaitForChild("UIController"))
+local AudioManager = require(Systems:WaitForChild("AudioManager"))
+local NotificationSystem = require(Systems:WaitForChild("NotificationSystem"))
+local AchievementSystem = require(Systems:WaitForChild("AchievementSystem"))
+
+local player = Players.LocalPlayer
+local playerGui = player:WaitForChild("PlayerGui")
+
+UIController.Init(playerGui)
+NotificationSystem.Init()
+AudioManager.Init(game:GetService("SoundService"))
+
+AchievementSystem.OnUnlock:Connect(function(id)
+	NotificationSystem.Achievement(id, id)
+end)
+
+UIController.Open("QuestTracker")
+UIController.Open("SkillProgressUI")
+UIController.Open("AreaProgressUI")
+]]></string>
+        </Properties>
+      </Item>
+    </Item>
+  </Item>
+</roblox>

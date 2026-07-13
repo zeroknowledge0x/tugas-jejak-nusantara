@@ -16,9 +16,12 @@ whole journey.
 ## Build
 ```bash
 # Produce the .rbxlx place file
-tooling/bin/rojo build --output build/JejakNusantara.rbxlx
+tooling/bin/rojo build --output places/JejakNusantara.rbxlx
 ```
-Open `build/JejakNusantara.rbxlx` in Roblox Studio, then Play.
+Prebuilt place also lives at `places/JejakNusantara.rbxlx` (open in Studio).
+
+**Studio tutorial (Indonesian):** [docs/STUDIO_SETUP.md](docs/STUDIO_SETUP.md)
+
 
 ## Verify (headless, no Studio needed)
 ```bash
