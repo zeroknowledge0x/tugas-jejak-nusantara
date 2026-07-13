@@ -17,6 +17,8 @@ for p in glob.glob(os.path.join(ROOT, "Util", "*.luau")):
     modules[os.path.basename(p)[:-5]] = p  # Signal, Tween, Table, RNG
 for p in glob.glob(os.path.join(ROOT, "Systems", "*.luau")):
     modules[os.path.basename(p)[:-5]] = p
+for p in glob.glob(os.path.join(ROOT, "Systems", "MiniGames", "*.luau")):
+    modules[os.path.basename(p)[:-5]] = p
 modules["Data"] = os.path.join(ROOT, "Data", "Data.luau")
 modules["Game"] = os.path.join(ROOT, "Game.luau")
 
@@ -71,6 +73,24 @@ UDim2 = { new = function(...) return {} end }
 UDim = { new = function(...) return {} end }
 Instance = { new = function(...) return stubCtor("Instance") end }
 Enum = { EasingStyle = { Quad = 0 }, EasingDirection = { Out = 0 } }
+Random = {
+	new = function(seed)
+		seed = seed or 1
+		local s = seed % 2147483648
+		local function step()
+			s = (s * 1103515245 + 12345) % 2147483648
+			return s / 2147483648
+		end
+		return {
+			Next = step,
+			NextNumber = step,
+			NextInteger = function(_, a, b)
+				local v = step()
+				return a + math.floor(v * (b - a + 1))
+			end,
+		}
+	end,
+}
 task = { wait = function() end, spawn = function(fn) fn() end }
 script = { Parent = { Parent = {} } }
 
@@ -205,6 +225,61 @@ gs.skills.DecisionMaking = 80
 gs.journal.completion = 90
 gs.discovered.secrets = {}
 check("Orchestrated run -> Lorekeeper", game:EvaluateEnding() == "Lorekeeper")
+
+-- =========================================================
+-- MINI-GAME LOGIC CHECKS (each kind scores correctly)
+-- =========================================================
+local MiniGameSystem = require("MiniGameSystem")
+local Rhythm = require("Rhythm")
+local Dance = require("Dance")
+local Negotiation = require("Negotiation")
+local HistoryPuzzle = require("HistoryPuzzle")
+local Observation = require("Observation")
+local PatternMatching = require("PatternMatching")
+local HiddenObject = require("HiddenObject")
+local CultureActivity = require("CultureActivity")
+
+local r = Rhythm.Create({ beats = 3, seed = 1 })
+check("Rhythm perfect when answers match", Rhythm.Evaluate(r, r.pattern).perfect == true)
+check("Rhythm fails on empty answer", Rhythm.Evaluate(r, {}).success == false)
+
+local d = Dance.Create({ steps = 3, seed = 2 })
+check("Dance perfect when sequence matches", Dance.Evaluate(d, d.sequence).perfect == true)
+check("Dance fails on wrong sequence", Dance.Evaluate(d, { "Up", "Up", "Up" }).success == false)
+
+local n = Negotiation.Create({ fairPrice = 5000 })
+check("Negotiation perfect at fair price", Negotiation.Evaluate(n, 5000).perfect == true)
+check("Negotiation fails when overpaying heavily", Negotiation.Evaluate(n, 9000).success == false)
+
+local h = HistoryPuzzle.Create({ events = { { id = 2, year = 1750 }, { id = 1, year = 1600 }, { id = 3, year = 1900 } } })
+check("HistoryPuzzle perfect in correct order", HistoryPuzzle.Evaluate(h, { 1, 2, 3 }).perfect == true)
+check("HistoryPuzzle fails in wrong order", HistoryPuzzle.Evaluate(h, { 3, 2, 1 }).success == false)
+
+local o = Observation.Create({ targets = { "A", "B" }, distractors = { "X" } })
+check("Observation perfect on correct picks", Observation.Evaluate(o, { "A", "B" }).perfect == true)
+check("Observation penalizes wrong picks", Observation.Evaluate(o, { "A", "X" }).score < 100)
+
+local p = PatternMatching.Create({ seed = 5 })
+check("PatternMatching correct answer", PatternMatching.Evaluate(p, p.answer).success == true)
+check("PatternMatching wrong answer", PatternMatching.Evaluate(p, p.answer + 99).success == false)
+
+local ho = HiddenObject.Create({ secretIds = { "s1", "s2" } })
+check("HiddenObject perfect when all found", HiddenObject.Evaluate(ho, { "s1", "s2" }).perfect == true)
+check("HiddenObject fails on none found", HiddenObject.Evaluate(ho, {}).success == false)
+
+local ca = CultureActivity.Create({ steps = { "a", "b", "c" } })
+check("CultureActivity perfect on correct steps", CultureActivity.Evaluate(ca, { "a", "b", "c" }).perfect == true)
+check("CultureActivity fails on wrong steps", CultureActivity.Evaluate(ca, { "c", "a" }).success == false)
+
+-- MiniGameSystem routes correctly
+MiniGameSystem.Init(gs)
+local mid2 = MiniGameSystem.Launch("Rhythm", { beats = 2, seed = 9 })
+check("MiniGameSystem launch returns id", string.find(mid2, "Rhythm") ~= nil)
+local inst2 = MiniGameSystem.Get(mid2)
+local completed = false
+MiniGameSystem.OnComplete:Connect(function(_id, _res) completed = true end)
+MiniGameSystem.Submit(mid2, Rhythm.Evaluate(inst2, inst2.pattern))
+check("MiniGameSystem submit fires OnComplete", completed == true)
 
 print("")
 print("RESULT: passed=" .. passed .. " failed=" .. failed)

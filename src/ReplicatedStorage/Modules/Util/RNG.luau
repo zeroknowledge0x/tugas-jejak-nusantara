@@ -18,6 +18,11 @@ function RNG:NextNumber(min: number?, max: number?): number
 	return self._rng:NextNumber(min or 0, max or 1)
 end
 
+-- Convenience: 0..1 float (used by mini-game layout generators).
+function RNG:Next(): number
+	return self._rng:NextNumber()
+end
+
 function RNG:Pick<T>(list: { T }): T
 	return list[self._rng:NextInteger(1, #list)]
 end
