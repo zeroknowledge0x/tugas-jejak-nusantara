@@ -3,8 +3,8 @@
 --! of directional poses; scored by timing + correctness.
 --! Public API: Dance.Create(cfg), Dance.Evaluate(inst, seq)
 
-local RNG = require(script.Parent.Parent.Util.RNG)
-local Types = require(script.Parent.Parent.Types)
+local RNG = require(script.Parent.Parent.Parent.Util.RNG)
+local Types = require(script.Parent.Parent.Parent.Types)
 
 export type Pose = "Up" | "Down" | "Left" | "Right" | "Spin"
 export type DanceInstance = {

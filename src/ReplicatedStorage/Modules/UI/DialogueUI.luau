@@ -1,5 +1,6 @@
---! UI/DialogueUI.luau
+--! DialogueUI.luau
 --! Branching dialogue panel with choices. Binds to DialogueSystem.
+local Types = require(script.Parent.Parent.Types)
 local UIBase = require(script.Parent.UIBase)
 local DialogueSystem = require(script.Parent.Parent.Systems.DialogueSystem)
 
@@ -14,7 +15,8 @@ function DialogueUI.Build(parent: Instance): Frame
 	local f = UIBase.Frame(parent, UDim2.new(0.6, 0, 0.3, 0), UDim2.new(0.2, 0, 0.65, 0), UIBase.Theme.panel)
 	f.Name = "DialogueUI"
 	f.Visible = false
-	UIBase.Label(f, "", UDim2.new(1, -20, 0.5, 0), UDim2.new(0, 10, 0, 8)).Name = "Text"
+	local text = UIBase.Label(f, "", UDim2.new(1, -20, 0.5, 0), UDim2.new(0, 10, 0, 8))
+	text.Name = "Text"
 	local choices = UIBase.Frame(f, UDim2.new(1, -20, 0.5, -10), UDim2.new(0, 10, 0.5, 5), UIBase.Theme.panel)
 	choices.Name = "Choices"
 	return f
@@ -23,7 +25,7 @@ end
 function DialogueUI.Show(self: Frame, node: Types.DialogueNode)
 	self.Visible = true
 	local txt = self:FindFirstChild("Text")
-	if txt ~= nil then
+	if txt ~= nil and txt:IsA("TextLabel") then
 		txt.Text = node.speaker .. ": " .. node.text
 	end
 	local choices = self:FindFirstChild("Choices")

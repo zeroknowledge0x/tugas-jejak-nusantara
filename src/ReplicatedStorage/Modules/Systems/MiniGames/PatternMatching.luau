@@ -2,8 +2,8 @@
 --! Pattern matching (batik/weaving motifs). Player continues a sequence.
 --! Public API: PatternMatching.Create(cfg), PatternMatching.Evaluate(inst, next)
 
-local RNG = require(script.Parent.Parent.Util.RNG)
-local Types = require(script.Parent.Parent.Types)
+local RNG = require(script.Parent.Parent.Parent.Util.RNG)
+local Types = require(script.Parent.Parent.Parent.Types)
 
 export type PatternInstance = {
 	kind: "PatternMatching",

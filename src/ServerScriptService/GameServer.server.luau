@@ -1,12 +1,11 @@
---! GameServer.luau (ServerScriptService)
+--! GameServer.server.luau (ServerScriptService)
 --! Server bootstrap: per-player session via the Game orchestrator.
---! The orchestrator inits + wires ALL systems, so the core loop is consistent.
+--! Rojo maps *.server.luau -> Script (auto-runs on the server).
 
 local Replicated = game:GetService("ReplicatedStorage")
 local Players = game:GetService("Players")
 
 local Modules = Replicated:WaitForChild("JN"):WaitForChild("Modules")
-local Data = require(Modules:WaitForChild("Data"):WaitForChild("Data"))
 local Game = require(Modules:WaitForChild("Game"))
 
 local SaveSystem = require(Modules:WaitForChild("Systems"):WaitForChild("SaveSystem"))
@@ -29,7 +28,6 @@ local function startSession(player: Player)
 	AreaManager.Load("RumahBudaya")
 	GameManager.Start()
 
-	-- Persist on key milestones.
 	gameSession:Save()
 end
 
@@ -44,4 +42,7 @@ end
 Players.PlayerAdded:Connect(startSession)
 Players.PlayerRemoving:Connect(endSession)
 
-return true
+-- Players already in-game when this script starts (Studio play solo).
+for _, player in ipairs(Players:GetPlayers()) do
+	task.spawn(startSession, player)
+end

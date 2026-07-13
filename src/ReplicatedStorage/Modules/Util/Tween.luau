@@ -10,6 +10,7 @@ export type TweenOpts = {
 	repeatCount: number?,
 	reverses: boolean?,
 	delayTime: number?,
+	completed: (() -> ())?,
 }
 
 local function defaultOpts(opts: TweenOpts?): TweenInfo
@@ -32,6 +33,17 @@ end
 
 function Tween.play(instance: Instance, props: { [string]: any }, opts: TweenOpts?): TweenBase
 	local t = Tween.create(instance, props, opts)
+	t:Play()
+	return t
+end
+
+-- Convenience used by UI fades. Mirrors Tween.play + optional completed callback.
+function Tween.To(instance: Instance, props: { [string]: any }, opts: TweenOpts?): TweenBase
+	local o = opts or {}
+	local t = Tween.create(instance, props, o)
+	if o.completed ~= nil then
+		t.Completed:Connect(o.completed)
+	end
 	t:Play()
 	return t
 end

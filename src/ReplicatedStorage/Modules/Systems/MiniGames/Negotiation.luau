@@ -3,7 +3,7 @@
 --! price exists; scoring rewards landing near fair value without overpaying.
 --! Public API: Negotiation.Create(cfg), Negotiation.Evaluate(inst, offer)
 
-local Types = require(script.Parent.Parent.Types)
+local Types = require(script.Parent.Parent.Parent.Types)
 
 export type NegotiationInstance = {
 	kind: "Negotiation",

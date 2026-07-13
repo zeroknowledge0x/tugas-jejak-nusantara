@@ -3,7 +3,7 @@
 --! Player identifies N target items among distractors from a described scene.
 --! Public API: Observation.Create(cfg), Observation.Evaluate(inst, picks)
 
-local Types = require(script.Parent.Parent.Types)
+local Types = require(script.Parent.Parent.Parent.Types)
 
 export type ObservationInstance = {
 	kind: "Observation",

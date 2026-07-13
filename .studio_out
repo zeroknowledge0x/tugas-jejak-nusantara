@@ -1,0 +1,17 @@
+[studio-readiness] entry script classes in .rbxlx
+  PASS: GameServer is Script
+  PASS: GameClient is LocalScript
+  PASS: place contains JN
+  PASS: place contains Modules
+  PASS: place contains Systems
+  PASS: place contains UI
+  PASS: place contains Data
+  PASS: place contains MiniGames
+  PASS: place contains Util
+[studio-readiness] require path depth vs filesystem location
+  PASS: UIController require paths use Modules + sibling Systems
+  PASS: MiniGames Rhythm Types depth is Parent.Parent.Parent
+[studio-readiness] entry file extensions
+  PASS: GameServer.server.luau present
+  PASS: GameClient.client.luau present
+== STUDIO READINESS PASSED ==

@@ -5,8 +5,8 @@
 --!   Rhythm.Create(cfg): instance
 --!   Rhythm.Evaluate(inst, answer): MiniGameResult
 
-local RNG = require(script.Parent.Parent.Util.RNG)
-local Types = require(script.Parent.Parent.Types)
+local RNG = require(script.Parent.Parent.Parent.Util.RNG)
+local Types = require(script.Parent.Parent.Parent.Types)
 
 export type RhythmInstance = {
 	kind: "Rhythm",

@@ -3,7 +3,7 @@
 --! correct chronological sequence.
 --! Public API: HistoryPuzzle.Create(cfg), HistoryPuzzle.Evaluate(inst, order)
 
-local Types = require(script.Parent.Parent.Types)
+local Types = require(script.Parent.Parent.Parent.Types)
 
 export type HistoryPuzzleInstance = {
 	kind: "HistoryPuzzle",

@@ -1,8 +1,8 @@
 --! UI/QuestTracker.luau
 --! Live quest tracker (top-right). Binds to QuestSystem active quests.
-local Types = require(script.Parent.Parent.Types)
 local UIBase = require(script.Parent.UIBase)
 local QuestSystem = require(script.Parent.Parent.Systems.QuestSystem)
+local Data = require(script.Parent.Parent.Data.Data)
 
 export type QuestTrackerApi = {
 	Build: (parent: Instance) -> Frame,
@@ -33,9 +33,11 @@ function QuestTracker.Refresh(self: Frame)
 	end
 	local y = 0
 	for _, q in ipairs(QuestSystem.GetActive()) do
+		local def = Data.Quests[q.id]
+		local title = if def ~= nil and def.title ~= nil then def.title else q.id
 		UIBase.Label(
 			list,
-			q.title .. " (" .. q.progress .. "/" .. q.goal .. ")",
+			title .. " (" .. q.progress .. "/" .. q.goal .. ")",
 			UDim2.new(1, -8, 0, 20),
 			UDim2.new(0, 4, 0, y)
 		)

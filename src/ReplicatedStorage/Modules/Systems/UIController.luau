@@ -7,28 +7,31 @@
 --!   UIController.Close(screen: string)
 --!   UIController.RefreshAll()
 --!   UIController.ShowEnding(ending: Types.EndingId)
+--!
+--! Path note: this module lives under Modules/Systems/, so Modules is
+--! script.Parent.Parent and UI is script.Parent.Parent.UI.
 
-local Types = require(script.Parent.Types)
-local UIBase = require(script.Parent.UI.UIBase)
-local QuestTracker = require(script.Parent.UI.QuestTracker)
-local DialogueUI = require(script.Parent.UI.DialogueUI)
-local JournalUI = require(script.Parent.UI.JournalUI)
-local InventoryUI = require(script.Parent.UI.InventoryUI)
-local SettingsUI = require(script.Parent.UI.SettingsUI)
-local PauseUI = require(script.Parent.UI.PauseUI)
-local MapUI = require(script.Parent.UI.MapUI)
-local AreaProgressUI = require(script.Parent.UI.AreaProgressUI)
-local SkillProgressUI = require(script.Parent.UI.SkillProgressUI)
-local EndingSummaryUI = require(script.Parent.UI.EndingSummaryUI)
-local AchievementToast = require(script.Parent.UI.AchievementToast)
+local Types = require(script.Parent.Parent.Types)
+local UIBase = require(script.Parent.Parent.UI.UIBase)
+local QuestTracker = require(script.Parent.Parent.UI.QuestTracker)
+local DialogueUI = require(script.Parent.Parent.UI.DialogueUI)
+local JournalUI = require(script.Parent.Parent.UI.JournalUI)
+local InventoryUI = require(script.Parent.Parent.UI.InventoryUI)
+local SettingsUI = require(script.Parent.Parent.UI.SettingsUI)
+local PauseUI = require(script.Parent.Parent.UI.PauseUI)
+local MapUI = require(script.Parent.Parent.UI.MapUI)
+local AreaProgressUI = require(script.Parent.Parent.UI.AreaProgressUI)
+local SkillProgressUI = require(script.Parent.Parent.UI.SkillProgressUI)
+local EndingSummaryUI = require(script.Parent.Parent.UI.EndingSummaryUI)
+local AchievementToast = require(script.Parent.Parent.UI.AchievementToast)
 
-local QuestSystem = require(script.Parent.Systems.QuestSystem)
-local DialogueSystem = require(script.Parent.Systems.DialogueSystem)
-local JournalSystem = require(script.Parent.Systems.JournalSystem)
-local InventorySystem = require(script.Parent.Systems.InventorySystem)
-local AreaManager = require(script.Parent.Systems.AreaManager)
-local SkillSystem = require(script.Parent.Systems.SkillSystem)
-local AchievementSystem = require(script.Parent.Systems.AchievementSystem)
+local QuestSystem = require(script.Parent.QuestSystem)
+local DialogueSystem = require(script.Parent.DialogueSystem)
+local JournalSystem = require(script.Parent.JournalSystem)
+local InventorySystem = require(script.Parent.InventorySystem)
+local AreaManager = require(script.Parent.AreaManager)
+local SkillSystem = require(script.Parent.SkillSystem)
+local AchievementSystem = require(script.Parent.AchievementSystem)
 
 export type UIControllerApi = {
 	Init: (pg: Instance) -> (),
@@ -70,12 +73,15 @@ function UIController.Init(pg: Instance)
 	screens.JournalUI = JournalUI.Build(root)
 	screens.InventoryUI = InventoryUI.Build(root)
 	screens.SettingsUI = SettingsUI.Build(root)
-	screens.PauseUI = PauseUI.Build(root)
+	screens.PauseUI = PauseUI.Build(root, function()
+		UIController.Close("PauseUI")
+	end, function()
+		UIController.Open("SettingsUI")
+	end)
 	screens.MapUI = MapUI.Build(root)
 	screens.EndingSummaryUI = EndingSummaryUI.Build(root)
 	screens.AchievementToast = AchievementToast.Build(root)
 
-	-- Live refresh wiring
 	local refresh = function()
 		UIController.RefreshAll()
 	end
@@ -88,11 +94,18 @@ function UIController.Init(pg: Instance)
 		DialogueUI.Show(screens.DialogueUI, node)
 	end)
 	DialogueSystem.OnEnd:Connect(function()
-		screens.DialogueUI.Visible = false
+		if screens.DialogueUI ~= nil then
+			screens.DialogueUI.Visible = false
+		end
 	end)
 	AchievementSystem.OnUnlock:Connect(function(id)
 		AchievementToast.Pop(screens.AchievementToast, id)
 	end)
+
+	-- Always-on HUD
+	screens.QuestTracker.Visible = true
+	screens.AreaProgressUI.Visible = true
+	screens.SkillProgressUI.Visible = true
 end
 
 function UIController.Open(screen: string)
@@ -130,7 +143,9 @@ function UIController.RefreshAll()
 end
 
 function UIController.ShowEnding(ending: Types.EndingId)
-	EndingSummaryUI.Show(screens.EndingSummaryUI, ending)
+	if screens.EndingSummaryUI ~= nil then
+		EndingSummaryUI.Show(screens.EndingSummaryUI, ending)
+	end
 end
 
 return UIController

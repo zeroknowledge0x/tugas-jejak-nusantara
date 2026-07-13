@@ -2,7 +2,7 @@
 --! Hidden object search (secrets/scavenger). Player locates items by clue.
 --! Public API: HiddenObject.Create(cfg), HiddenObject.Evaluate(inst, foundIds)
 
-local Types = require(script.Parent.Parent.Types)
+local Types = require(script.Parent.Parent.Parent.Types)
 
 export type HiddenObjectInstance = {
 	kind: "HiddenObject",

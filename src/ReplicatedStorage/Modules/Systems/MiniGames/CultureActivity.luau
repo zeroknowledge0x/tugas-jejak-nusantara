@@ -3,7 +3,7 @@
 --! Player performs an ordered set of steps; scored on correctness.
 --! Public API: CultureActivity.Create(cfg), CultureActivity.Evaluate(inst, steps)
 
-local Types = require(script.Parent.Parent.Types)
+local Types = require(script.Parent.Parent.Parent.Types)
 
 export type CultureActivityInstance = {
 	kind: "CultureActivity",

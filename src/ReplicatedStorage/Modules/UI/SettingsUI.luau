@@ -11,14 +11,19 @@ function SettingsUI.Build(parent: Instance): Frame
 	f.Name = "SettingsUI"
 	f.Visible = false
 	UIBase.Label(f, "PENGATURAN", UDim2.new(1, -20, 0, 30), UDim2.new(0, 10, 0, 6))
-	UIBase.Button(f, "Musik: Nyala", UDim2.new(1, -40, 0, 32), UDim2.new(0, 20, 0, 50), function(b)
+
+	local musicBtn: TextButton
+	musicBtn = UIBase.Button(f, "Musik: Nyala", UDim2.new(1, -40, 0, 32), UDim2.new(0, 20, 0, 50), function()
 		local on = AudioManager.ToggleMusic()
-		b.Text = on and "Musik: Nyala" or "Musik: Mati"
+		musicBtn.Text = if on then "Musik: Nyala" else "Musik: Mati"
 	end)
-	UIBase.Button(f, "SFX: Nyala", UDim2.new(1, -40, 0, 32), UDim2.new(0, 20, 0, 90), function(b)
+
+	local sfxBtn: TextButton
+	sfxBtn = UIBase.Button(f, "SFX: Nyala", UDim2.new(1, -40, 0, 32), UDim2.new(0, 20, 0, 90), function()
 		local on = AudioManager.ToggleSfx()
-		b.Text = on and "SFX: Nyala" or "SFX: Mati"
+		sfxBtn.Text = if on then "SFX: Nyala" else "SFX: Mati"
 	end)
+
 	return f
 end
 
