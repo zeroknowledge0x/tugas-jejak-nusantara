@@ -23,6 +23,10 @@
 				"$path": "src/StarterPlayer/StarterPlayerScripts"
 			}
 		},
+		"Workspace": {
+			"$className": "Workspace",
+			"$path": "src/Workspace"
+		},
 		"SoundService": {
 			"$className": "SoundService"
 		},
