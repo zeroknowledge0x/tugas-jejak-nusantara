@@ -74,13 +74,15 @@ end
 
 -- Builds the effects handler injected into DialogueSystem (keeps it decoupled).
 function Game:_effectsHandler()
-	local self = self
 	return {
 		ApplySkillGain = function(skill: Types.SkillId, amount: number)
 			SkillSystem.AddXP(skill, amount)
 		end,
 		ApplyUnlock = function(kind: Types.UnlockKind, id: string)
-			self.save.unlocked[kind][id] = true
+			local bucket = self.save.unlocked[kind]
+			if bucket ~= nil then
+				bucket[id] = true
+			end
 			SkillSystem.OnUnlock:Fire(kind, id)
 		end,
 		ApplyRelationship = function(npc: string, delta: number)

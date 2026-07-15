@@ -102,7 +102,10 @@ function DialogueSystem._apply(effect: Types.DialogueEffect)
 		if fx ~= nil then
 			fx.ApplyUnlock(effect.unlock.kind, effect.unlock.id)
 		else
-			save.unlocked[effect.unlock.kind][effect.unlock.id] = true
+			local bucket = save.unlocked[effect.unlock.kind]
+			if bucket ~= nil then
+				bucket[effect.unlock.id] = true
+			end
 		end
 	end
 	if effect.relationship ~= nil then

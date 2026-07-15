@@ -67,7 +67,8 @@ end
 
 function SkillSystem.IsUnlocked(kind: Types.UnlockKind, id: string): boolean
 	assert(save, "SkillSystem not initialized")
-	return save.unlocked[kind][id] == true
+	local bucket = save.unlocked[kind]
+	return bucket ~= nil and bucket[id] == true
 end
 
 -- Internal: flip unlocks based on thresholds (TDD §6 mapping).
