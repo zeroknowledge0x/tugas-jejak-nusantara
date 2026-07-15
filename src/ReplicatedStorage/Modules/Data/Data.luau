@@ -4,7 +4,7 @@
 --! revival finale L5). Each level carries story, NPCs, dialogue, quests,
 --! mini-game configs, secrets, and journal entries.
 
-local Types = require(script.Parent.Types)
+local Types = require(script.Parent.Parent.Types)
 
 local Data = {}
 
