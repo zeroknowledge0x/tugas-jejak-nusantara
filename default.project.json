@@ -38,7 +38,7 @@
 			"$className": "Lighting"
 		},
 		"TextChatService": {
-			"className": "TextChatService"
+			"$className": "TextChatService"
 		}
 	}
 }
