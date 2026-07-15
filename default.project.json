@@ -1,6 +1,10 @@
 {
 	"name": "JejakNusantara",
-	"globIgnorePaths": ["**/_*.luau", "docs/**", "tooling/**"],
+	"globIgnorePaths": [
+		"**/_*.luau",
+		"docs/**",
+		"tooling/**"
+	],
 	"tree": {
 		"$className": "DataModel",
 		"ReplicatedStorage": {
@@ -32,6 +36,9 @@
 		},
 		"Lighting": {
 			"$className": "Lighting"
+		},
+		"TextChatService": {
+			"className": "TextChatService"
 		}
 	}
 }
