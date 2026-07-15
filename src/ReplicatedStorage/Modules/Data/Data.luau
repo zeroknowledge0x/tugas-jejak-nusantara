@@ -4,7 +4,8 @@
 --! revival finale L5). Each level carries story, NPCs, dialogue, quests,
 --! mini-game configs, secrets, and journal entries.
 
-local Types = require(script.Parent.Parent.Types)
+-- Absolute path so Studio never resolves Types relative to the Data folder.
+local Types = require(game:GetService("ReplicatedStorage"):WaitForChild("JN"):WaitForChild("Modules"):WaitForChild("Types"))
 
 local Data = {}
 
