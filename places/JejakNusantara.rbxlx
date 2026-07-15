@@ -29,7 +29,7 @@
 --! revival finale L5). Each level carries story, NPCs, dialogue, quests,
 --! mini-game configs, secrets, and journal entries.
 
-local Types = require(script.Parent.Types)
+local Types = require(script.Parent.Parent.Types)
 
 local Data = {}
 
@@ -515,13 +515,15 @@ end
 
 -- Builds the effects handler injected into DialogueSystem (keeps it decoupled).
 function Game:_effectsHandler()
-	local self = self
 	return {
 		ApplySkillGain = function(skill: Types.SkillId, amount: number)
 			SkillSystem.AddXP(skill, amount)
 		end,
 		ApplyUnlock = function(kind: Types.UnlockKind, id: string)
-			self.save.unlocked[kind][id] = true
+			local bucket = self.save.unlocked[kind]
+			if bucket ~= nil then
+				bucket[id] = true
+			end
 			SkillSystem.OnUnlock:Fire(kind, id)
 		end,
 		ApplyRelationship = function(npc: string, delta: number)
@@ -1025,7 +1027,10 @@ function DialogueSystem._apply(effect: Types.DialogueEffect)
 		if fx ~= nil then
 			fx.ApplyUnlock(effect.unlock.kind, effect.unlock.id)
 		else
-			save.unlocked[effect.unlock.kind][effect.unlock.id] = true
+			local bucket = save.unlocked[effect.unlock.kind]
+			if bucket ~= nil then
+				bucket[effect.unlock.id] = true
+			end
 		end
 	end
 	if effect.relationship ~= nil then
@@ -2331,7 +2336,8 @@ end
 
 function SkillSystem.IsUnlocked(kind: Types.UnlockKind, id: string): boolean
 	assert(save, "SkillSystem not initialized")
-	return save.unlocked[kind][id] == true
+	local bucket = save.unlocked[kind]
+	return bucket ~= nil and bucket[id] == true
 end
 
 -- Internal: flip unlocks based on thresholds (TDD §6 mapping).
