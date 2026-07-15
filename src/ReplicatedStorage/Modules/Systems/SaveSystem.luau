@@ -24,6 +24,14 @@ local CURRENT_VERSION = 1
 local store: any = nil
 
 function SaveSystem.Init()
+	-- DataStore wajib place sudah dipublish ke web. Di Studio (atau place
+	-- belum publish) Roblox lempar engine-error fatal yg pcall tdk tangkap.
+	-- Guard: skip total -> pakai fallback lokal (save tetap jalan di test).
+	local RunService = game:GetService("RunService")
+	if RunService:IsStudio() or game.PlaceId == 0 then
+		store = nil
+		return
+	end
 	local ok, ds = pcall(function()
 		return game:GetService("DataStoreService"):GetDataStore("JejakNusantara")
 	end)
