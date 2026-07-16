@@ -82,6 +82,7 @@ createRemote("RemoteEvent", "EndingTriggered")
 createRemote("RemoteEvent", "LevelUnlocked")
 createRemote("RemoteEvent", "TalkRequest")
 createRemote("RemoteEvent", "PortalRequest")
+createRemote("RemoteEvent", "StartQuiz")
 
 print("✅ Remote events created!")
 
@@ -368,7 +369,8 @@ print("✅ Game data loaded!")
 local playerData = {}
 local playerActiveNPC = {} -- Bug #1 fix: track which NPC each player is talking to
 local playerDialogueLine = {}
-local lastSafeCFrame = {} -- checkpoint (last solid ground / portal)
+local lastSafeCFrame = {}
+local talkedToNPC = {} -- [userId] = { Dosen=true, Karso=true, ... } -- checkpoint (last solid ground / portal)
 local lastDialogueFire = {} -- Bug #3 fix: track current dialogue line per player
 
 local function createDefaultData()
@@ -789,6 +791,8 @@ local function createNPC(name, position, dialogueId, bodyColor, shirtColor, pant
         end
 
         data.talkCount = (data.talkCount or 0) + 1
+    if not talkedToNPC[player.UserId] then talkedToNPC[player.UserId] = {} end
+    talkedToNPC[player.UserId][dialogueId] = true
         print("[NPC] " .. player.Name .. " talking to " .. name .. " (talk #" .. data.talkCount .. ")")
 
         playerActiveNPC[player.UserId] = dialogueId
@@ -833,6 +837,14 @@ local function createNPC(name, position, dialogueId, bodyColor, shirtColor, pant
     print("[NPC] Created: " .. name .. " at " .. tostring(position))
     return model
 end
+
+
+local QUIZ_NPC_REQUIREMENT = {
+    quiz_jawa = "Karso",
+    quiz_sumatra = "Ratna",
+    quiz_bali = "Wayan",
+    quiz_papua = "Yanu",
+}
 
 -- ============================================
 -- PORTAL CREATION FUNCTION
@@ -918,10 +930,17 @@ local function createPortal(name, position, destination, color, label, quizId)
         end
         RS.ShowNotification:FireClient(player, "🌍 Memasuki " .. (label or name))
 
-        -- Start quiz only if not finished yet
+        -- Quiz gating: must talk to region NPC first
         if data.completedQuizzes[quizId] then
-            RS.ShowNotification:FireClient(player, "✅ Wilayah ini sudah tuntas. Jelajahi atau kembali ke kampus.")
-            print("[Portal] Revisit completed zone: " .. quizId)
+            RS.ShowNotification:FireClient(player, "✅ Wilayah sudah tuntas. T untuk kuis ulang / jelajahi.")
+            return
+        end
+
+        local reqNpc = QUIZ_NPC_REQUIREMENT and QUIZ_NPC_REQUIREMENT[quizId]
+        local talked = talkedToNPC[player.UserId] and talkedToNPC[player.UserId][reqNpc]
+        if not talked then
+            RS.ShowNotification:FireClient(player, "📚 Bicara NPC di wilayah ini DULU untuk belajar. Lalu tekan T untuk QUIZ.")
+            print("[Portal] No NPC talk — explore only")
             return
         end
 
@@ -932,8 +951,6 @@ local function createPortal(name, position, destination, color, label, quizId)
             end)
             addJournalEntry(player, "📝 Memasuki quiz: " .. quizData.title)
             print("[Portal] Quiz started: " .. quizId .. " for " .. player.Name)
-        else
-            warn("[Portal] ERROR: No quiz data for " .. quizId)
         end
     end)
 
@@ -2648,6 +2665,8 @@ local function beginDialogue(player, dialogueId)
     local data = getPlayerData(player)
     if not data then return end
     data.talkCount = (data.talkCount or 0) + 1
+    if not talkedToNPC[player.UserId] then talkedToNPC[player.UserId] = {} end
+    talkedToNPC[player.UserId][dialogueId] = true
     playerActiveNPC[player.UserId] = dialogueId
     playerDialogueLine[player.UserId] = 1
     RS.DialogueStart:FireClient(player, dialogue, dialogueId)
@@ -2702,7 +2721,13 @@ local function enterPortalById(player, portalKey)
     end
     RS.ShowNotification:FireClient(player, "🌍 Memasuki " .. meta.label)
     if data.completedQuizzes[quizId] then
-        RS.ShowNotification:FireClient(player, "✅ Wilayah ini sudah tuntas.")
+        RS.ShowNotification:FireClient(player, "✅ Wilayah sudah tuntas. T untuk quiz ulang.")
+        return
+    end
+    local reqNpc = QUIZ_NPC_REQUIREMENT and QUIZ_NPC_REQUIREMENT[quizId]
+    local talked = talkedToNPC[player.UserId] and talkedToNPC[player.UserId][reqNpc]
+    if not talked then
+        RS.ShowNotification:FireClient(player, "📚 Bicara NPC di wilayah ini DULU. Lalu tekan T untuk QUIZ.")
         return
     end
     local quizData = QUIZZES[quizId]
@@ -2717,6 +2742,31 @@ end
 RS.PortalRequest.OnServerEvent:Connect(function(player, portalKey)
     print("[PortalRequest] " .. player.Name .. " -> " .. tostring(portalKey))
     enterPortalById(player, portalKey)
+end)
+
+
+-- ============================================
+-- START QUIZ (manual trigger after learning from NPC)
+-- ============================================
+RS.StartQuiz.OnServerEvent:Connect(function(player, quizId)
+    print("[StartQuiz] " .. player.Name .. " requests " .. tostring(quizId))
+    local data = getPlayerData(player)
+    if not data then return end
+    if data.completedQuizzes[quizId] then
+        RS.ShowNotification:FireClient(player, "✅ Quiz ini sudah selesai!")
+        return
+    end
+    local reqNpc = QUIZ_NPC_REQUIREMENT and QUIZ_NPC_REQUIREMENT[quizId]
+    local talked = talkedToNPC[player.UserId] and talkedToNPC[player.UserId][reqNpc]
+    if not talked then
+        RS.ShowNotification:FireClient(player, "📚 Bicara dengan NPC dulu untuk belajar budaya wilayah ini!")
+        return
+    end
+    local quizData = QUIZZES[quizId]
+    if quizData then
+        RS.QuizStart:FireClient(player, quizData, quizId, 1)
+        addJournalEntry(player, "📝 Memulai quiz: " .. quizData.title)
+    end
 end)
 
 -- ============================================

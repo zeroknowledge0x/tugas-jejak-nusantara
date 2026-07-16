@@ -19,7 +19,7 @@
     - Added: Journal, Ending screen, quizId tracking
 ]]
 
-print("🎮 GameClient v4.7 - Loading...")
+print("🎮 GameClient v4.8 - Loading...")
 
 local Players = game:GetService("Players")
 local RS = game:GetService("ReplicatedStorage")
@@ -92,6 +92,7 @@ local RE_EndingTriggered  = waitRemote("EndingTriggered")
 local RE_LevelUnlocked    = waitRemote("LevelUnlocked")
 local RE_TalkRequest      = waitRemote("TalkRequest")
 local RE_PortalRequest    = waitRemote("PortalRequest")
+local RE_StartQuiz        = waitRemote("StartQuiz")
 
 print("✅ Remotes ready!")
 local currentQuestionIndex = 1
@@ -153,7 +154,7 @@ local versionLabel = Instance.new("TextLabel")
 versionLabel.Size = UDim2.new(0.2, 0, 0.04, 0)
 versionLabel.Position = UDim2.new(0.4, 0, 0.32, 0)
 versionLabel.BackgroundTransparency = 1
-versionLabel.Text = "v4.7 · Nusantara"
+versionLabel.Text = "v4.8 · Nusantara"
 versionLabel.TextColor3 = Color3.fromRGB(150, 150, 150)
 versionLabel.TextScaled = true
 versionLabel.Font = Enum.Font.Gotham
@@ -250,7 +251,7 @@ local hintLabel = Instance.new("TextLabel")
 hintLabel.Size = UDim2.new(1, -20, 0, 20)
 hintLabel.Position = UDim2.new(0, 10, 0, 85)
 hintLabel.BackgroundTransparency = 1
-hintLabel.Text = "E=Bicara/Portal · J=Jurnal · jatuh=checkpoint"
+hintLabel.Text = "E=Bicara/Portal · T=Quiz (setelah belajar) · J=Jurnal"
 hintLabel.TextColor3 = Color3.fromRGB(150, 150, 150)
 hintLabel.TextScaled = true
 hintLabel.Font = Enum.Font.Gotham
@@ -884,7 +885,7 @@ startButton.MouseButton1Click:Connect(function()
         bindCamera(player.Character)
     end
     if setObjective then
-        setObjective("1) Bicara Pak Dosen (E) untuk tutorial\n2) Bicara NPC di wilayah untuk BELAJAR\n3) Masuk PORTAL (E) untuk QUIZ\n4) Jawaban quiz = materi NPC!")
+        setObjective("1) Bicara Pak Dosen (E) — tutorial\n2) Masuk PORTAL (E) ke wilayah\n3) Bicara NPC (E) untuk BELAJAR budaya\n4) Tekan T untuk QUIZ (jawaban = materi NPC)\n5) 4 wilayah selesai = Ending")
     end
 end)
 
@@ -1078,9 +1079,36 @@ UIS.InputBegan:Connect(function(input, processed)
 				print("[Client] E: no NPC/portal nearby")
 			end
 		end
+	elseif input.KeyCode == Enum.KeyCode.T then
+		-- T: start quiz if already in region (after learning from NPC)
+		if not RE_StartQuiz then return end
+		local char = player.Character
+		local hrp = char and char:FindFirstChild("HumanoidRootPart")
+		if not hrp then return end
+		-- Detect region by position
+		local pos = hrp.Position
+		local REGIONS = {
+			{ name = "quiz_jawa",    min = Vector3.new(-320 - 10, 0, -320 - 10), max = Vector3.new(-240 + 10, 0, -240 + 10) },
+			{ name = "quiz_sumatra",  min = Vector3.new(240 - 10, 0, -320 - 10),  max = Vector3.new(320 + 10, 0, -240 + 10) },
+			{ name = "quiz_bali",     min = Vector3.new(-320 - 10, 0, 240 - 10),   max = Vector3.new(-240 + 10, 0, 320 + 10) },
+			{ name = "quiz_papua",    min = Vector3.new(240 - 10, 0, 240 - 10),    max = Vector3.new(320 + 10, 0, 320 + 10) },
+		}
+		local found
+		for _, r in ipairs(REGIONS) do
+			if pos.X >= r.min.X and pos.X <= r.max.X and pos.Z >= r.min.Z and pos.Z <= r.max.Z then
+				found = r.name
+				break
+			end
+		end
+		if found then
+			print("[Client] T -> StartQuiz " .. found)
+			RE_StartQuiz:FireServer(found)
+		else
+			showNotification("T hanya bekerja di wilayah (Jawa/Sumatra/Bali/Papua). Belajar dari NPC dulu!")
+		end
 	end
 end)
 
 
-print("✅ GameClient v4.7 ready!")
+print("✅ GameClient v4.8 ready!")
 
