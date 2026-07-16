@@ -2156,169 +2156,169 @@ local function createWorld()
     -- JAWA AREA (Rumah Joglo + Gamelan + More)
     -- ==========================================
     -- Rumah Joglo (traditional Javanese house)
-    buildHouse(workspace, Vector3.new(-130, 0, -140), 18, 10, 14,
+    buildHouse(workspace, Vector3.new(-280.0, 0.0, -290.0), 18, 10, 14,
         Color3.fromRGB(160, 120, 60), Color3.fromRGB(100, 50, 20), "Rumah_Joglo")
 
     -- Pendopo (open pavilion)
-    buildHouse(workspace, Vector3.new(-110, 0, -120), 14, 8, 14,
+    buildHouse(workspace, Vector3.new(-260.0, 0.0, -270.0), 14, 8, 14,
         Color3.fromRGB(180, 140, 80), Color3.fromRGB(120, 60, 25), "Pendopo")
 
     -- Gamelan stage
     local stage = Instance.new("Part")
     stage.Name = "GamelanStage"
     stage.Size = Vector3.new(16, 1, 10)
-    stage.Position = Vector3.new(-100, 0.5, -100)
+    stage.Position = Vector3.new(-250.0, 0.5, -250.0)
     stage.Anchored = true
     stage.Color = Color3.fromRGB(140, 90, 40)
     stage.Material = Enum.Material.Wood
     stage.Parent = workspace
 
     -- Warung (food stall) extra building
-    buildStall(workspace, Vector3.new(-140, 0, -100), Color3.fromRGB(180, 60, 30), "Warung_Jawa")
-    buildStall(workspace, Vector3.new(-100, 0, -140), Color3.fromRGB(160, 120, 40), "Kios_Batik_Jawa")
+    buildStall(workspace, Vector3.new(-290.0, 0.0, -250.0), Color3.fromRGB(180, 60, 30), "Warung_Jawa")
+    buildStall(workspace, Vector3.new(-250.0, 0.0, -290.0), Color3.fromRGB(160, 120, 40), "Kios_Batik_Jawa")
 
     -- Javanese temple (small candi)
-    buildTemple(workspace, Vector3.new(-140, 0, -130), 8)
+    buildTemple(workspace, Vector3.new(-290.0, 0.0, -280.0), 8)
 
     -- Sawah (rice field - green flat)
     local sawah = Instance.new("Part")
     sawah.Name = "Sawah"
     sawah.Size = Vector3.new(30, 0.3, 20)
-    sawah.Position = Vector3.new(-140, 0.15, -100)
+    sawah.Position = Vector3.new(-290.0, 0.15, -250.0)
     sawah.Anchored = true
     sawah.Color = Color3.fromRGB(100, 180, 60)
     sawah.Material = Enum.Material.Grass
     sawah.Parent = workspace
 
     -- Jawa water feature
-    buildWater(workspace, Vector3.new(-100, 0.15, -140), Vector3.new(15, 0.3, 15))
+    buildWater(workspace, Vector3.new(-250.0, 0.15, -290.0), Vector3.new(15, 0.3, 15))
 
     -- Jawa decorations
-    buildLampPost(workspace, Vector3.new(-120, 0, -120))
-    buildLampPost(workspace, Vector3.new(-140, 0, -120))
-    buildFlowerBed(workspace, Vector3.new(-115, 0, -135), Vector3.new(6, 0.3, 3), Color3.fromRGB(255, 200, 50))
-    buildSignpost(workspace, Vector3.new(-95, 0, -120), {"Rumah Joglo", "Pendopo", "Gamelan"})
+    buildLampPost(workspace, Vector3.new(-270.0, 0.0, -270.0))
+    buildLampPost(workspace, Vector3.new(-290.0, 0.0, -270.0))
+    buildFlowerBed(workspace, Vector3.new(-265.0, 0.0, -285.0), Vector3.new(6, 0.3, 3), Color3.fromRGB(255, 200, 50))
+    buildSignpost(workspace, Vector3.new(-245.0, 0.0, -270.0), {"Rumah Joglo", "Pendopo", "Gamelan"})
 
     -- Jawa trees
     for _, tpos in ipairs({
-        Vector3.new(-150, 0, -150), Vector3.new(-90, 0, -150),
-        Vector3.new(-150, 0, -90), Vector3.new(-90, 0, -90),
-        Vector3.new(-140, 0, -130), Vector3.new(-100, 0, -140),
+        Vector3.new(-300.0, 0.0, -300.0), Vector3.new(-240.0, 0.0, -300.0),
+        Vector3.new(-300.0, 0.0, -240.0), Vector3.new(-240.0, 0.0, -240.0),
+        Vector3.new(-290.0, 0.0, -280.0), Vector3.new(-250.0, 0.0, -290.0),
     }) do buildTree(workspace, tpos, 12) end
 
     -- Jawa benches and lamp
-    buildBench(workspace, Vector3.new(-105, 0, -108), 45)
-    buildLampPost(workspace, Vector3.new(-115, 0, -108))
-    buildLampPost(workspace, Vector3.new(-95, 0, -108))
+    buildBench(workspace, Vector3.new(-255.0, 0.0, -258.0), 45)
+    buildLampPost(workspace, Vector3.new(-265.0, 0.0, -258.0))
+    buildLampPost(workspace, Vector3.new(-245.0, 0.0, -258.0))
 
     -- Jawa flower beds
-    buildFlowerBed(workspace, Vector3.new(-125, 0, -108), Vector3.new(6, 0.4, 4), Color3.fromRGB(255, 180, 50))
-    buildFlowerBed(workspace, Vector3.new(-105, 0, -148), Vector3.new(5, 0.4, 3), Color3.fromRGB(255, 120, 80))
+    buildFlowerBed(workspace, Vector3.new(-275.0, 0.0, -258.0), Vector3.new(6, 0.4, 4), Color3.fromRGB(255, 180, 50))
+    buildFlowerBed(workspace, Vector3.new(-255.0, 0.0, -298.0), Vector3.new(5, 0.4, 3), Color3.fromRGB(255, 120, 80))
 
     -- Jawa sign
-    buildSignPost(workspace, Vector3.new(-120, 0, -95), "🏛️ Wilayah Jawa\nBudaya Jawa Tengah", Color3.fromRGB(255, 200, 100))
+    buildSignPost(workspace, Vector3.new(-270.0, 0.0, -245.0), "🏛️ Wilayah Jawa\nBudaya Jawa Tengah", Color3.fromRGB(255, 200, 100))
 
     -- Jawa rocks
-    buildRock(workspace, Vector3.new(-150, 0, -110), Vector3.new(3, 2, 2.5))
-    buildRock(workspace, Vector3.new(-88, 0, -135), Vector3.new(2, 1.5, 2))
+    buildRock(workspace, Vector3.new(-300.0, 0.0, -260.0), Vector3.new(3, 2, 2.5))
+    buildRock(workspace, Vector3.new(-238.0, 0.0, -285.0), Vector3.new(2, 1.5, 2))
 
     -- ==========================================
     -- SUMATRA AREA (Rumah Gadang + Market + More)
     -- ==========================================
     -- Rumah Gadang (Minangkabau house with horn-like roof)
-    buildHouse(workspace, Vector3.new(130, 0, -140), 20, 10, 14,
+    buildHouse(workspace, Vector3.new(280.0, 0.0, -290.0), 20, 10, 14,
         Color3.fromRGB(170, 130, 70), Color3.fromRGB(180, 50, 30), "Rumah_Gadang")
 
     -- Additional house
-    buildHouse(workspace, Vector3.new(110, 0, -120), 12, 8, 10,
+    buildHouse(workspace, Vector3.new(260.0, 0.0, -270.0), 12, 8, 10,
         Color3.fromRGB(150, 110, 60), Color3.fromRGB(160, 60, 30), "Rumah_Minang")
 
     -- Extra building: community hall
-    buildHouse(workspace, Vector3.new(140, 0, -125), 14, 8, 12,
+    buildHouse(workspace, Vector3.new(290.0, 0.0, -275.0), 14, 8, 12,
         Color3.fromRGB(165, 125, 65), Color3.fromRGB(140, 40, 25), "Balai_Masyarakat")
 
     -- Market stalls
-    buildStall(workspace, Vector3.new(140, 0, -100), Color3.fromRGB(200, 80, 30), "Kios_Rendang")
-    buildStall(workspace, Vector3.new(140, 0, -115), Color3.fromRGB(30, 150, 200), "Kios_Batik")
-    buildStall(workspace, Vector3.new(130, 0, -100), Color3.fromRGB(200, 180, 30), "Kios_Kopi")
+    buildStall(workspace, Vector3.new(290.0, 0.0, -250.0), Color3.fromRGB(200, 80, 30), "Kios_Rendang")
+    buildStall(workspace, Vector3.new(290.0, 0.0, -265.0), Color3.fromRGB(30, 150, 200), "Kios_Batik")
+    buildStall(workspace, Vector3.new(280.0, 0.0, -250.0), Color3.fromRGB(200, 180, 30), "Kios_Kopi")
 
     -- Sumatra water (small river)
-    buildWater(workspace, Vector3.new(110, 0.15, -100), Vector3.new(8, 0.3, 20))
+    buildWater(workspace, Vector3.new(260.0, 0.15, -250.0), Vector3.new(8, 0.3, 20))
 
     -- Sumatra trees (8 trees)
     for _, tpos in ipairs({
-        Vector3.new(100, 0, -150), Vector3.new(150, 0, -150),
-        Vector3.new(100, 0, -90), Vector3.new(150, 0, -90),
-        Vector3.new(155, 0, -130), Vector3.new(105, 0, -145),
-        Vector3.new(95, 0, -110), Vector3.new(155, 0, -105),
+        Vector3.new(250.0, 0.0, -300.0), Vector3.new(300.0, 0.0, -300.0),
+        Vector3.new(250.0, 0.0, -240.0), Vector3.new(300.0, 0.0, -240.0),
+        Vector3.new(305.0, 0.0, -280.0), Vector3.new(255.0, 0.0, -295.0),
+        Vector3.new(245.0, 0.0, -260.0), Vector3.new(305.0, 0.0, -255.0),
     }) do buildTree(workspace, tpos, 11) end
 
     -- Sumatra decorations
-    buildLampPost(workspace, Vector3.new(120, 0, -120))
-    buildLampPost(workspace, Vector3.new(140, 0, -120))
-    buildFlowerBed(workspace, Vector3.new(125, 0, -135), Vector3.new(6, 0.3, 3), Color3.fromRGB(255, 150, 50))
-    buildSignpost(workspace, Vector3.new(105, 0, -120), {"Rumah Gadang", "Pasar", "Balai"})
+    buildLampPost(workspace, Vector3.new(270.0, 0.0, -270.0))
+    buildLampPost(workspace, Vector3.new(290.0, 0.0, -270.0))
+    buildFlowerBed(workspace, Vector3.new(275.0, 0.0, -285.0), Vector3.new(6, 0.3, 3), Color3.fromRGB(255, 150, 50))
+    buildSignpost(workspace, Vector3.new(255.0, 0.0, -270.0), {"Rumah Gadang", "Pasar", "Balai"})
 
     -- Sumatra benches and lamps
-    buildBench(workspace, Vector3.new(120, 0, -108), -30)
-    buildLampPost(workspace, Vector3.new(125, 0, -108))
-    buildLampPost(workspace, Vector3.new(115, 0, -108))
+    buildBench(workspace, Vector3.new(270.0, 0.0, -258.0), -30)
+    buildLampPost(workspace, Vector3.new(275.0, 0.0, -258.0))
+    buildLampPost(workspace, Vector3.new(265.0, 0.0, -258.0))
 
     -- Sumatra flower beds
-    buildFlowerBed(workspace, Vector3.new(115, 0, -130), Vector3.new(5, 0.4, 4), Color3.fromRGB(255, 50, 50))
+    buildFlowerBed(workspace, Vector3.new(265.0, 0.0, -280.0), Vector3.new(5, 0.4, 4), Color3.fromRGB(255, 50, 50))
 
     -- Sumatra sign
-    buildSignPost(workspace, Vector3.new(120, 0, -95), "🟢 Wilayah Sumatra\nBudaya Minangkabau", Color3.fromRGB(100, 255, 100))
+    buildSignPost(workspace, Vector3.new(270.0, 0.0, -245.0), "🟢 Wilayah Sumatra\nBudaya Minangkabau", Color3.fromRGB(100, 255, 100))
 
     -- Sumatra rocks
-    buildRock(workspace, Vector3.new(100, 0, -130), Vector3.new(2.5, 2, 2))
-    buildRock(workspace, Vector3.new(152, 0, -115), Vector3.new(2, 1.5, 3))
+    buildRock(workspace, Vector3.new(250.0, 0.0, -280.0), Vector3.new(2.5, 2, 2))
+    buildRock(workspace, Vector3.new(302.0, 0.0, -265.0), Vector3.new(2, 1.5, 3))
 
     -- ==========================================
     -- BALI AREA (Pura + Sanggar + More)
     -- ==========================================
     -- Pura (temple)
-    buildTemple(workspace, Vector3.new(-120, 0, 110), 14)
+    buildTemple(workspace, Vector3.new(-270.0, 0.0, 260.0), 14)
 
     -- Sanggar tari (dance studio)
-    buildHouse(workspace, Vector3.new(-100, 0, 140), 16, 10, 12,
+    buildHouse(workspace, Vector3.new(-250.0, 0.0, 290.0), 16, 10, 12,
         Color3.fromRGB(200, 180, 140), Color3.fromRGB(100, 40, 20), "Sanggar_Tari")
 
     -- Bale (open pavilion)
-    buildHouse(workspace, Vector3.new(-140, 0, 130), 10, 7, 10,
+    buildHouse(workspace, Vector3.new(-290.0, 0.0, 280.0), 10, 7, 10,
         Color3.fromRGB(190, 170, 130), Color3.fromRGB(80, 35, 15), "Bale_Bali")
 
     -- Extra: offering shrine
-    buildHouse(workspace, Vector3.new(-110, 0, 115), 8, 6, 8,
+    buildHouse(workspace, Vector3.new(-260.0, 0.0, 265.0), 8, 6, 8,
         Color3.fromRGB(195, 185, 150), Color3.fromRGB(90, 45, 20), "Pura_Kecil")
 
     -- Bali market
-    buildStall(workspace, Vector3.new(-100, 0, 120), Color3.fromRGB(200, 150, 50), "Kios_Souvenir")
+    buildStall(workspace, Vector3.new(-250.0, 0.0, 270.0), Color3.fromRGB(200, 150, 50), "Kios_Souvenir")
 
     -- Bali water garden
-    buildWater(workspace, Vector3.new(-130, 0.15, 150), Vector3.new(18, 0.3, 12))
-    buildWater(workspace, Vector3.new(-100, 0.15, 155), Vector3.new(10, 0.3, 8))
+    buildWater(workspace, Vector3.new(-280.0, 0.15, 300.0), Vector3.new(18, 0.3, 12))
+    buildWater(workspace, Vector3.new(-250.0, 0.15, 305.0), Vector3.new(10, 0.3, 8))
 
     -- Bali trees (8 trees)
     for _, tpos in ipairs({
-        Vector3.new(-150, 0, 100), Vector3.new(-90, 0, 100),
-        Vector3.new(-150, 0, 155), Vector3.new(-90, 0, 155),
-        Vector3.new(-155, 0, 130), Vector3.new(-85, 0, 125),
-        Vector3.new(-130, 0, 105), Vector3.new(-110, 0, 155),
+        Vector3.new(-300.0, 0.0, 250.0), Vector3.new(-240.0, 0.0, 250.0),
+        Vector3.new(-300.0, 0.0, 305.0), Vector3.new(-240.0, 0.0, 305.0),
+        Vector3.new(-305.0, 0.0, 280.0), Vector3.new(-235.0, 0.0, 275.0),
+        Vector3.new(-280.0, 0.0, 255.0), Vector3.new(-260.0, 0.0, 305.0),
     }) do buildTree(workspace, tpos, 9) end
 
     -- Bali decorations
-    buildLampPost(workspace, Vector3.new(-108, 0, 130))
-    buildLampPost(workspace, Vector3.new(-132, 0, 130))
-    buildFlowerBed(workspace, Vector3.new(-125, 0, 120), Vector3.new(7, 0.3, 4), Color3.fromRGB(255, 100, 50))
-    buildFlowerBed(workspace, Vector3.new(-95, 0, 145), Vector3.new(5, 0.3, 3), Color3.fromRGB(255, 200, 0))
-    buildSignpost(workspace, Vector3.new(-120, 0, 98), {"Pura Besakih", "Sanggar Tari", "Bale Bali"})
-    buildBench(workspace, Vector3.new(-115, 0, 125), 0)
-    buildBench(workspace, Vector3.new(-135, 0, 145), 45)
+    buildLampPost(workspace, Vector3.new(-258.0, 0.0, 280.0))
+    buildLampPost(workspace, Vector3.new(-282.0, 0.0, 280.0))
+    buildFlowerBed(workspace, Vector3.new(-275.0, 0.0, 270.0), Vector3.new(7, 0.3, 4), Color3.fromRGB(255, 100, 50))
+    buildFlowerBed(workspace, Vector3.new(-245.0, 0.0, 295.0), Vector3.new(5, 0.3, 3), Color3.fromRGB(255, 200, 0))
+    buildSignpost(workspace, Vector3.new(-270.0, 0.0, 248.0), {"Pura Besakih", "Sanggar Tari", "Bale Bali"})
+    buildBench(workspace, Vector3.new(-265.0, 0.0, 275.0), 0)
+    buildBench(workspace, Vector3.new(-285.0, 0.0, 295.0), 45)
 
     -- Bali rocks (volcanic)
-    buildRock(workspace, Vector3.new(-150, 0, 115), Vector3.new(3, 2.5, 3))
-    buildRock(workspace, Vector3.new(-88, 0, 140), Vector3.new(2.5, 2, 2))
+    buildRock(workspace, Vector3.new(-300.0, 0.0, 265.0), Vector3.new(3, 2.5, 3))
+    buildRock(workspace, Vector3.new(-238.0, 0.0, 290.0), Vector3.new(2.5, 2, 2))
 
     -- ==========================================
     -- PAPUA AREA (Honai + Jungle + More)
@@ -2330,7 +2330,7 @@ local function createWorld()
     local honaiBase = Instance.new("Part")
     honaiBase.Name = "Base"
     honaiBase.Size = Vector3.new(10, 6, 10)
-    honaiBase.Position = Vector3.new(120, 3, 120)
+    honaiBase.Position = Vector3.new(270.0, 3.0, 270.0)
     honaiBase.Anchored = true
     honaiBase.Color = Color3.fromRGB(120, 80, 40)
     honaiBase.Material = Enum.Material.Wood
@@ -2340,7 +2340,7 @@ local function createWorld()
     local honaiRoof = Instance.new("Part")
     honaiRoof.Name = "Roof"
     honaiRoof.Size = Vector3.new(12, 3, 12)
-    honaiRoof.Position = Vector3.new(120, 7.5, 120)
+    honaiRoof.Position = Vector3.new(270.0, 7.5, 270.0)
     honaiRoof.Anchored = true
     honaiRoof.Color = Color3.fromRGB(80, 60, 30)
     honaiRoof.Material = Enum.Material.Slate
@@ -2356,7 +2356,7 @@ local function createWorld()
     local h2Base = Instance.new("Part")
     h2Base.Name = "Base"
     h2Base.Size = Vector3.new(8, 5, 8)
-    h2Base.Position = Vector3.new(140, 2.5, 130)
+    h2Base.Position = Vector3.new(290.0, 2.5, 280.0)
     h2Base.Anchored = true
     h2Base.Color = Color3.fromRGB(100, 70, 35)
     h2Base.Material = Enum.Material.Wood
@@ -2366,7 +2366,7 @@ local function createWorld()
     local h2Roof = Instance.new("Part")
     h2Roof.Name = "Roof"
     h2Roof.Size = Vector3.new(10, 2.5, 10)
-    h2Roof.Position = Vector3.new(140, 6.25, 130)
+    h2Roof.Position = Vector3.new(290.0, 6.25, 280.0)
     h2Roof.Anchored = true
     h2Roof.Color = Color3.fromRGB(70, 50, 25)
     h2Roof.Material = Enum.Material.Slate
@@ -2382,7 +2382,7 @@ local function createWorld()
     local h3Base = Instance.new("Part")
     h3Base.Name = "Base"
     h3Base.Size = Vector3.new(9, 5.5, 9)
-    h3Base.Position = Vector3.new(105, 2.75, 135)
+    h3Base.Position = Vector3.new(255.0, 2.75, 285.0)
     h3Base.Anchored = true
     h3Base.Color = Color3.fromRGB(110, 75, 38)
     h3Base.Material = Enum.Material.Wood
@@ -2392,7 +2392,7 @@ local function createWorld()
     local h3Roof = Instance.new("Part")
     h3Roof.Name = "Roof"
     h3Roof.Size = Vector3.new(11, 2.8, 11)
-    h3Roof.Position = Vector3.new(105, 6.7, 135)
+    h3Roof.Position = Vector3.new(255.0, 6.7, 285.0)
     h3Roof.Anchored = true
     h3Roof.Color = Color3.fromRGB(65, 48, 22)
     h3Roof.Material = Enum.Material.Slate
@@ -2402,31 +2402,31 @@ local function createWorld()
     honai3.Parent = workspace
 
     -- Papua market
-    buildStall(workspace, Vector3.new(135, 0, 105), Color3.fromRGB(150, 100, 40), "Kios_Papua")
+    buildStall(workspace, Vector3.new(285.0, 0.0, 255.0), Color3.fromRGB(150, 100, 40), "Kios_Papua")
 
     -- Papua dense jungle (10 trees)
     for _, tpos in ipairs({
-        Vector3.new(100, 0, 100), Vector3.new(150, 0, 100),
-        Vector3.new(100, 0, 150), Vector3.new(150, 0, 150),
-        Vector3.new(110, 0, 130), Vector3.new(140, 0, 110),
-        Vector3.new(130, 0, 145), Vector3.new(105, 0, 115),
-        Vector3.new(155, 0, 135), Vector3.new(95, 0, 145),
+        Vector3.new(250.0, 0.0, 250.0), Vector3.new(300.0, 0.0, 250.0),
+        Vector3.new(250.0, 0.0, 300.0), Vector3.new(300.0, 0.0, 300.0),
+        Vector3.new(260.0, 0.0, 280.0), Vector3.new(290.0, 0.0, 260.0),
+        Vector3.new(280.0, 0.0, 295.0), Vector3.new(255.0, 0.0, 265.0),
+        Vector3.new(305.0, 0.0, 285.0), Vector3.new(245.0, 0.0, 295.0),
     }) do buildTree(workspace, tpos, 14) end
 
     -- Papua pond
-    buildWater(workspace, Vector3.new(140, 0.15, 110), Vector3.new(12, 0.3, 12))
+    buildWater(workspace, Vector3.new(290.0, 0.15, 260.0), Vector3.new(12, 0.3, 12))
 
     -- Papua decorations
-    buildLampPost(workspace, Vector3.new(132, 0, 108))
-    buildLampPost(workspace, Vector3.new(118, 0, 130))
-    buildFlowerBed(workspace, Vector3.new(125, 0, 120), Vector3.new(5, 0.3, 3), Color3.fromRGB(100, 200, 100))
-    buildSignpost(workspace, Vector3.new(120, 0, 98), {"Honai", "Hutan", "Danau"})
-    buildBench(workspace, Vector3.new(130, 0, 115), 90)
+    buildLampPost(workspace, Vector3.new(282.0, 0.0, 258.0))
+    buildLampPost(workspace, Vector3.new(268.0, 0.0, 280.0))
+    buildFlowerBed(workspace, Vector3.new(275.0, 0.0, 270.0), Vector3.new(5, 0.3, 3), Color3.fromRGB(100, 200, 100))
+    buildSignpost(workspace, Vector3.new(270.0, 0.0, 248.0), {"Honai", "Hutan", "Danau"})
+    buildBench(workspace, Vector3.new(280.0, 0.0, 265.0), 90)
 
     -- Papua rocks
-    buildRock(workspace, Vector3.new(100, 0, 120), Vector3.new(3.5, 2.5, 3))
-    buildRock(workspace, Vector3.new(150, 0, 145), Vector3.new(2.5, 2, 2))
-    buildRock(workspace, Vector3.new(110, 0, 150), Vector3.new(2, 1.5, 2.5))
+    buildRock(workspace, Vector3.new(250.0, 0.0, 270.0), Vector3.new(3.5, 2.5, 3))
+    buildRock(workspace, Vector3.new(300.0, 0.0, 295.0), Vector3.new(2.5, 2, 2))
+    buildRock(workspace, Vector3.new(260.0, 0.0, 300.0), Vector3.new(2, 1.5, 2.5))
 
     -- ==========================================
     -- PORTALS (with visible gate frames + BIGGER glow)
