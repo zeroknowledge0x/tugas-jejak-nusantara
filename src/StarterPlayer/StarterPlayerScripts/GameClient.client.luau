@@ -607,7 +607,8 @@ local function processNotifQueue()
 end
 
 local function showNotification(text)
-    showToastMsg(text)
+    table.insert(notifQueue, text)
+    processNotifQueue()
 end
 
 local function typewriterEffect(textLabel, fullText)
