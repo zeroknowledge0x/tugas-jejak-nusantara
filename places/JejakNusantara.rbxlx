@@ -873,7 +873,7 @@ local function createPortal(name, position, destination, color, label, quizId)
     textLabel.BackgroundTransparency = 0.5
     textLabel.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
     textLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-    textLabel.Text = label .. "
+    textLabel.Text = label .. "  |  [E] MASUK = QUIZ"
 [E] MASUK = QUIZ"
     textLabel.TextScaled = true
     textLabel.Font = Enum.Font.GothamBold
