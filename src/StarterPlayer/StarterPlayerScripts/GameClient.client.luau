@@ -19,7 +19,7 @@
     - Added: Journal, Ending screen, quizId tracking
 ]]
 
-print("🎮 GameClient v4.5 - Loading...")
+print("🎮 GameClient v4.6 - Loading...")
 
 local Players = game:GetService("Players")
 local RS = game:GetService("ReplicatedStorage")
@@ -153,7 +153,7 @@ local versionLabel = Instance.new("TextLabel")
 versionLabel.Size = UDim2.new(0.2, 0, 0.04, 0)
 versionLabel.Position = UDim2.new(0.4, 0, 0.32, 0)
 versionLabel.BackgroundTransparency = 1
-versionLabel.Text = "v4.5 · Nusantara"
+versionLabel.Text = "v4.6 · Nusantara"
 versionLabel.TextColor3 = Color3.fromRGB(150, 150, 150)
 versionLabel.TextScaled = true
 versionLabel.Font = Enum.Font.Gotham
@@ -250,7 +250,7 @@ local hintLabel = Instance.new("TextLabel")
 hintLabel.Size = UDim2.new(1, -20, 0, 20)
 hintLabel.Position = UDim2.new(0, 10, 0, 85)
 hintLabel.BackgroundTransparency = 1
-hintLabel.Text = "E=Bicara/Portal quiz · J=Jurnal"
+hintLabel.Text = "E=Bicara/Portal · J=Jurnal · jatuh=checkpoint"
 hintLabel.TextColor3 = Color3.fromRGB(150, 150, 150)
 hintLabel.TextScaled = true
 hintLabel.Font = Enum.Font.Gotham
@@ -1078,5 +1078,5 @@ UIS.InputBegan:Connect(function(input, processed)
 end)
 
 
-print("✅ GameClient v4.5 ready!")
+print("✅ GameClient v4.6 ready!")
 

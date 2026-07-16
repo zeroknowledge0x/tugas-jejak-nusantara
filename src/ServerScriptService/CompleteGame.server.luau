@@ -353,6 +353,7 @@ print("✅ Game data loaded!")
 local playerData = {}
 local playerActiveNPC = {} -- Bug #1 fix: track which NPC each player is talking to
 local playerDialogueLine = {}
+local lastSafeCFrame = {} -- checkpoint (last solid ground / portal)
 local lastDialogueFire = {} -- Bug #3 fix: track current dialogue line per player
 
 local function createDefaultData()
@@ -894,7 +895,9 @@ local function createPortal(name, position, destination, color, label, quizId)
         if character then
             local hrp2 = character:FindFirstChild("HumanoidRootPart")
             if hrp2 then
-                hrp2.CFrame = CFrame.new(destination + Vector3.new(0, 3, 0))
+                local cf = CFrame.new(destination + Vector3.new(0, 3, 0))
+                hrp2.CFrame = cf
+                lastSafeCFrame[player.UserId] = cf
                 print("[Portal] Teleported " .. player.Name .. " to " .. tostring(destination))
             end
         end
@@ -1893,6 +1896,19 @@ local function createWorld()
     void.Color = Color3.fromRGB(12, 14, 22)
     void.Material = Enum.Material.SmoothPlastic
     void.Parent = workspace
+    void.Touched:Connect(function(hit)
+        local char = hit:FindFirstAncestorOfClass("Model")
+        if not char then return end
+        local hum = char:FindFirstChildOfClass("Humanoid")
+        local hrp = char:FindFirstChild("HumanoidRootPart")
+        local plr = game:GetService("Players"):GetPlayerFromCharacter(char)
+        if not (hum and hrp and plr) then return end
+        local safe = lastSafeCFrame[plr.UserId] or CFrame.new(0, 6, 10)
+        hrp.AssemblyLinearVelocity = Vector3.zero
+        hrp.CFrame = safe
+        hum.Health = hum.MaxHealth
+        RS.ShowNotification:FireClient(plr, "⚠️ Jatuh — respawn di checkpoint")
+    end)
 
     -- Soft mist slabs between islands (visual separation)
     for i, pos in ipairs({
@@ -2664,7 +2680,9 @@ local function enterPortalById(player, portalKey)
     if character then
         local hrp2 = character:FindFirstChild("HumanoidRootPart")
         if hrp2 then
-            hrp2.CFrame = CFrame.new(meta.destination + Vector3.new(0, 3, 0))
+            local cf = CFrame.new(meta.destination + Vector3.new(0, 3, 0))
+            hrp2.CFrame = cf
+            lastSafeCFrame[player.UserId] = cf
         end
     end
     RS.ShowNotification:FireClient(player, "🌍 Memasuki " .. meta.label)
@@ -2721,17 +2739,19 @@ local function setupPlayer(player)
     local function onCharacter(character)
         local hrp = character:WaitForChild("HumanoidRootPart", 10)
         local hum = character:WaitForChild("Humanoid", 10)
+        local uid = player.UserId
+
+        -- Respawn at last checkpoint (portal/area), else kampus
+        local spawnCF = lastSafeCFrame[uid] or CFrame.new(0, 6, 10)
         if hrp then
-            -- Stand on golden spawn pad (kampus)
-            hrp.CFrame = CFrame.new(0, 6, 10)
-            print("[GameManager] Character placed for " .. player.Name)
+            hrp.CFrame = spawnCF
+            print("[GameManager] Character placed for " .. player.Name .. " at checkpoint")
         end
         if hum then
             hum.WalkSpeed = 16
             hum.JumpPower = 50
             hum.DisplayDistanceType = Enum.HumanoidDisplayDistanceType.None
         end
-        -- Keep character fully visible
         for _, part in ipairs(character:GetDescendants()) do
             if part:IsA("BasePart") then
                 if part.Name ~= "HumanoidRootPart" then
@@ -2740,6 +2760,34 @@ local function setupPlayer(player)
                 part.LocalTransparencyModifier = 0
             end
         end
+
+        -- Track solid ground as checkpoint (ignore void)
+        task.spawn(function()
+            local params = RaycastParams.new()
+            params.FilterType = Enum.RaycastFilterType.Exclude
+            params.FilterDescendantsInstances = { character }
+            while character.Parent and hrp.Parent do
+                task.wait(0.2)
+                local pos = hrp.Position
+                if pos.Y < -6 then
+                    local safe = lastSafeCFrame[uid] or CFrame.new(0, 6, 10)
+                    hrp.AssemblyLinearVelocity = Vector3.zero
+                    hrp.CFrame = safe
+                    if hum.Health < hum.MaxHealth then
+                        hum.Health = hum.MaxHealth
+                    end
+                    RS.ShowNotification:FireClient(player, "⚠️ Jatuh ke jurang — kembali ke checkpoint terakhir")
+                else
+                    local hit = workspace:Raycast(pos, Vector3.new(0, -6, 0), params)
+                    if hit and hit.Instance then
+                        local n = hit.Instance.Name
+                        if n ~= "VoidFloor" and string.sub(n, 1, 4) ~= "Mist" and hit.Instance.CanCollide then
+                            lastSafeCFrame[uid] = CFrame.new(pos.X, hit.Position.Y + 4, pos.Z)
+                        end
+                    end
+                end
+            end
+        end)
     end
 
     player.CharacterAdded:Connect(onCharacter)
@@ -2765,6 +2813,7 @@ Players.PlayerRemoving:Connect(function(player)
     playerData[player.UserId] = nil
     playerActiveNPC[player.UserId] = nil
     playerDialogueLine[player.UserId] = nil
+    lastSafeCFrame[player.UserId] = nil
     print("[GameManager] Player leaving: " .. player.Name)
 end)
 
