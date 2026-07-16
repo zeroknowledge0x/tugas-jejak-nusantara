@@ -64,6 +64,8 @@ function UIController.Init(pg: Instance)
 	root = Instance.new("ScreenGui")
 	root.Name = "JejakNusantaraUI"
 	root.ResetOnSpawn = false
+	root.IgnoreGuiInset = true
+	root.DisplayOrder = 50
 	root.Parent = pg
 
 	screens.QuestTracker = QuestTracker.Build(root)

@@ -1,68 +1,86 @@
---! GameClient.client.luau (StarterPlayerScripts)
---! Client bootstrap. BANNER is shown FIRST (before any require) so even if a
---! module fails to load, you still see the game booted. Each require is wrapped
---! in pcall and warns which one failed. Single-player client session.
+--! GameClient.client.luau
+--! Client bootstrap for Studio / ZIP download testing.
+--! 1) Print + banner FIRST (before any require) so silent death is impossible.
+--! 2) pcall every require; name the failed module.
+--! 3) Build a local single-player session and auto-start intro dialogue.
+--! 4) Bind to server-spawned Budi ProximityPrompt (WorldBuilder).
 
-print("JN GameClient STARTED")
+print("[JN] GameClient STARTED")
 
--- ===== BANNER FIRST (no requires above this) =====
 local Players = game:GetService("Players")
 local player = Players.LocalPlayer
 local playerGui = player:WaitForChild("PlayerGui")
 
-local function showBanner(text)
+local function showBanner(text: string)
+	local old = playerGui:FindFirstChild("JNLoadBanner")
+	if old then
+		old:Destroy()
+	end
 	local sg = Instance.new("ScreenGui")
-	sg.Name = "LoadBanner"
+	sg.Name = "JNLoadBanner"
 	sg.ResetOnSpawn = false
+	sg.IgnoreGuiInset = true
+	sg.DisplayOrder = 200
 	sg.Parent = playerGui
+
 	local f = Instance.new("Frame")
-	f.Size = UDim2.new(1, 0, 0.14, 0)
-	f.Position = UDim2.new(0, 0, 0.43, 0)
-	f.BackgroundColor3 = Color3.fromRGB(20, 24, 36)
+	f.Size = UDim2.new(1, 0, 0.16, 0)
+	f.Position = UDim2.new(0, 0, 0.42, 0)
+	f.BackgroundColor3 = Color3.fromRGB(18, 22, 34)
+	f.BackgroundTransparency = 0.1
 	f.BorderSizePixel = 0
 	f.Parent = sg
+
 	local t = Instance.new("TextLabel")
-	t.Size = UDim2.new(1, 0, 1, 0)
+	t.Size = UDim2.new(0.86, 0, 1, 0)
 	t.BackgroundTransparency = 1
 	t.Text = text
-	t.TextColor3 = Color3.fromRGB(240, 180, 60)
+	t.TextColor3 = Color3.fromRGB(255, 210, 80)
 	t.TextScaled = true
 	t.Parent = f
-	t.ZIndex = 10
+
 	local close = Instance.new("TextButton")
-	close.Size = UDim2.new(0.12, 0, 0.4, 0)
-	close.Position = UDim2.new(0.86, 0, 0.3, 0)
-	close.BackgroundColor3 = Color3.fromRGB(200, 60, 60)
+	close.Size = UDim2.new(0.12, 0, 0.5, 0)
+	close.Position = UDim2.new(0.87, 0, 0.25, 0)
+	close.BackgroundColor3 = Color3.fromRGB(190, 50, 50)
 	close.Text = "X"
-	close.TextColor3 = Color3.fromRGB(255, 255, 255)
+	close.TextColor3 = Color3.new(1, 1, 1)
 	close.TextScaled = true
 	close.Parent = f
-	close.ZIndex = 11
 	close.Activated:Connect(function()
-		if sg.Parent ~= nil then sg:Destroy() end
+		sg:Destroy()
 	end)
 end
 
-showBanner("JEGAK NUSANTARA - GAME JALAN. Dekat kotak BIRU (Budi) lalu klik Bicara.")
+showBanner("[JN] BOOTING… tunggu sebentar")
 
--- Disable legacy chat noise (best-effort).
-pcall(function()
-	game:GetService("TextChatService").ChatVersion = Enum.ChatVersion.TextChatService
-end)
-
--- ===== REQUIRES (each wrapped so a failure is visible, not silent) =====
-local function tryRequire(name, inst)
-	local ok, mod = pcall(function() return require(inst) end)
+local function tryRequire(name: string, inst: Instance)
+	local ok, mod = pcall(require, inst)
 	if not ok then
-		warn("REQUIRE FAILED [" .. name .. "]: " .. tostring(mod))
-		showBanner("LOAD ERROR: " .. name)
+		warn("[JN] REQUIRE FAILED [" .. name .. "]: " .. tostring(mod))
+		showBanner("[JN] LOAD ERROR: " .. name .. " — cek Output")
+		return nil
 	end
-	return ok and mod or nil
+	return mod
 end
 
 local Replicated = game:GetService("ReplicatedStorage")
-local Modules = Replicated:WaitForChild("JN"):WaitForChild("Modules")
-local Systems = Modules:WaitForChild("Systems")
+local jn = Replicated:WaitForChild("JN", 15)
+if jn == nil then
+	showBanner("[JN] FATAL: ReplicatedStorage.JN missing — place file rusak/stale")
+	warn("[JN] ReplicatedStorage.JN not found after 15s")
+	return
+end
+local Modules = jn:WaitForChild("Modules", 10)
+if Modules == nil then
+	showBanner("[JN] FATAL: JN.Modules missing")
+	return
+end
+local Systems = Modules:WaitForChild("Systems", 10)
+if Systems == nil then
+	showBanner("[JN] FATAL: Modules.Systems missing")
+	return
+end
 
 local Game = tryRequire("Game", Modules:WaitForChild("Game"))
 local SaveSystem = tryRequire("SaveSystem", Systems:WaitForChild("SaveSystem"))
@@ -72,16 +90,15 @@ local NotificationSystem = tryRequire("NotificationSystem", Systems:WaitForChild
 local AchievementSystem = tryRequire("AchievementSystem", Systems:WaitForChild("AchievementSystem"))
 local DialogueSystem = tryRequire("DialogueSystem", Systems:WaitForChild("DialogueSystem"))
 
-if Game == nil or SaveSystem == nil or UIController == nil then
-	showBanner("CORE MODULES MISSING - check output")
+if Game == nil or SaveSystem == nil or UIController == nil or DialogueSystem == nil then
+	showBanner("[JN] CORE MODULE GAGAL — lihat Output (REQUIRE FAILED)")
 	return
 end
 
--- ===== BUILD SESSION =====
 local ok, err = pcall(function()
 	SaveSystem.Init()
 	local save = SaveSystem.Load(player)
-	local gameSession = Game.new(save, player)
+	local session = Game.new(save, player)
 
 	UIController.Init(playerGui)
 	NotificationSystem.Init()
@@ -95,40 +112,65 @@ local ok, err = pcall(function()
 	UIController.Open("SkillProgressUI")
 	UIController.Open("AreaProgressUI")
 
+	-- Wire dialogue UI (extra safety; UIController also wires OnNode).
 	DialogueSystem.OnNode:Connect(function(_node)
 		UIController.Open("DialogueUI")
 	end)
 
+	-- Bind to server-spawned Budi (WorldBuilder). Fallback: spawn local Budi.
 	local Workspace = game:GetService("Workspace")
-	local function spawnNPC(id, position)
-		local part = Instance.new("Part")
-		part.Name = id
-		part.Size = Vector3.new(2, 4, 2)
-		part.Position = position
-		part.Anchored = true
-		part.BrickColor = BrickColor.new("Bright blue")
-		part.Parent = Workspace
+	local budi = Workspace:WaitForChild("Budi", 8)
+	if budi == nil then
+		warn("[JN] Budi not found from server — spawning client fallback")
+		budi = Instance.new("Part")
+		budi.Name = "Budi"
+		budi.Size = Vector3.new(2, 5, 2)
+		budi.Position = Vector3.new(0, 3, -12)
+		budi.Anchored = true
+		budi.Color = Color3.fromRGB(30, 120, 255)
+		budi.Material = Enum.Material.Neon
+		budi.Parent = Workspace
 		local prompt = Instance.new("ProximityPrompt")
-		prompt.ObjectText = id
+		prompt.Name = "TalkPrompt"
+		prompt.ObjectText = "Budi"
 		prompt.ActionText = "Bicara"
-		prompt.HoldDuration = 0.3
+		prompt.HoldDuration = 0
+		prompt.MaxActivationDistance = 16
 		prompt.RequiresLineOfSight = false
-		prompt.Parent = part
-		prompt.Triggered:Connect(function(_who)
-			gameSession:StartDialogue("intro_" .. id:lower(), id)
+		prompt.Parent = budi
+	end
+
+	local prompt = budi:FindFirstChild("TalkPrompt") or budi:FindFirstChildOfClass("ProximityPrompt")
+	if prompt and prompt:IsA("ProximityPrompt") then
+		prompt.Triggered:Connect(function()
+			session:StartDialogue("intro_budi", "Budi")
 		end)
 	end
 
-	spawnNPC("Budi", Vector3.new(8, 4, 0))
-
-	game:GetService("Players").PlayerRemoving:Connect(function(p)
-		if p == player then gameSession:Save() end
+	Players.PlayerRemoving:Connect(function(p)
+		if p == player then
+			session:Save()
+		end
 	end)
 
-	showBanner("JEGAK NUSANTARA - SIAP MAIN!")
+	showBanner("[JN] SIAP MAIN — dialog auto-start 1 detik, atau tekan E di Budi (biru)")
+	print("[JN] session ready — auto-starting intro_budi")
+
+	-- Auto-start first dialogue so the player always sees the game loop.
+	task.delay(1, function()
+		local started, startErr = pcall(function()
+			session:StartDialogue("intro_budi", "Budi")
+		end)
+		if not started then
+			warn("[JN] auto StartDialogue failed: " .. tostring(startErr))
+			showBanner("[JN] Dialog gagal: " .. tostring(startErr))
+		else
+			showBanner("[JN] DIALOG AKTIF — pilih pilihan di layar")
+		end
+	end)
 end)
 
 if not ok then
-	warn("GameClient session failed: " .. tostring(err))
-	showBanner("SESSION ERROR - lihat output")
+	warn("[JN] session build failed: " .. tostring(err))
+	showBanner("[JN] SESSION ERROR: " .. tostring(err))
 end

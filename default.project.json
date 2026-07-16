@@ -1,10 +1,6 @@
 {
 	"name": "JejakNusantara",
-	"globIgnorePaths": [
-		"**/_*.luau",
-		"docs/**",
-		"tooling/**"
-	],
+	"globIgnorePaths": ["**/_*.luau", "docs/**", "tooling/**", "**/test_*.luau", "**/combined_*.luau"],
 	"tree": {
 		"$className": "DataModel",
 		"ReplicatedStorage": {
@@ -23,9 +19,13 @@
 		"StarterPlayer": {
 			"$className": "StarterPlayer",
 			"StarterPlayerScripts": {
-				"$className": "StarterFolder",
+				"$className": "StarterPlayerScripts",
 				"$path": "src/StarterPlayer/StarterPlayerScripts"
 			}
+		},
+		"StarterGui": {
+			"$className": "StarterGui",
+			"$path": "src/StarterGui"
 		},
 		"Workspace": {
 			"$className": "Workspace",

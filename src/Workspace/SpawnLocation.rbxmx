@@ -1,10 +1,13 @@
 <roblox version="4">
-  <Item class="SpawnLocation" referent="RBX1">
-    <Properties>
-      <string name="Name">SpawnLocation</string>
-      <Vector3 name="Size"><X>4</X><Y>1</Y><Z>4</Z></Vector3>
-      <Vector3 name="Position"><X>0</X><Y>2</Y><Z>0</Z></Vector3>
-      <bool name="Anchored">true</bool>
-    </Properties>
-  </Item>
+	<Item class="SpawnLocation" referent="RBX1">
+		<Properties>
+			<string name="Name">SpawnLocation</string>
+			<Vector3 name="Size"><X>6</X><Y>1</Y><Z>6</Z></Vector3>
+			<Vector3 name="Position"><X>0</X><Y>0.5</Y><Z>0</Z></Vector3>
+			<bool name="Anchored">true</bool>
+			<float name="Duration">0</float>
+			<bool name="Neutral">true</bool>
+			<Color3 name="Color"><R>1</R><G>0.86</G><B>0.31</B></Color3>
+		</Properties>
+	</Item>
 </roblox>

@@ -2449,6 +2449,8 @@ function UIController.Init(pg: Instance)
 	root = Instance.new("ScreenGui")
 	root.Name = "JejakNusantaraUI"
 	root.ResetOnSpawn = false
+	root.IgnoreGuiInset = true
+	root.DisplayOrder = 50
 	root.Parent = pg
 
 	screens.QuestTracker = QuestTracker.Build(root)
@@ -3717,88 +3719,258 @@ end
 ]]></string>
       </Properties>
     </Item>
+    <Item class="Script" referent="54">
+      <Properties>
+        <string name="Name">WorldBuilder</string>
+        <token name="RunContext">0</token>
+        <string name="Source"><![CDATA[--! WorldBuilder.server.luau
+--! Builds a visible playable world on the SERVER so the place is never empty,
+--! even if the client LocalScript fails. Creates Baseplate, SpawnLocation, and
+--! NPC Budi (with BillboardGui + ProximityPrompt).
+
+local Workspace = game:GetService("Workspace")
+
+local function ensureBaseplate()
+	local existing = Workspace:FindFirstChild("Baseplate")
+	if existing then
+		return existing
+	end
+	local p = Instance.new("Part")
+	p.Name = "Baseplate"
+	p.Size = Vector3.new(256, 4, 256)
+	p.Position = Vector3.new(0, -2, 0)
+	p.Anchored = true
+	p.Color = Color3.fromRGB(40, 160, 70)
+	p.Material = Enum.Material.Grass
+	p.TopSurface = Enum.SurfaceType.Smooth
+	p.Parent = Workspace
+	return p
+end
+
+local function ensureSpawn()
+	local existing = Workspace:FindFirstChild("SpawnLocation")
+	if existing then
+		return existing
+	end
+	local s = Instance.new("SpawnLocation")
+	s.Name = "SpawnLocation"
+	s.Size = Vector3.new(6, 1, 6)
+	s.Position = Vector3.new(0, 0.5, 0)
+	s.Anchored = true
+	s.Duration = 0
+	s.Neutral = true
+	s.Color = Color3.fromRGB(255, 220, 80)
+	s.Material = Enum.Material.Neon
+	s.Parent = Workspace
+	return s
+end
+
+local function ensureBudi()
+	local existing = Workspace:FindFirstChild("Budi")
+	if existing then
+		return existing
+	end
+	local part = Instance.new("Part")
+	part.Name = "Budi"
+	part.Size = Vector3.new(2, 5, 2)
+	part.Position = Vector3.new(0, 3, -12)
+	part.Anchored = true
+	part.Color = Color3.fromRGB(30, 120, 255)
+	part.Material = Enum.Material.Neon
+	part.Parent = Workspace
+
+	local bill = Instance.new("BillboardGui")
+	bill.Name = "Label"
+	bill.Size = UDim2.new(0, 200, 0, 50)
+	bill.StudsOffset = Vector3.new(0, 3.5, 0)
+	bill.AlwaysOnTop = true
+	bill.Parent = part
+	local label = Instance.new("TextLabel")
+	label.Size = UDim2.new(1, 0, 1, 0)
+	label.BackgroundTransparency = 0.3
+	label.BackgroundColor3 = Color3.fromRGB(20, 24, 36)
+	label.Text = "BUDI — tekan E / klik Bicara"
+	label.TextColor3 = Color3.fromRGB(255, 220, 80)
+	label.TextScaled = true
+	label.Parent = bill
+
+	local prompt = Instance.new("ProximityPrompt")
+	prompt.Name = "TalkPrompt"
+	prompt.ObjectText = "Budi"
+	prompt.ActionText = "Bicara"
+	prompt.HoldDuration = 0
+	prompt.MaxActivationDistance = 16
+	prompt.RequiresLineOfSight = false
+	prompt.KeyboardKeyCode = Enum.KeyCode.E
+	prompt.Parent = part
+
+	return part
+end
+
+ensureBaseplate()
+ensureSpawn()
+ensureBudi()
+print("[JN] WorldBuilder ready: Baseplate + Spawn + Budi")
+]]></string>
+      </Properties>
+    </Item>
   </Item>
-  <Item class="SoundService" referent="54">
+  <Item class="SoundService" referent="55">
     <Properties>
       <string name="Name">SoundService</string>
     </Properties>
   </Item>
-  <Item class="StarterPlayer" referent="55">
+  <Item class="StarterGui" referent="56">
+    <Properties>
+      <string name="Name">StarterGui</string>
+    </Properties>
+    <Item class="ScreenGui" referent="57">
+      <Properties>
+        <string name="Name">JNWelcome</string>
+        <int name="DisplayOrder">100</int>
+        <bool name="Enabled">true</bool>
+        <bool name="ResetOnSpawn">false</bool>
+        <token name="ScreenInsets">1</token>
+      </Properties>
+      <Item class="Frame" referent="58">
+        <Properties>
+          <string name="Name">Bar</string>
+          <Color3 name="BackgroundColor3">
+            <R>0.08</R>
+            <G>0.1</G>
+            <B>0.15</B>
+          </Color3>
+          <float name="BackgroundTransparency">0.15</float>
+          <int name="BorderSizePixel">0</int>
+          <UDim2 name="Position">
+            <XS>0</XS>
+            <XO>0</XO>
+            <YS>0</YS>
+            <YO>0</YO>
+          </UDim2>
+          <UDim2 name="Size">
+            <XS>1</XS>
+            <XO>0</XO>
+            <YS>0.12</YS>
+            <YO>0</YO>
+          </UDim2>
+        </Properties>
+        <Item class="TextLabel" referent="59">
+          <Properties>
+            <string name="Name">Title</string>
+            <float name="BackgroundTransparency">1</float>
+            <UDim2 name="Size">
+              <XS>1</XS>
+              <XO>0</XO>
+              <YS>1</YS>
+              <YO>0</YO>
+            </UDim2>
+            <string name="Text">JEJAK NUSANTARA — Play mode: jalan ke kotak BIRU (Budi), tekan E / Bicara</string>
+            <Color3 name="TextColor3">
+              <R>0.94</R>
+              <G>0.71</G>
+              <B>0.24</B>
+            </Color3>
+            <bool name="TextScaled">true</bool>
+          </Properties>
+        </Item>
+      </Item>
+    </Item>
+  </Item>
+  <Item class="StarterPlayer" referent="60">
     <Properties>
       <string name="Name">StarterPlayer</string>
     </Properties>
-    <Item class="StarterFolder" referent="56">
+    <Item class="StarterPlayerScripts" referent="61">
       <Properties>
         <string name="Name">StarterPlayerScripts</string>
       </Properties>
-      <Item class="LocalScript" referent="57">
+      <Item class="LocalScript" referent="62">
         <Properties>
           <string name="Name">GameClient</string>
-          <string name="Source"><![CDATA[--! GameClient.client.luau (StarterPlayerScripts)
---! Client bootstrap. BANNER is shown FIRST (before any require) so even if a
---! module fails to load, you still see the game booted. Each require is wrapped
---! in pcall and warns which one failed. Single-player client session.
+          <string name="Source"><![CDATA[--! GameClient.client.luau
+--! Client bootstrap for Studio / ZIP download testing.
+--! 1) Print + banner FIRST (before any require) so silent death is impossible.
+--! 2) pcall every require; name the failed module.
+--! 3) Build a local single-player session and auto-start intro dialogue.
+--! 4) Bind to server-spawned Budi ProximityPrompt (WorldBuilder).
 
-print("JN GameClient STARTED")
+print("[JN] GameClient STARTED")
 
--- ===== BANNER FIRST (no requires above this) =====
 local Players = game:GetService("Players")
 local player = Players.LocalPlayer
 local playerGui = player:WaitForChild("PlayerGui")
 
-local function showBanner(text)
+local function showBanner(text: string)
+	local old = playerGui:FindFirstChild("JNLoadBanner")
+	if old then
+		old:Destroy()
+	end
 	local sg = Instance.new("ScreenGui")
-	sg.Name = "LoadBanner"
+	sg.Name = "JNLoadBanner"
 	sg.ResetOnSpawn = false
+	sg.IgnoreGuiInset = true
+	sg.DisplayOrder = 200
 	sg.Parent = playerGui
+
 	local f = Instance.new("Frame")
-	f.Size = UDim2.new(1, 0, 0.14, 0)
-	f.Position = UDim2.new(0, 0, 0.43, 0)
-	f.BackgroundColor3 = Color3.fromRGB(20, 24, 36)
+	f.Size = UDim2.new(1, 0, 0.16, 0)
+	f.Position = UDim2.new(0, 0, 0.42, 0)
+	f.BackgroundColor3 = Color3.fromRGB(18, 22, 34)
+	f.BackgroundTransparency = 0.1
 	f.BorderSizePixel = 0
 	f.Parent = sg
+
 	local t = Instance.new("TextLabel")
-	t.Size = UDim2.new(1, 0, 1, 0)
+	t.Size = UDim2.new(0.86, 0, 1, 0)
 	t.BackgroundTransparency = 1
 	t.Text = text
-	t.TextColor3 = Color3.fromRGB(240, 180, 60)
+	t.TextColor3 = Color3.fromRGB(255, 210, 80)
 	t.TextScaled = true
 	t.Parent = f
-	t.ZIndex = 10
+
 	local close = Instance.new("TextButton")
-	close.Size = UDim2.new(0.12, 0, 0.4, 0)
-	close.Position = UDim2.new(0.86, 0, 0.3, 0)
-	close.BackgroundColor3 = Color3.fromRGB(200, 60, 60)
+	close.Size = UDim2.new(0.12, 0, 0.5, 0)
+	close.Position = UDim2.new(0.87, 0, 0.25, 0)
+	close.BackgroundColor3 = Color3.fromRGB(190, 50, 50)
 	close.Text = "X"
-	close.TextColor3 = Color3.fromRGB(255, 255, 255)
+	close.TextColor3 = Color3.new(1, 1, 1)
 	close.TextScaled = true
 	close.Parent = f
-	close.ZIndex = 11
 	close.Activated:Connect(function()
-		if sg.Parent ~= nil then sg:Destroy() end
+		sg:Destroy()
 	end)
 end
 
-showBanner("JEGAK NUSANTARA - GAME JALAN. Dekat kotak BIRU (Budi) lalu klik Bicara.")
+showBanner("[JN] BOOTING… tunggu sebentar")
 
--- Disable legacy chat noise (best-effort).
-pcall(function()
-	game:GetService("TextChatService").ChatVersion = Enum.ChatVersion.TextChatService
-end)
-
--- ===== REQUIRES (each wrapped so a failure is visible, not silent) =====
-local function tryRequire(name, inst)
-	local ok, mod = pcall(function() return require(inst) end)
+local function tryRequire(name: string, inst: Instance)
+	local ok, mod = pcall(require, inst)
 	if not ok then
-		warn("REQUIRE FAILED [" .. name .. "]: " .. tostring(mod))
-		showBanner("LOAD ERROR: " .. name)
+		warn("[JN] REQUIRE FAILED [" .. name .. "]: " .. tostring(mod))
+		showBanner("[JN] LOAD ERROR: " .. name .. " — cek Output")
+		return nil
 	end
-	return ok and mod or nil
+	return mod
 end
 
 local Replicated = game:GetService("ReplicatedStorage")
-local Modules = Replicated:WaitForChild("JN"):WaitForChild("Modules")
-local Systems = Modules:WaitForChild("Systems")
+local jn = Replicated:WaitForChild("JN", 15)
+if jn == nil then
+	showBanner("[JN] FATAL: ReplicatedStorage.JN missing — place file rusak/stale")
+	warn("[JN] ReplicatedStorage.JN not found after 15s")
+	return
+end
+local Modules = jn:WaitForChild("Modules", 10)
+if Modules == nil then
+	showBanner("[JN] FATAL: JN.Modules missing")
+	return
+end
+local Systems = Modules:WaitForChild("Systems", 10)
+if Systems == nil then
+	showBanner("[JN] FATAL: Modules.Systems missing")
+	return
+end
 
 local Game = tryRequire("Game", Modules:WaitForChild("Game"))
 local SaveSystem = tryRequire("SaveSystem", Systems:WaitForChild("SaveSystem"))
@@ -3808,16 +3980,15 @@ local NotificationSystem = tryRequire("NotificationSystem", Systems:WaitForChild
 local AchievementSystem = tryRequire("AchievementSystem", Systems:WaitForChild("AchievementSystem"))
 local DialogueSystem = tryRequire("DialogueSystem", Systems:WaitForChild("DialogueSystem"))
 
-if Game == nil or SaveSystem == nil or UIController == nil then
-	showBanner("CORE MODULES MISSING - check output")
+if Game == nil or SaveSystem == nil or UIController == nil or DialogueSystem == nil then
+	showBanner("[JN] CORE MODULE GAGAL — lihat Output (REQUIRE FAILED)")
 	return
 end
 
--- ===== BUILD SESSION =====
 local ok, err = pcall(function()
 	SaveSystem.Init()
 	local save = SaveSystem.Load(player)
-	local gameSession = Game.new(save, player)
+	local session = Game.new(save, player)
 
 	UIController.Init(playerGui)
 	NotificationSystem.Init()
@@ -3831,88 +4002,116 @@ local ok, err = pcall(function()
 	UIController.Open("SkillProgressUI")
 	UIController.Open("AreaProgressUI")
 
+	-- Wire dialogue UI (extra safety; UIController also wires OnNode).
 	DialogueSystem.OnNode:Connect(function(_node)
 		UIController.Open("DialogueUI")
 	end)
 
+	-- Bind to server-spawned Budi (WorldBuilder). Fallback: spawn local Budi.
 	local Workspace = game:GetService("Workspace")
-	local function spawnNPC(id, position)
-		local part = Instance.new("Part")
-		part.Name = id
-		part.Size = Vector3.new(2, 4, 2)
-		part.Position = position
-		part.Anchored = true
-		part.BrickColor = BrickColor.new("Bright blue")
-		part.Parent = Workspace
+	local budi = Workspace:WaitForChild("Budi", 8)
+	if budi == nil then
+		warn("[JN] Budi not found from server — spawning client fallback")
+		budi = Instance.new("Part")
+		budi.Name = "Budi"
+		budi.Size = Vector3.new(2, 5, 2)
+		budi.Position = Vector3.new(0, 3, -12)
+		budi.Anchored = true
+		budi.Color = Color3.fromRGB(30, 120, 255)
+		budi.Material = Enum.Material.Neon
+		budi.Parent = Workspace
 		local prompt = Instance.new("ProximityPrompt")
-		prompt.ObjectText = id
+		prompt.Name = "TalkPrompt"
+		prompt.ObjectText = "Budi"
 		prompt.ActionText = "Bicara"
-		prompt.HoldDuration = 0.3
+		prompt.HoldDuration = 0
+		prompt.MaxActivationDistance = 16
 		prompt.RequiresLineOfSight = false
-		prompt.Parent = part
-		prompt.Triggered:Connect(function(_who)
-			gameSession:StartDialogue("intro_" .. id:lower(), id)
+		prompt.Parent = budi
+	end
+
+	local prompt = budi:FindFirstChild("TalkPrompt") or budi:FindFirstChildOfClass("ProximityPrompt")
+	if prompt and prompt:IsA("ProximityPrompt") then
+		prompt.Triggered:Connect(function()
+			session:StartDialogue("intro_budi", "Budi")
 		end)
 	end
 
-	spawnNPC("Budi", Vector3.new(8, 4, 0))
-
-	game:GetService("Players").PlayerRemoving:Connect(function(p)
-		if p == player then gameSession:Save() end
+	Players.PlayerRemoving:Connect(function(p)
+		if p == player then
+			session:Save()
+		end
 	end)
 
-	showBanner("JEGAK NUSANTARA - SIAP MAIN!")
+	showBanner("[JN] SIAP MAIN — dialog auto-start 1 detik, atau tekan E di Budi (biru)")
+	print("[JN] session ready — auto-starting intro_budi")
+
+	-- Auto-start first dialogue so the player always sees the game loop.
+	task.delay(1, function()
+		local started, startErr = pcall(function()
+			session:StartDialogue("intro_budi", "Budi")
+		end)
+		if not started then
+			warn("[JN] auto StartDialogue failed: " .. tostring(startErr))
+			showBanner("[JN] Dialog gagal: " .. tostring(startErr))
+		else
+			showBanner("[JN] DIALOG AKTIF — pilih pilihan di layar")
+		end
+	end)
 end)
 
 if not ok then
-	warn("GameClient session failed: " .. tostring(err))
-	showBanner("SESSION ERROR - lihat output")
+	warn("[JN] session build failed: " .. tostring(err))
+	showBanner("[JN] SESSION ERROR: " .. tostring(err))
 end
 ]]></string>
         </Properties>
       </Item>
     </Item>
   </Item>
-  <Item class="TextChatService" referent="58">
+  <Item class="TextChatService" referent="63">
     <Properties>
       <string name="Name">TextChatService</string>
     </Properties>
   </Item>
-  <Item class="Workspace" referent="59">
+  <Item class="Workspace" referent="64">
     <Properties>
       <string name="Name">Workspace</string>
       <bool name="NeedsPivotMigration">false</bool>
     </Properties>
-    <Item class="Part" referent="60">
+    <Item class="Part" referent="65">
       <Properties>
         <string name="Name">Baseplate</string>
         <bool name="Anchored">true</bool>
-        <Color3uint8 name="Color3uint8">16316664</Color3uint8>
+        <Color3uint8 name="Color3uint8">2728261</Color3uint8>
         <Vector3 name="Position">
           <X>0</X>
-          <Y>-10</Y>
+          <Y>-2</Y>
           <Z>0</Z>
         </Vector3>
         <Vector3 name="size">
-          <X>512</X>
-          <Y>20</Y>
-          <Z>512</Z>
+          <X>256</X>
+          <Y>4</Y>
+          <Z>256</Z>
         </Vector3>
       </Properties>
     </Item>
-    <Item class="SpawnLocation" referent="61">
+    <Item class="SpawnLocation" referent="66">
       <Properties>
         <string name="Name">SpawnLocation</string>
         <bool name="Anchored">true</bool>
+        <Color3uint8 name="Color3uint8">16767823</Color3uint8>
+        <float name="Duration">0</float>
+        <bool name="Neutral">true</bool>
         <Vector3 name="Position">
           <X>0</X>
-          <Y>2</Y>
+          <Y>0.5</Y>
           <Z>0</Z>
         </Vector3>
         <Vector3 name="size">
-          <X>4</X>
+          <X>6</X>
           <Y>1</Y>
-          <Z>4</Z>
+          <Z>6</Z>
         </Vector3>
       </Properties>
     </Item>
