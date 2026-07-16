@@ -2770,7 +2770,7 @@ print("🎮 ============================================")
     - Added: Journal, Ending screen, quizId tracking
 ]]
 
-print("🎮 GameClient v5.2 - Loading...")
+print("🎮 GameClient v5.3 - Loading...")
 
 local Players = game:GetService("Players")
 local RS = game:GetService("ReplicatedStorage")
@@ -2907,7 +2907,7 @@ local versionLabel = Instance.new("TextLabel")
 versionLabel.Size = UDim2.new(0.2, 0, 0.04, 0)
 versionLabel.Position = UDim2.new(0.4, 0, 0.32, 0)
 versionLabel.BackgroundTransparency = 1
-versionLabel.Text = "v5.2 · Nusantara"
+versionLabel.Text = "v5.3 · Nusantara"
 versionLabel.TextColor3 = Color3.fromRGB(150, 150, 150)
 versionLabel.TextScaled = true
 versionLabel.Font = Enum.Font.Gotham
@@ -3364,11 +3364,8 @@ local function showNotification(text)
 end
 
 local function typewriterEffect(textLabel, fullText)
-    textLabel.Text = ""
-    for i = 1, #fullText do
-        textLabel.Text = string.sub(fullText, 1, i)
-        task.wait(0.02)
-    end
+    -- Instant text (no per-char delay which blocks UI on long strings)
+    textLabel.Text = fullText
 end
 
 local function updateHUD()
@@ -3429,7 +3426,7 @@ local function showDialogueLine(dialogueData, lineIndex)
     clearChoices()
 
     -- Wait a moment for typewriter to start, then show choices
-    task.wait(0.1)
+    task.wait(0.05)
 
     if line.choices then
         -- Update canvas size based on choice count
@@ -3691,6 +3688,10 @@ RE_QuizEnd.OnClientEvent:Connect(function(quizId, results)
     quizFrame.Visible = false
     currentQuiz = nil
     currentQuizId = nil
+    selectedAnswer = nil
+    for _, child in ipairs(quizAnswers:GetChildren()) do
+        if child:IsA("TextButton") then child:Destroy() end
+    end
     showNotification("🎉 Quiz selesai!")
     updateHUD()
 end)
@@ -3876,7 +3877,7 @@ UIS.InputBegan:Connect(function(input, processed)
 end)
 
 
-print("✅ GameClient v5.2 ready!")
+print("✅ GameClient v5.3 ready!")
 
 ]]></string>
         </Properties>
