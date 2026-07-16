@@ -366,16 +366,19 @@ local function createDefaultData()
 end
 
 local function loadPlayerData(player)
+    local store = getDataStore()
+    if store == nil then
+        -- Studio / unpublished: local-only session
+        return nil
+    end
     local success, data = pcall(function()
-        return getDataStore():GetAsync("player_" .. player.UserId)
+        return store:GetAsync("player_" .. player.UserId)
     end)
     if success and data then
-        -- Merge with defaults so new fields are present
         local merged = createDefaultData()
         for k, v in pairs(data) do
             merged[k] = v
         end
-        -- Ensure unlockedPortals table exists
         if not merged.unlockedPortals then
             merged.unlockedPortals = {quiz_jawa = true}
         end
@@ -390,8 +393,12 @@ end
 local function savePlayerData(player)
     local data = playerData[player.UserId]
     if not data then return end
+    local store = getDataStore()
+    if store == nil then
+        return -- Studio local session: no DataStore
+    end
     local success, err = pcall(function()
-        getDataStore():SetAsync("player_" .. player.UserId, data)
+        store:SetAsync("player_" .. player.UserId, data)
     end)
     if success then
         print("[DataStore] Saved: " .. player.Name)
@@ -2548,12 +2555,16 @@ end)
 local function setupPlayer(player)
     print("[GameManager] Player joined: " .. player.Name)
 
-    local saved = loadPlayerData(player)
-    if saved then
+    local okLoad, saved = pcall(loadPlayerData, player)
+    if okLoad and saved then
         playerData[player.UserId] = saved
         print("[GameManager] Loaded data for: " .. player.Name)
     else
+        if not okLoad then
+            warn("[GameManager] loadPlayerData error: " .. tostring(saved))
+        end
         playerData[player.UserId] = createDefaultData()
+        print("[GameManager] Using default data for: " .. player.Name)
     end
 
     playerActiveNPC[player.UserId] = nil
