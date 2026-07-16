@@ -19,7 +19,7 @@
     - Added: Journal, Ending screen, quizId tracking
 ]]
 
-print("🎮 GameClient v5.0 - Loading...")
+print("🎮 GameClient v5.1 - Loading...")
 
 local Players = game:GetService("Players")
 local RS = game:GetService("ReplicatedStorage")
@@ -132,7 +132,8 @@ gradient.Parent = mainMenu
 
 local titleLabel = Instance.new("TextLabel")
 titleLabel.Size = UDim2.new(0.8, 0, 0.15, 0)
-titleLabel.Position = UDim2.new(0.1, 0, 0.1, 0)
+titleLabel.Position = UDim2.new(0.5, 0, 0.15, 0)
+titleLabel.AnchorPoint = Vector2.new(0.5, 0)
 titleLabel.BackgroundTransparency = 1
 titleLabel.Text = "JEJAK NUSANTARA"
 titleLabel.TextColor3 = Color3.fromRGB(255, 215, 0)
@@ -142,7 +143,8 @@ titleLabel.Parent = mainMenu
 
 local subtitleLabel = Instance.new("TextLabel")
 subtitleLabel.Size = UDim2.new(0.6, 0, 0.06, 0)
-subtitleLabel.Position = UDim2.new(0.2, 0, 0.25, 0)
+subtitleLabel.Position = UDim2.new(0.5, 0, 0.28, 0)
+subtitleLabel.AnchorPoint = Vector2.new(0.5, 0)
 subtitleLabel.BackgroundTransparency = 1
 subtitleLabel.Text = "Dialog → Portal → Quiz → 4 wilayah → Ending"
 subtitleLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
@@ -154,7 +156,7 @@ local versionLabel = Instance.new("TextLabel")
 versionLabel.Size = UDim2.new(0.2, 0, 0.04, 0)
 versionLabel.Position = UDim2.new(0.4, 0, 0.32, 0)
 versionLabel.BackgroundTransparency = 1
-versionLabel.Text = "v5.0 · Nusantara"
+versionLabel.Text = "v5.1 · Nusantara"
 versionLabel.TextColor3 = Color3.fromRGB(150, 150, 150)
 versionLabel.TextScaled = true
 versionLabel.Font = Enum.Font.Gotham
@@ -162,7 +164,8 @@ versionLabel.Parent = mainMenu
 
 local startButton = Instance.new("TextButton")
 startButton.Size = UDim2.new(0.3, 0, 0.08, 0)
-startButton.Position = UDim2.new(0.35, 0, 0.45, 0)
+startButton.Position = UDim2.new(0.5, 0, 0.45, 0)
+startButton.AnchorPoint = Vector2.new(0.5, 0.5)
 startButton.BackgroundColor3 = Color3.fromRGB(196, 80, 40)
 startButton.Text = "🎮 MULAI PETUALANGAN"
 startButton.TextColor3 = Color3.fromRGB(255, 255, 255)
@@ -186,8 +189,9 @@ end)
 -- ============================================
 local hud = Instance.new("Frame")
 hud.Name = "HUD"
-hud.Size = UDim2.new(0, 250, 0, 120)
-hud.Position = UDim2.new(1, -260, 0, 10)
+hud.Size = UDim2.new(0, 240, 0, 130)
+hud.Position = UDim2.new(1, -20, 0, 10)
+hud.AnchorPoint = Vector2.new(1, 0)
 hud.BackgroundColor3 = Color3.fromRGB(20, 28, 24)
 hud.BackgroundTransparency = 0.3
 hud.Visible = false
@@ -262,7 +266,8 @@ hintLabel.Parent = hud
 local objectivePanel = Instance.new("Frame")
 objectivePanel.Name = "ObjectivePanel"
 objectivePanel.Size = UDim2.new(0, 320, 0, 110)
-objectivePanel.Position = UDim2.new(0, 12, 0, 12)
+objectivePanel.Position = UDim2.new(0, 12, 1, -130)
+objectivePanel.AnchorPoint = Vector2.new(0, 1)
 objectivePanel.BackgroundColor3 = Color3.fromRGB(18, 22, 30)
 objectivePanel.BackgroundTransparency = 0.15
 objectivePanel.Visible = false
@@ -311,7 +316,8 @@ end
 local dialogueFrame = Instance.new("Frame")
 dialogueFrame.Name = "Dialogue"
 dialogueFrame.Size = UDim2.new(0.7, 0, 0.42, 0)
-dialogueFrame.Position = UDim2.new(0.15, 0, 0.52, 0)
+dialogueFrame.Position = UDim2.new(0.5, 0, 0.72, 0)
+dialogueFrame.AnchorPoint = Vector2.new(0.5, 0.5)
 dialogueFrame.BackgroundColor3 = Color3.fromRGB(18, 24, 22)
 dialogueFrame.BackgroundTransparency = 0.05
 dialogueFrame.Visible = false
@@ -363,7 +369,8 @@ choicesLayout.Parent = choicesFrame
 local quizFrame = Instance.new("Frame")
 quizFrame.Name = "Quiz"
 quizFrame.Size = UDim2.new(0.6, 0, 0.65, 0)
-quizFrame.Position = UDim2.new(0.2, 0, 0.15, 0)
+quizFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
+quizFrame.AnchorPoint = Vector2.new(0.5, 0.5)
 quizFrame.BackgroundColor3 = Color3.fromRGB(16, 20, 28)
 quizFrame.BackgroundTransparency = 0.1
 quizFrame.Visible = false
@@ -426,7 +433,8 @@ quizProgress.Parent = quizFrame
 local journalFrame = Instance.new("Frame")
 journalFrame.Name = "Journal"
 journalFrame.Size = UDim2.new(0.4, 0, 0.6, 0)
-journalFrame.Position = UDim2.new(0.3, 0, 0.2, 0)
+journalFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
+journalFrame.AnchorPoint = Vector2.new(0.5, 0.5)
 journalFrame.BackgroundColor3 = Color3.fromRGB(30, 25, 20)
 journalFrame.BackgroundTransparency = 0.05
 journalFrame.Visible = false
@@ -599,8 +607,7 @@ local function processNotifQueue()
 end
 
 local function showNotification(text)
-    table.insert(notifQueue, text)
-    processNotifQueue()
+    showToastMsg(text)
 end
 
 local function typewriterEffect(textLabel, fullText)
@@ -790,14 +797,20 @@ local function showQuiz(quizData, quizId, questionIndex)
             if selectedAnswer then return end
             selectedAnswer = i
 
-            -- Visual feedback
+            -- Visual feedback: green pulse for selected
             for _, child in ipairs(quizAnswers:GetChildren()) do
                 if child:IsA("TextButton") then
                     child.AutoButtonColor = false
                     if child == btn then
-                        child.BackgroundColor3 = Color3.fromRGB(0, 180, 0)
+                        TweenService:Create(child, TweenInfo.new(0.3), {BackgroundColor3 = Color3.fromRGB(40, 180, 80)}):Play()
+                        -- Pulse scale
+                        local origSize = child.Size
+                        TweenService:Create(child, TweenInfo.new(0.15), {Size = UDim2.new(1.02, 0, 0, 42)}):Play()
+                        task.delay(0.15, function()
+                            TweenService:Create(child, TweenInfo.new(0.15), {Size = origSize}):Play()
+                        end)
                     else
-                        child.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
+                        TweenService:Create(child, TweenInfo.new(0.3), {BackgroundColor3 = Color3.fromRGB(50, 50, 60)}):Play()
                     end
                 end
             end
@@ -1110,5 +1123,5 @@ UIS.InputBegan:Connect(function(input, processed)
 end)
 
 
-print("✅ GameClient v5.0 ready!")
+print("✅ GameClient v5.1 ready!")
 
