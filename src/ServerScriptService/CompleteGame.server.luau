@@ -27,6 +27,7 @@ print("🎮 Jejak Nusantara v4.0 - Loading...")
 -- SERVICES
 -- ============================================
 local Players = game:GetService("Players")
+Players.CharacterAutoLoads = true
 local RS = game:GetService("ReplicatedStorage")
 local DataStoreService = game:GetService("DataStoreService")
 local Lighting = game:GetService("Lighting")
@@ -1963,12 +1964,16 @@ local function createWorld()
     -- Spawn
     local spawn = Instance.new("SpawnLocation")
     spawn.Name = "SpawnPoint"
-    spawn.Size = Vector3.new(10, 1, 10)
-    spawn.Position = Vector3.new(0, 1, 8)
+    spawn.Size = Vector3.new(12, 1, 12)
+    spawn.Position = Vector3.new(0, 1.5, 8)
     spawn.Anchored = true
+    spawn.CanCollide = true
+    spawn.Duration = 0
+    spawn.Neutral = true
+    spawn.Enabled = true
     spawn.Color = Color3.fromRGB(218, 165, 32)
     spawn.Material = Enum.Material.Neon
-    spawn.Transparency = 0.3
+    spawn.Transparency = 0.2
     spawn.Parent = workspace
 
     -- Kampus trees (8 trees around perimeter)
@@ -2540,10 +2545,9 @@ end)
 -- ============================================
 -- PLAYER LIFECYCLE
 -- ============================================
-Players.PlayerAdded:Connect(function(player)
+local function setupPlayer(player)
     print("[GameManager] Player joined: " .. player.Name)
 
-    -- Load saved data
     local saved = loadPlayerData(player)
     if saved then
         playerData[player.UserId] = saved
@@ -2555,11 +2559,47 @@ Players.PlayerAdded:Connect(function(player)
     playerActiveNPC[player.UserId] = nil
     playerDialogueLine[player.UserId] = nil
 
-    player.CharacterAdded:Connect(function(character)
-        local hrp = character:WaitForChild("HumanoidRootPart")
-        hrp.CFrame = CFrame.new(Vector3.new(0, 3, 0))
-    end)
-end)
+    local function onCharacter(character)
+        local hrp = character:WaitForChild("HumanoidRootPart", 10)
+        local hum = character:WaitForChild("Humanoid", 10)
+        if hrp then
+            -- Stand on golden spawn pad (kampus)
+            hrp.CFrame = CFrame.new(0, 5, 8)
+            print("[GameManager] Character placed for " .. player.Name)
+        end
+        if hum then
+            hum.WalkSpeed = 16
+            hum.JumpPower = 50
+            hum.DisplayDistanceType = Enum.HumanoidDisplayDistanceType.None
+        end
+        -- Keep character fully visible
+        for _, part in ipairs(character:GetDescendants()) do
+            if part:IsA("BasePart") then
+                if part.Name ~= "HumanoidRootPart" then
+                    part.Transparency = math.min(part.Transparency, 0)
+                end
+                part.LocalTransparencyModifier = 0
+            end
+        end
+    end
+
+    player.CharacterAdded:Connect(onCharacter)
+    if player.Character then
+        task.spawn(onCharacter, player.Character)
+    else
+        task.defer(function()
+            if player.Parent and not player.Character then
+                player:LoadCharacter()
+            end
+        end)
+    end
+end
+
+Players.PlayerAdded:Connect(setupPlayer)
+-- Studio race: player may already exist before this script runs
+for _, p in ipairs(Players:GetPlayers()) do
+    task.spawn(setupPlayer, p)
+end
 
 Players.PlayerRemoving:Connect(function(player)
     savePlayerData(player)

@@ -19,7 +19,7 @@
     - Added: Journal, Ending screen, quizId tracking
 ]]
 
-print("🎮 GameClient v4.0 - Loading...")
+print("🎮 GameClient v4.1 - Loading...")
 
 local Players = game:GetService("Players")
 local RS = game:GetService("ReplicatedStorage")
@@ -28,6 +28,36 @@ local TweenService = game:GetService("TweenService")
 
 local player = Players.LocalPlayer
 local playerGui = player:WaitForChild("PlayerGui")
+
+-- Force third-person camera on YOUR character (fixes freecam / invisible self)
+local function bindCamera(character)
+	if not character then return end
+	local hum = character:WaitForChild("Humanoid", 10)
+	local cam = workspace.CurrentCamera
+	if hum and cam then
+		cam.CameraType = Enum.CameraType.Custom
+		cam.CameraSubject = hum
+		cam.FieldOfView = 70
+	end
+	-- Ensure local character parts are visible
+	for _, d in ipairs(character:GetDescendants()) do
+		if d:IsA("BasePart") and d.Name ~= "HumanoidRootPart" then
+			d.LocalTransparencyModifier = 0
+		end
+	end
+end
+player.CharacterAdded:Connect(bindCamera)
+if player.Character then
+	task.spawn(bindCamera, player.Character)
+end
+task.spawn(function()
+	-- If character still missing (Studio race), ask server via LoadCharacter path
+	task.wait(2)
+	if not player.Character then
+		warn("[Client] No character after 2s — retry camera bind when it appears")
+	end
+end)
+
 
 -- State
 local currentDialogue = nil
@@ -82,8 +112,8 @@ mainMenu.Parent = screenGui
 
 local gradient = Instance.new("UIGradient")
 gradient.Color = ColorSequence.new{
-    ColorSequenceKeypoint.new(0, Color3.fromRGB(20, 20, 40)),
-    ColorSequenceKeypoint.new(1, Color3.fromRGB(40, 20, 60))
+    ColorSequenceKeypoint.new(0, Color3.fromRGB(18, 32, 28)),
+    ColorSequenceKeypoint.new(1, Color3.fromRGB(80, 28, 28))
 }
 gradient.Parent = mainMenu
 
@@ -101,7 +131,7 @@ local subtitleLabel = Instance.new("TextLabel")
 subtitleLabel.Size = UDim2.new(0.6, 0, 0.06, 0)
 subtitleLabel.Position = UDim2.new(0.2, 0, 0.25, 0)
 subtitleLabel.BackgroundTransparency = 1
-subtitleLabel.Text = "Eksplorasi Budaya Indonesia"
+subtitleLabel.Text = "Jelajahi 4 wilayah · Bicara dengan NPC · Selesaikan quiz"
 subtitleLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
 subtitleLabel.TextScaled = true
 subtitleLabel.Font = Enum.Font.Gotham
@@ -111,7 +141,7 @@ local versionLabel = Instance.new("TextLabel")
 versionLabel.Size = UDim2.new(0.2, 0, 0.04, 0)
 versionLabel.Position = UDim2.new(0.4, 0, 0.32, 0)
 versionLabel.BackgroundTransparency = 1
-versionLabel.Text = "v4.0"
+versionLabel.Text = "v4.1 · Nusantara"
 versionLabel.TextColor3 = Color3.fromRGB(150, 150, 150)
 versionLabel.TextScaled = true
 versionLabel.Font = Enum.Font.Gotham
@@ -120,7 +150,7 @@ versionLabel.Parent = mainMenu
 local startButton = Instance.new("TextButton")
 startButton.Size = UDim2.new(0.3, 0, 0.08, 0)
 startButton.Position = UDim2.new(0.35, 0, 0.45, 0)
-startButton.BackgroundColor3 = Color3.fromRGB(50, 150, 50)
+startButton.BackgroundColor3 = Color3.fromRGB(196, 80, 40)
 startButton.Text = "🎮 MULAI PETUALANGAN"
 startButton.TextColor3 = Color3.fromRGB(255, 255, 255)
 startButton.TextScaled = true
@@ -132,10 +162,10 @@ startCorner.CornerRadius = UDim.new(0, 10)
 startCorner.Parent = startButton
 
 startButton.MouseEnter:Connect(function()
-    TweenService:Create(startButton, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(70, 180, 70)}):Play()
+    TweenService:Create(startButton, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(220, 120, 50)}):Play()
 end)
 startButton.MouseLeave:Connect(function()
-    TweenService:Create(startButton, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(50, 150, 50)}):Play()
+    TweenService:Create(startButton, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(196, 80, 40)}):Play()
 end)
 
 -- ============================================
@@ -145,7 +175,7 @@ local hud = Instance.new("Frame")
 hud.Name = "HUD"
 hud.Size = UDim2.new(0, 250, 0, 120)
 hud.Position = UDim2.new(1, -260, 0, 10)
-hud.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+hud.BackgroundColor3 = Color3.fromRGB(20, 28, 24)
 hud.BackgroundTransparency = 0.3
 hud.Visible = false
 hud.Parent = screenGui
@@ -177,7 +207,7 @@ xpBarCorner.Parent = xpBarBg
 local xpBar = Instance.new("Frame")
 xpBar.Name = "Fill"
 xpBar.Size = UDim2.new(0, 0, 1, 0)
-xpBar.BackgroundColor3 = Color3.fromRGB(0, 200, 0)
+xpBar.BackgroundColor3 = Color3.fromRGB(218, 165, 32)
 xpBar.Parent = xpBarBg
 
 local xpBarFillCorner = Instance.new("UICorner")
@@ -432,7 +462,7 @@ endingStats.Parent = endingFrame
 local endingRestartBtn = Instance.new("TextButton")
 endingRestartBtn.Size = UDim2.new(0.3, 0, 0.07, 0)
 endingRestartBtn.Position = UDim2.new(0.35, 0, 0.75, 0)
-endingRestartBtn.BackgroundColor3 = Color3.fromRGB(50, 150, 50)
+endingRestartBtn.BackgroundColor3 = Color3.fromRGB(196, 80, 40)
 endingRestartBtn.Text = "🔄 Main Lagi"
 endingRestartBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
 endingRestartBtn.TextScaled = true
@@ -457,7 +487,7 @@ end)
 local notifFrame = Instance.new("Frame")
 notifFrame.Size = UDim2.new(0.4, 0, 0.08, 0)
 notifFrame.Position = UDim2.new(0.3, 0, 0.05, 0)
-notifFrame.BackgroundColor3 = Color3.fromRGB(50, 150, 50)
+notifFrame.BackgroundColor3 = Color3.fromRGB(196, 80, 40)
 notifFrame.BackgroundTransparency = 0.2
 notifFrame.Visible = false
 notifFrame.ZIndex = 50
@@ -584,7 +614,7 @@ local function showDialogueLine(dialogueData, lineIndex)
             local btn = Instance.new("TextButton")
             btn.Name = "Choice" .. i
             btn.Size = UDim2.new(1, 0, 0, 35)
-            btn.BackgroundColor3 = Color3.fromRGB(50, 50, 100)
+            btn.BackgroundColor3 = Color3.fromRGB(40, 70, 80)
             btn.TextColor3 = Color3.fromRGB(255, 255, 255)
             btn.TextScaled = true
             btn.Font = Enum.Font.Gotham
@@ -597,10 +627,10 @@ local function showDialogueLine(dialogueData, lineIndex)
             btnCorner.Parent = btn
 
             btn.MouseEnter:Connect(function()
-                TweenService:Create(btn, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(70, 70, 130)}):Play()
+                TweenService:Create(btn, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(60, 110, 100)}):Play()
             end)
             btn.MouseLeave:Connect(function()
-                TweenService:Create(btn, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(50, 50, 100)}):Play()
+                TweenService:Create(btn, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(40, 70, 80)}):Play()
             end)
 
             btn.MouseButton1Click:Connect(function()
@@ -653,7 +683,7 @@ local function showQuiz(quizData, quizId, questionIndex)
         local btn = Instance.new("TextButton")
         btn.Name = "Answer" .. i
         btn.Size = UDim2.new(1, 0, 0, 40)
-        btn.BackgroundColor3 = Color3.fromRGB(50, 50, 100)
+        btn.BackgroundColor3 = Color3.fromRGB(40, 70, 80)
         btn.TextColor3 = Color3.fromRGB(255, 255, 255)
         btn.TextScaled = true
         btn.Font = Enum.Font.Gotham
@@ -667,12 +697,12 @@ local function showQuiz(quizData, quizId, questionIndex)
 
         btn.MouseEnter:Connect(function()
             if not selectedAnswer then
-                TweenService:Create(btn, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(70, 70, 130)}):Play()
+                TweenService:Create(btn, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(60, 110, 100)}):Play()
             end
         end)
         btn.MouseLeave:Connect(function()
             if not selectedAnswer then
-                TweenService:Create(btn, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(50, 50, 100)}):Play()
+                TweenService:Create(btn, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(40, 70, 80)}):Play()
             end
         end)
 
@@ -734,6 +764,32 @@ local function showEnding(endingId, endingData)
     endingFrame.Visible = true
 end
 
+
+-- Design system: rounded panels + soft gold stroke
+local function stylePanel(gui, radius)
+	radius = radius or 12
+	local c = gui:FindFirstChildOfClass("UICorner")
+	if not c then
+		c = Instance.new("UICorner")
+		c.Parent = gui
+	end
+	c.CornerRadius = UDim.new(0, radius)
+	local s = gui:FindFirstChildOfClass("UIStroke")
+	if not s then
+		s = Instance.new("UIStroke")
+		s.Color = Color3.fromRGB(218, 165, 32)
+		s.Thickness = 1.5
+		s.Transparency = 0.35
+		s.Parent = gui
+	end
+end
+stylePanel(hud, 12)
+stylePanel(dialogueFrame, 16)
+stylePanel(quizFrame, 16)
+stylePanel(journalFrame, 14)
+stylePanel(endingFrame, 16)
+stylePanel(startButton, 12)
+
 -- ============================================
 -- EVENT HANDLERS
 -- ============================================
@@ -744,6 +800,9 @@ startButton.MouseButton1Click:Connect(function()
     hud.Visible = true
     RE_GameStart:FireServer()
     updateHUD()
+    if player.Character then
+        bindCamera(player.Character)
+    end
 end)
 
 -- Dialogue Start (Bug #1 fix: server now sends dialogueId too)
@@ -821,4 +880,4 @@ task.spawn(function()
     end
 end)
 
-print("✅ GameClient v4.0 ready!")
+print("✅ GameClient v4.1 ready!")
