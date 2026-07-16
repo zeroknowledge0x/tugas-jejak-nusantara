@@ -19,7 +19,7 @@
     - Added: Journal, Ending screen, quizId tracking
 ]]
 
-print("🎮 GameClient v5.3 - Loading...")
+print("🎮 GameClient v5.4 - Loading...")
 
 local Players = game:GetService("Players")
 local RS = game:GetService("ReplicatedStorage")
@@ -156,7 +156,7 @@ local versionLabel = Instance.new("TextLabel")
 versionLabel.Size = UDim2.new(0.2, 0, 0.04, 0)
 versionLabel.Position = UDim2.new(0.4, 0, 0.32, 0)
 versionLabel.BackgroundTransparency = 1
-versionLabel.Text = "v5.3 · Nusantara"
+versionLabel.Text = "v5.4 · Nusantara"
 versionLabel.TextColor3 = Color3.fromRGB(150, 150, 150)
 versionLabel.TextScaled = true
 versionLabel.Font = Enum.Font.Gotham
@@ -724,6 +724,8 @@ local function showDialogue(data, dialogueId)
         warn("[Client] showDialogue bad data: " .. typeof(data))
         return
     end
+    -- Close quiz if open (prevent overlap)
+    quizFrame.Visible = false
     currentDialogue = data
     npcName.Text = data.name or tostring(dialogueId) or "NPC"
     dialogueFrame.Visible = true
@@ -748,6 +750,8 @@ end
 -- QUIZ FUNCTIONS (Bug #2 fix: use server quizId)
 -- ============================================
 local function showQuiz(quizData, quizId, questionIndex)
+    -- Close dialogue if open (prevent overlap)
+    dialogueFrame.Visible = false
     currentQuiz = quizData
     currentQuizId = quizId -- Bug #2 fix: store quizId from server
     currentQuestionIndex = questionIndex
@@ -801,7 +805,7 @@ local function showQuiz(quizData, quizId, questionIndex)
                 if child:IsA("TextButton") then
                     child.AutoButtonColor = false
                     if child == btn then
-                        TweenService:Create(child, TweenInfo.new(0.3), {BackgroundColor3 = Color3.fromRGB(40, 180, 80)}):Play()
+                        TweenService:Create(child, TweenInfo.new(0.3), {BackgroundColor3 = Color3.fromRGB(218, 165, 32)}):Play()
                         -- Pulse scale
                         local origSize = child.Size
                         TweenService:Create(child, TweenInfo.new(0.15), {Size = UDim2.new(1.02, 0, 0, 42)}):Play()
@@ -1126,5 +1130,5 @@ UIS.InputBegan:Connect(function(input, processed)
 end)
 
 
-print("✅ GameClient v5.3 ready!")
+print("✅ GameClient v5.4 ready!")
 

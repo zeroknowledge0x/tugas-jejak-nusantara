@@ -181,9 +181,19 @@ local DIALOGUES = {
 -- ENDING DATA
 -- ============================================
 local ENDINGS = {
+    budayawan = {
+        title = "🏆 Budayawan Nusantara",
+        description = "Luar biasa! Kamu telah menyelesaikan semua quiz dan mengumpulkan pengetahuan budaya yang luar biasa! Kamu adalah pewaris budaya Indonesia yang sesungguhnya.",
+        color = {255, 215, 0},
+    },
+    penjelajah = {
+        title = "🗺️ Penjelajah Budaya",
+        description = "Kamu sudah menjelajahi cukup banyak budaya Indonesia! Semangat eksplorasimu patut diacungi jempol. Teruslah belajar!",
+        color = {0, 200, 200},
+    },
     pemula = {
         title = "🌱 Pemula",
-        description = "Perjalanan budaya baru dimulai! Masih banyak yang bisa dipelajari. Jangan menyerah, teruslah bertualang dan berinteraksi dengan NPC untuk belajar lebih banyak!",
+        description = "Perjalanan budaya baru dimulai! Masih banyak yang bisa dipelajari. Jangan menyerah, teruslah bertualang!",
         color = {200, 200, 200},
     },
 }
@@ -2110,8 +2120,8 @@ local function createWorld()
     retPortal.CanCollide = false
     retPortal.Color = Color3.fromRGB(218, 165, 32)
     retPortal.Material = Enum.Material.Neon
-    retPortal:SetAttribute("IsPortal", true)
     retPortal:SetAttribute("IsReturn", true)
+    retPortal:SetAttribute("IsPortal", false)
     retPortal.Parent = workspace
     local retBill = Instance.new("BillboardGui")
     retBill.Size = UDim2.new(0, 200, 0, 50)
