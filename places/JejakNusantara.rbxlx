@@ -4072,6 +4072,7 @@ end
   <Item class="TextChatService" referent="63">
     <Properties>
       <string name="Name">TextChatService</string>
+      <token name="ChatVersion">1</token>
     </Properties>
   </Item>
   <Item class="Workspace" referent="64">

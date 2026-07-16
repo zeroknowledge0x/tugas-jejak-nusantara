@@ -26,5 +26,21 @@ places/JejakNusantara.rbxlx
 - `GetCore: PlayerBlockedEvent… ChatMain`
 - `PlatformLeaderboard…`
 
+## If Studio says "Rendering is paused for debugging"
+This is **Studio debugger**, not a dead game. Legacy chat throws once → Studio freezes the viewport if **Break On Error** is on.
+
+**Instant unblock (every Play):**
+1. Look at the top Script / debugger toolbar.
+2. Click **Resume** (play triangle) — or press **F5**.
+3. Viewport unfreezes; game continues.
+
+**Permanent fix (do once):**
+1. Open **any** script in Studio (even a blank one).
+2. In the script editor toolbar / debug dropdown, set **Break On Error** → **Never**.
+3. Also open **View → Breakpoints** → **Disable all** / clear red dots on the left gutter.
+4. Stop Play, Play again — no more freeze on chat noise.
+
+Optional: Home → Game Settings → (Options / Communication) prefer **TextChatService** if shown.
+
 ## Do NOT reopen from Studio “Recent”
 Studio Recent may open an old saved `.rbxl` from Documents. Always open the new ZIP’s `.rbxlx`.
