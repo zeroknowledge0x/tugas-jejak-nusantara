@@ -19,7 +19,7 @@
     - Added: Journal, Ending screen, quizId tracking
 ]]
 
-print("🎮 GameClient v4.1 - Loading...")
+print("🎮 GameClient v4.2 - Loading...")
 
 local Players = game:GetService("Players")
 local RS = game:GetService("ReplicatedStorage")
@@ -67,19 +67,30 @@ local currentQuizId = nil -- Bug #2 fix: track quizId from server
 -- ============================================
 -- WAIT FOR REMOTES (created by server)
 -- ============================================
-local RE_GameStart        = RS:WaitForChild("GameStart", 10)
-local RE_DialogueStart    = RS:WaitForChild("DialogueStart", 10)
-local RE_DialogueEnd      = RS:WaitForChild("DialogueEnd", 10)
-local RE_DialogueChoice   = RS:WaitForChild("DialogueChoice", 10)
-local RE_QuizStart        = RS:WaitForChild("QuizStart", 10)
-local RE_QuizAnswer       = RS:WaitForChild("QuizAnswer", 10)
-local RE_QuizEnd          = RS:WaitForChild("QuizEnd", 10)
-local RE_ShowNotification = RS:WaitForChild("ShowNotification", 10)
-local RE_StateUpdate      = RS:WaitForChild("StateUpdate", 10)
-local RF_GetPlayerData    = RS:WaitForChild("GetPlayerData", 10)
-local RE_JournalUpdate    = RS:WaitForChild("JournalUpdate", 10)
-local RE_EndingTriggered  = RS:WaitForChild("EndingTriggered", 10)
-local RE_LevelUnlocked    = RS:WaitForChild("LevelUnlocked", 10)
+local function waitRemote(name)
+	local r = RS:WaitForChild(name, 30)
+	if not r then
+		warn("[Client] MISSING remote: " .. name)
+	else
+		print("[Client] remote ok: " .. name)
+	end
+	return r
+end
+
+local RE_GameStart        = waitRemote("GameStart")
+local RE_DialogueStart    = waitRemote("DialogueStart")
+local RE_DialogueEnd      = waitRemote("DialogueEnd")
+local RE_DialogueChoice   = waitRemote("DialogueChoice")
+local RE_QuizStart        = waitRemote("QuizStart")
+local RE_QuizAnswer       = waitRemote("QuizAnswer")
+local RE_QuizEnd          = waitRemote("QuizEnd")
+local RE_ShowNotification = waitRemote("ShowNotification")
+local RE_StateUpdate      = waitRemote("StateUpdate")
+local RF_GetPlayerData    = waitRemote("GetPlayerData")
+local RE_JournalUpdate    = waitRemote("JournalUpdate")
+local RE_EndingTriggered  = waitRemote("EndingTriggered")
+local RE_LevelUnlocked    = waitRemote("LevelUnlocked")
+local RE_TalkRequest      = waitRemote("TalkRequest")
 
 print("✅ Remotes ready!")
 local currentQuestionIndex = 1
@@ -141,7 +152,7 @@ local versionLabel = Instance.new("TextLabel")
 versionLabel.Size = UDim2.new(0.2, 0, 0.04, 0)
 versionLabel.Position = UDim2.new(0.4, 0, 0.32, 0)
 versionLabel.BackgroundTransparency = 1
-versionLabel.Text = "v4.1 · Nusantara"
+versionLabel.Text = "v4.2 · Nusantara"
 versionLabel.TextColor3 = Color3.fromRGB(150, 150, 150)
 versionLabel.TextScaled = true
 versionLabel.Font = Enum.Font.Gotham
@@ -249,11 +260,12 @@ hintLabel.Parent = hud
 -- ============================================
 local dialogueFrame = Instance.new("Frame")
 dialogueFrame.Name = "Dialogue"
-dialogueFrame.Size = UDim2.new(0.6, 0, 0.35, 0)
-dialogueFrame.Position = UDim2.new(0.2, 0, 0.6, 0)
-dialogueFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-dialogueFrame.BackgroundTransparency = 0.2
+dialogueFrame.Size = UDim2.new(0.7, 0, 0.42, 0)
+dialogueFrame.Position = UDim2.new(0.15, 0, 0.52, 0)
+dialogueFrame.BackgroundColor3 = Color3.fromRGB(18, 24, 22)
+dialogueFrame.BackgroundTransparency = 0.05
 dialogueFrame.Visible = false
+dialogueFrame.ZIndex = 50
 dialogueFrame.Parent = screenGui
 
 local dialogueCorner = Instance.new("UICorner")
@@ -648,14 +660,28 @@ local function showDialogueLine(dialogueData, lineIndex)
 end
 
 local function showDialogue(data, dialogueId)
+    if typeof(data) ~= "table" then
+        warn("[Client] showDialogue bad data: " .. typeof(data))
+        return
+    end
     currentDialogue = data
-    npcName.Text = data.name
-
-    -- Determine starting line
-    local startLine = data.startLine or 1
-
-    showDialogueLine(data, startLine)
+    npcName.Text = data.name or tostring(dialogueId) or "NPC"
     dialogueFrame.Visible = true
+    dialogueFrame.ZIndex = 100
+    screenGui.DisplayOrder = 100
+    print("[Client] showDialogue: " .. tostring(npcName.Text) .. " id=" .. tostring(dialogueId))
+
+    local startLine = data.startLine or 1
+    local okLine, errLine = pcall(function()
+        showDialogueLine(data, startLine)
+    end)
+    if not okLine then
+        warn("[Client] showDialogueLine error: " .. tostring(errLine))
+        local lines = data.lines
+        if type(lines) == "table" and lines[1] then
+            dialogueText.Text = tostring(lines[1].text or "")
+        end
+    end
 end
 
 -- ============================================
@@ -806,14 +832,19 @@ startButton.MouseButton1Click:Connect(function()
 end)
 
 -- Dialogue Start (Bug #1 fix: server now sends dialogueId too)
-RE_DialogueStart.OnClientEvent:Connect(function(data, dialogueId)
-    local success, err = pcall(function()
-        showDialogue(data, dialogueId)
-    end)
-    if not success then
-        warn("[Client] showDialogue error: " .. tostring(err))
-    end
-end)
+if RE_DialogueStart then
+	RE_DialogueStart.OnClientEvent:Connect(function(data, dialogueId)
+		print("[Client] DialogueStart received id=" .. tostring(dialogueId))
+		local success, err = pcall(function()
+			showDialogue(data, dialogueId)
+		end)
+		if not success then
+			warn("[Client] showDialogue error: " .. tostring(err))
+		end
+	end)
+else
+	warn("[Client] RE_DialogueStart is nil — dialogue will not show")
+end
 
 -- Dialogue End
 RE_DialogueEnd.OnClientEvent:Connect(function()
@@ -880,4 +911,86 @@ task.spawn(function()
     end
 end)
 
-print("✅ GameClient v4.1 ready!")
+
+-- ============================================
+-- PROMPT FALLBACK (Studio-proof dialogue trigger)
+-- ============================================
+local ProximityPromptService = game:GetService("ProximityPromptService")
+
+local NPC_NAME_TO_ID = {
+	["Pak Dosen"] = "Dosen",
+	["Pak Karso"] = "Karso",
+	["Ibu Ratna"] = "Ratna",
+	["Mang Wayan"] = "Wayan",
+	["Bapak Yanu"] = "Yanu",
+}
+
+local function requestTalk(dialogueId, reason)
+	if not dialogueId then
+		warn("[Client] requestTalk missing id (" .. tostring(reason) .. ")")
+		return
+	end
+	if not RE_TalkRequest then
+		warn("[Client] TalkRequest remote missing")
+		return
+	end
+	print("[Client] TalkRequest " .. tostring(dialogueId) .. " via " .. tostring(reason))
+	RE_TalkRequest:FireServer(dialogueId)
+end
+
+ProximityPromptService.PromptTriggered:Connect(function(prompt, plr)
+	if plr ~= player then return end
+	if prompt.ActionText ~= "Bicara" then return end
+	local parent = prompt.Parent
+	local dialogueId = nil
+	if parent then
+		dialogueId = parent:GetAttribute("DialogueId")
+		if not dialogueId and parent.Parent then
+			dialogueId = parent.Parent:GetAttribute("DialogueId")
+		end
+	end
+	if not dialogueId then
+		dialogueId = NPC_NAME_TO_ID[prompt.ObjectText]
+	end
+	requestTalk(dialogueId, "PromptTriggered")
+end)
+
+local function findNearestNPC(maxDist)
+	maxDist = maxDist or 20
+	local char = player.Character
+	if not char then return nil, nil end
+	local hrp = char:FindFirstChild("HumanoidRootPart")
+	if not hrp then return nil, nil end
+	local bestId, bestD = nil, maxDist
+	for _, inst in ipairs(workspace:GetChildren()) do
+		if inst:IsA("Model") and inst:GetAttribute("IsNPC") then
+			local id = inst:GetAttribute("DialogueId")
+			local part = inst.PrimaryPart or inst:FindFirstChild("Head") or inst:FindFirstChild("Torso")
+			if part and id then
+				local d = (part.Position - hrp.Position).Magnitude
+				if d < bestD then
+					bestD = d
+					bestId = id
+				end
+			end
+		end
+	end
+	return bestId, bestD
+end
+
+-- E key: talk to nearest NPC (always works even if prompt UI hidden)
+UIS.InputBegan:Connect(function(input, processed)
+	if processed then return end
+	if input.KeyCode == Enum.KeyCode.E then
+		local id = findNearestNPC(22)
+		if id then
+			requestTalk(id, "KeyE")
+		else
+			print("[Client] E pressed but no NPC within 22 studs")
+		end
+	end
+end)
+
+
+print("✅ GameClient v4.2 ready!")
+

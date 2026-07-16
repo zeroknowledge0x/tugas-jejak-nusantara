@@ -80,6 +80,7 @@ createRemote("RemoteFunction", "GetPlayerData")
 createRemote("RemoteEvent", "JournalUpdate")
 createRemote("RemoteEvent", "EndingTriggered")
 createRemote("RemoteEvent", "LevelUnlocked")
+createRemote("RemoteEvent", "TalkRequest")
 
 print("✅ Remote events created!")
 
@@ -740,19 +741,17 @@ local function createNPC(name, position, dialogueId, bodyColor, shirtColor, pant
     corner.CornerRadius = UDim.new(0, 8)
     corner.Parent = nameLabel
 
-    -- ProximityPrompt on HumanoidRootPart
-    local prompt = Instance.new("ProximityPrompt")
-    prompt.ActionText = "Bicara"
-    prompt.ObjectText = name
-    prompt.MaxActivationDistance = 15
-    prompt.HoldDuration = 0
-    prompt.Parent = hrp
-
-    prompt.Triggered:Connect(function(player)
-        -- Bug #1 fix: prevent re-trigger while in dialogue
-        if playerActiveNPC[player.UserId] then 
-            print("[NPC] Player " .. player.Name .. " already in dialogue with " .. name)
-            return 
+    -- Start dialogue (shared by ProximityPrompt + ClickDetector)
+    local function startTalk(player)
+        if not player or not player:IsA("Player") then return end
+        -- Allow re-talk: clear stuck state after 60s implicitly by forcing open if same NPC
+        if playerActiveNPC[player.UserId] and playerActiveNPC[player.UserId] ~= dialogueId then
+            print("[NPC] Player " .. player.Name .. " already in dialogue — clearing stuck state")
+            playerActiveNPC[player.UserId] = nil
+            playerDialogueLine[player.UserId] = nil
+        elseif playerActiveNPC[player.UserId] == dialogueId then
+            -- Re-open same dialogue
+            playerActiveNPC[player.UserId] = nil
         end
 
         local data = getPlayerData(player)
@@ -760,17 +759,15 @@ local function createNPC(name, position, dialogueId, bodyColor, shirtColor, pant
             warn("[NPC] ERROR: No player data for " .. player.Name)
             return
         end
-        
+
         data.talkCount = (data.talkCount or 0) + 1
         print("[NPC] " .. player.Name .. " talking to " .. name .. " (talk #" .. data.talkCount .. ")")
 
-        -- Bug #1 fix: track active NPC
         playerActiveNPC[player.UserId] = dialogueId
         playerDialogueLine[player.UserId] = 1
 
         local dialogue = DIALOGUES[dialogueId]
         if dialogue then
-            -- Send full dialogue table + dialogueId so client can navigate
             RS.DialogueStart:FireClient(player, dialogue, dialogueId)
             addJournalEntry(player, "💬 Berbicara dengan " .. dialogue.name)
             print("[NPC] Dialogue started: " .. dialogueId)
@@ -779,8 +776,31 @@ local function createNPC(name, position, dialogueId, bodyColor, shirtColor, pant
             playerActiveNPC[player.UserId] = nil
             playerDialogueLine[player.UserId] = nil
         end
-    end)
+    end
 
+    -- ProximityPrompt on HEAD (not invisible HRP) — LoS was blocked by torso
+    local prompt = Instance.new("ProximityPrompt")
+    prompt.ActionText = "Bicara"
+    prompt.ObjectText = name
+    prompt.MaxActivationDistance = 20
+    prompt.HoldDuration = 0
+    prompt.RequiresLineOfSight = false
+    prompt.KeyboardKeyCode = Enum.KeyCode.E
+    prompt.GamepadKeyCode = Enum.KeyCode.ButtonX
+    prompt.Style = Enum.ProximityPromptStyle.Default
+    prompt.Parent = head
+
+    prompt.Triggered:Connect(startTalk)
+
+    -- Backup: click NPC body
+    local click = Instance.new("ClickDetector")
+    click.MaxActivationDistance = 20
+    click.Parent = torso
+    click.MouseClick:Connect(startTalk)
+
+    model:SetAttribute("DialogueId", dialogueId)
+    model:SetAttribute("IsNPC", true)
+    head:SetAttribute("DialogueId", dialogueId)
     model.Parent = workspace
     print("[NPC] Created: " .. name .. " at " .. tostring(position))
     return model
@@ -832,6 +852,7 @@ local function createPortal(name, position, destination, color, label, quizId)
     prompt.ActionText = "Masuk"
     prompt.ObjectText = label
     prompt.MaxActivationDistance = 15
+    prompt.RequiresLineOfSight = false
     prompt.HoldDuration = 0
     prompt.Parent = portal
 
@@ -2536,6 +2557,35 @@ RS.QuizAnswer.OnServerEvent:Connect(function(player, questionIndex, answerIndex,
         end
         RS.QuizEnd:FireClient(player, quizId, results)
     end
+end)
+
+
+-- ============================================
+-- TALK REQUEST (client fallback if prompt flaky)
+-- ============================================
+local function beginDialogue(player, dialogueId)
+    if not player or not dialogueId then return end
+    local dialogue = DIALOGUES[dialogueId]
+    if not dialogue then
+        warn("[NPC] No dialogue for id " .. tostring(dialogueId))
+        return
+    end
+    local data = getPlayerData(player)
+    if not data then return end
+    data.talkCount = (data.talkCount or 0) + 1
+    playerActiveNPC[player.UserId] = dialogueId
+    playerDialogueLine[player.UserId] = 1
+    RS.DialogueStart:FireClient(player, dialogue, dialogueId)
+    addJournalEntry(player, "💬 Berbicara dengan " .. dialogue.name)
+    print("[NPC] Dialogue started via beginDialogue: " .. dialogueId .. " for " .. player.Name)
+end
+
+RS.TalkRequest.OnServerEvent:Connect(function(player, dialogueId)
+    print("[TalkRequest] " .. player.Name .. " -> " .. tostring(dialogueId))
+    -- Clear stuck state always on explicit request
+    playerActiveNPC[player.UserId] = nil
+    playerDialogueLine[player.UserId] = nil
+    beginDialogue(player, dialogueId)
 end)
 
 -- ============================================

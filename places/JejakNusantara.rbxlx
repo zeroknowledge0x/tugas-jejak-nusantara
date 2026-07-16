@@ -99,6 +99,7 @@ createRemote("RemoteFunction", "GetPlayerData")
 createRemote("RemoteEvent", "JournalUpdate")
 createRemote("RemoteEvent", "EndingTriggered")
 createRemote("RemoteEvent", "LevelUnlocked")
+createRemote("RemoteEvent", "TalkRequest")
 
 print("✅ Remote events created!")
 
@@ -759,19 +760,17 @@ local function createNPC(name, position, dialogueId, bodyColor, shirtColor, pant
     corner.CornerRadius = UDim.new(0, 8)
     corner.Parent = nameLabel
 
-    -- ProximityPrompt on HumanoidRootPart
-    local prompt = Instance.new("ProximityPrompt")
-    prompt.ActionText = "Bicara"
-    prompt.ObjectText = name
-    prompt.MaxActivationDistance = 15
-    prompt.HoldDuration = 0
-    prompt.Parent = hrp
-
-    prompt.Triggered:Connect(function(player)
-        -- Bug #1 fix: prevent re-trigger while in dialogue
-        if playerActiveNPC[player.UserId] then 
-            print("[NPC] Player " .. player.Name .. " already in dialogue with " .. name)
-            return 
+    -- Start dialogue (shared by ProximityPrompt + ClickDetector)
+    local function startTalk(player)
+        if not player or not player:IsA("Player") then return end
+        -- Allow re-talk: clear stuck state after 60s implicitly by forcing open if same NPC
+        if playerActiveNPC[player.UserId] and playerActiveNPC[player.UserId] ~= dialogueId then
+            print("[NPC] Player " .. player.Name .. " already in dialogue — clearing stuck state")
+            playerActiveNPC[player.UserId] = nil
+            playerDialogueLine[player.UserId] = nil
+        elseif playerActiveNPC[player.UserId] == dialogueId then
+            -- Re-open same dialogue
+            playerActiveNPC[player.UserId] = nil
         end
 
         local data = getPlayerData(player)
@@ -779,17 +778,15 @@ local function createNPC(name, position, dialogueId, bodyColor, shirtColor, pant
             warn("[NPC] ERROR: No player data for " .. player.Name)
             return
         end
-        
+
         data.talkCount = (data.talkCount or 0) + 1
         print("[NPC] " .. player.Name .. " talking to " .. name .. " (talk #" .. data.talkCount .. ")")
 
-        -- Bug #1 fix: track active NPC
         playerActiveNPC[player.UserId] = dialogueId
         playerDialogueLine[player.UserId] = 1
 
         local dialogue = DIALOGUES[dialogueId]
         if dialogue then
-            -- Send full dialogue table + dialogueId so client can navigate
             RS.DialogueStart:FireClient(player, dialogue, dialogueId)
             addJournalEntry(player, "💬 Berbicara dengan " .. dialogue.name)
             print("[NPC] Dialogue started: " .. dialogueId)
@@ -798,8 +795,31 @@ local function createNPC(name, position, dialogueId, bodyColor, shirtColor, pant
             playerActiveNPC[player.UserId] = nil
             playerDialogueLine[player.UserId] = nil
         end
-    end)
+    end
 
+    -- ProximityPrompt on HEAD (not invisible HRP) — LoS was blocked by torso
+    local prompt = Instance.new("ProximityPrompt")
+    prompt.ActionText = "Bicara"
+    prompt.ObjectText = name
+    prompt.MaxActivationDistance = 20
+    prompt.HoldDuration = 0
+    prompt.RequiresLineOfSight = false
+    prompt.KeyboardKeyCode = Enum.KeyCode.E
+    prompt.GamepadKeyCode = Enum.KeyCode.ButtonX
+    prompt.Style = Enum.ProximityPromptStyle.Default
+    prompt.Parent = head
+
+    prompt.Triggered:Connect(startTalk)
+
+    -- Backup: click NPC body
+    local click = Instance.new("ClickDetector")
+    click.MaxActivationDistance = 20
+    click.Parent = torso
+    click.MouseClick:Connect(startTalk)
+
+    model:SetAttribute("DialogueId", dialogueId)
+    model:SetAttribute("IsNPC", true)
+    head:SetAttribute("DialogueId", dialogueId)
     model.Parent = workspace
     print("[NPC] Created: " .. name .. " at " .. tostring(position))
     return model
@@ -851,6 +871,7 @@ local function createPortal(name, position, destination, color, label, quizId)
     prompt.ActionText = "Masuk"
     prompt.ObjectText = label
     prompt.MaxActivationDistance = 15
+    prompt.RequiresLineOfSight = false
     prompt.HoldDuration = 0
     prompt.Parent = portal
 
@@ -2557,6 +2578,35 @@ RS.QuizAnswer.OnServerEvent:Connect(function(player, questionIndex, answerIndex,
     end
 end)
 
+
+-- ============================================
+-- TALK REQUEST (client fallback if prompt flaky)
+-- ============================================
+local function beginDialogue(player, dialogueId)
+    if not player or not dialogueId then return end
+    local dialogue = DIALOGUES[dialogueId]
+    if not dialogue then
+        warn("[NPC] No dialogue for id " .. tostring(dialogueId))
+        return
+    end
+    local data = getPlayerData(player)
+    if not data then return end
+    data.talkCount = (data.talkCount or 0) + 1
+    playerActiveNPC[player.UserId] = dialogueId
+    playerDialogueLine[player.UserId] = 1
+    RS.DialogueStart:FireClient(player, dialogue, dialogueId)
+    addJournalEntry(player, "💬 Berbicara dengan " .. dialogue.name)
+    print("[NPC] Dialogue started via beginDialogue: " .. dialogueId .. " for " .. player.Name)
+end
+
+RS.TalkRequest.OnServerEvent:Connect(function(player, dialogueId)
+    print("[TalkRequest] " .. player.Name .. " -> " .. tostring(dialogueId))
+    -- Clear stuck state always on explicit request
+    playerActiveNPC[player.UserId] = nil
+    playerDialogueLine[player.UserId] = nil
+    beginDialogue(player, dialogueId)
+end)
+
 -- ============================================
 -- GAME START HANDLER
 -- ============================================
@@ -2704,7 +2754,7 @@ print("🎮 ============================================")
     - Added: Journal, Ending screen, quizId tracking
 ]]
 
-print("🎮 GameClient v4.1 - Loading...")
+print("🎮 GameClient v4.2 - Loading...")
 
 local Players = game:GetService("Players")
 local RS = game:GetService("ReplicatedStorage")
@@ -2752,19 +2802,30 @@ local currentQuizId = nil -- Bug #2 fix: track quizId from server
 -- ============================================
 -- WAIT FOR REMOTES (created by server)
 -- ============================================
-local RE_GameStart        = RS:WaitForChild("GameStart", 10)
-local RE_DialogueStart    = RS:WaitForChild("DialogueStart", 10)
-local RE_DialogueEnd      = RS:WaitForChild("DialogueEnd", 10)
-local RE_DialogueChoice   = RS:WaitForChild("DialogueChoice", 10)
-local RE_QuizStart        = RS:WaitForChild("QuizStart", 10)
-local RE_QuizAnswer       = RS:WaitForChild("QuizAnswer", 10)
-local RE_QuizEnd          = RS:WaitForChild("QuizEnd", 10)
-local RE_ShowNotification = RS:WaitForChild("ShowNotification", 10)
-local RE_StateUpdate      = RS:WaitForChild("StateUpdate", 10)
-local RF_GetPlayerData    = RS:WaitForChild("GetPlayerData", 10)
-local RE_JournalUpdate    = RS:WaitForChild("JournalUpdate", 10)
-local RE_EndingTriggered  = RS:WaitForChild("EndingTriggered", 10)
-local RE_LevelUnlocked    = RS:WaitForChild("LevelUnlocked", 10)
+local function waitRemote(name)
+	local r = RS:WaitForChild(name, 30)
+	if not r then
+		warn("[Client] MISSING remote: " .. name)
+	else
+		print("[Client] remote ok: " .. name)
+	end
+	return r
+end
+
+local RE_GameStart        = waitRemote("GameStart")
+local RE_DialogueStart    = waitRemote("DialogueStart")
+local RE_DialogueEnd      = waitRemote("DialogueEnd")
+local RE_DialogueChoice   = waitRemote("DialogueChoice")
+local RE_QuizStart        = waitRemote("QuizStart")
+local RE_QuizAnswer       = waitRemote("QuizAnswer")
+local RE_QuizEnd          = waitRemote("QuizEnd")
+local RE_ShowNotification = waitRemote("ShowNotification")
+local RE_StateUpdate      = waitRemote("StateUpdate")
+local RF_GetPlayerData    = waitRemote("GetPlayerData")
+local RE_JournalUpdate    = waitRemote("JournalUpdate")
+local RE_EndingTriggered  = waitRemote("EndingTriggered")
+local RE_LevelUnlocked    = waitRemote("LevelUnlocked")
+local RE_TalkRequest      = waitRemote("TalkRequest")
 
 print("✅ Remotes ready!")
 local currentQuestionIndex = 1
@@ -2826,7 +2887,7 @@ local versionLabel = Instance.new("TextLabel")
 versionLabel.Size = UDim2.new(0.2, 0, 0.04, 0)
 versionLabel.Position = UDim2.new(0.4, 0, 0.32, 0)
 versionLabel.BackgroundTransparency = 1
-versionLabel.Text = "v4.1 · Nusantara"
+versionLabel.Text = "v4.2 · Nusantara"
 versionLabel.TextColor3 = Color3.fromRGB(150, 150, 150)
 versionLabel.TextScaled = true
 versionLabel.Font = Enum.Font.Gotham
@@ -2934,11 +2995,12 @@ hintLabel.Parent = hud
 -- ============================================
 local dialogueFrame = Instance.new("Frame")
 dialogueFrame.Name = "Dialogue"
-dialogueFrame.Size = UDim2.new(0.6, 0, 0.35, 0)
-dialogueFrame.Position = UDim2.new(0.2, 0, 0.6, 0)
-dialogueFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-dialogueFrame.BackgroundTransparency = 0.2
+dialogueFrame.Size = UDim2.new(0.7, 0, 0.42, 0)
+dialogueFrame.Position = UDim2.new(0.15, 0, 0.52, 0)
+dialogueFrame.BackgroundColor3 = Color3.fromRGB(18, 24, 22)
+dialogueFrame.BackgroundTransparency = 0.05
 dialogueFrame.Visible = false
+dialogueFrame.ZIndex = 50
 dialogueFrame.Parent = screenGui
 
 local dialogueCorner = Instance.new("UICorner")
@@ -3333,14 +3395,28 @@ local function showDialogueLine(dialogueData, lineIndex)
 end
 
 local function showDialogue(data, dialogueId)
+    if typeof(data) ~= "table" then
+        warn("[Client] showDialogue bad data: " .. typeof(data))
+        return
+    end
     currentDialogue = data
-    npcName.Text = data.name
-
-    -- Determine starting line
-    local startLine = data.startLine or 1
-
-    showDialogueLine(data, startLine)
+    npcName.Text = data.name or tostring(dialogueId) or "NPC"
     dialogueFrame.Visible = true
+    dialogueFrame.ZIndex = 100
+    screenGui.DisplayOrder = 100
+    print("[Client] showDialogue: " .. tostring(npcName.Text) .. " id=" .. tostring(dialogueId))
+
+    local startLine = data.startLine or 1
+    local okLine, errLine = pcall(function()
+        showDialogueLine(data, startLine)
+    end)
+    if not okLine then
+        warn("[Client] showDialogueLine error: " .. tostring(errLine))
+        local lines = data.lines
+        if type(lines) == "table" and lines[1] then
+            dialogueText.Text = tostring(lines[1].text or "")
+        end
+    end
 end
 
 -- ============================================
@@ -3491,14 +3567,19 @@ startButton.MouseButton1Click:Connect(function()
 end)
 
 -- Dialogue Start (Bug #1 fix: server now sends dialogueId too)
-RE_DialogueStart.OnClientEvent:Connect(function(data, dialogueId)
-    local success, err = pcall(function()
-        showDialogue(data, dialogueId)
-    end)
-    if not success then
-        warn("[Client] showDialogue error: " .. tostring(err))
-    end
-end)
+if RE_DialogueStart then
+	RE_DialogueStart.OnClientEvent:Connect(function(data, dialogueId)
+		print("[Client] DialogueStart received id=" .. tostring(dialogueId))
+		local success, err = pcall(function()
+			showDialogue(data, dialogueId)
+		end)
+		if not success then
+			warn("[Client] showDialogue error: " .. tostring(err))
+		end
+	end)
+else
+	warn("[Client] RE_DialogueStart is nil — dialogue will not show")
+end
 
 -- Dialogue End
 RE_DialogueEnd.OnClientEvent:Connect(function()
@@ -3565,7 +3646,89 @@ task.spawn(function()
     end
 end)
 
-print("✅ GameClient v4.1 ready!")
+
+-- ============================================
+-- PROMPT FALLBACK (Studio-proof dialogue trigger)
+-- ============================================
+local ProximityPromptService = game:GetService("ProximityPromptService")
+
+local NPC_NAME_TO_ID = {
+	["Pak Dosen"] = "Dosen",
+	["Pak Karso"] = "Karso",
+	["Ibu Ratna"] = "Ratna",
+	["Mang Wayan"] = "Wayan",
+	["Bapak Yanu"] = "Yanu",
+}
+
+local function requestTalk(dialogueId, reason)
+	if not dialogueId then
+		warn("[Client] requestTalk missing id (" .. tostring(reason) .. ")")
+		return
+	end
+	if not RE_TalkRequest then
+		warn("[Client] TalkRequest remote missing")
+		return
+	end
+	print("[Client] TalkRequest " .. tostring(dialogueId) .. " via " .. tostring(reason))
+	RE_TalkRequest:FireServer(dialogueId)
+end
+
+ProximityPromptService.PromptTriggered:Connect(function(prompt, plr)
+	if plr ~= player then return end
+	if prompt.ActionText ~= "Bicara" then return end
+	local parent = prompt.Parent
+	local dialogueId = nil
+	if parent then
+		dialogueId = parent:GetAttribute("DialogueId")
+		if not dialogueId and parent.Parent then
+			dialogueId = parent.Parent:GetAttribute("DialogueId")
+		end
+	end
+	if not dialogueId then
+		dialogueId = NPC_NAME_TO_ID[prompt.ObjectText]
+	end
+	requestTalk(dialogueId, "PromptTriggered")
+end)
+
+local function findNearestNPC(maxDist)
+	maxDist = maxDist or 20
+	local char = player.Character
+	if not char then return nil, nil end
+	local hrp = char:FindFirstChild("HumanoidRootPart")
+	if not hrp then return nil, nil end
+	local bestId, bestD = nil, maxDist
+	for _, inst in ipairs(workspace:GetChildren()) do
+		if inst:IsA("Model") and inst:GetAttribute("IsNPC") then
+			local id = inst:GetAttribute("DialogueId")
+			local part = inst.PrimaryPart or inst:FindFirstChild("Head") or inst:FindFirstChild("Torso")
+			if part and id then
+				local d = (part.Position - hrp.Position).Magnitude
+				if d < bestD then
+					bestD = d
+					bestId = id
+				end
+			end
+		end
+	end
+	return bestId, bestD
+end
+
+-- E key: talk to nearest NPC (always works even if prompt UI hidden)
+UIS.InputBegan:Connect(function(input, processed)
+	if processed then return end
+	if input.KeyCode == Enum.KeyCode.E then
+		local id = findNearestNPC(22)
+		if id then
+			requestTalk(id, "KeyE")
+		else
+			print("[Client] E pressed but no NPC within 22 studs")
+		end
+	end
+end)
+
+
+print("✅ GameClient v4.2 ready!")
+
 ]]></string>
         </Properties>
       </Item>
