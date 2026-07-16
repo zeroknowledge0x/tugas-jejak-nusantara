@@ -3664,22 +3664,6 @@ return Tween
     </Properties>
     <Item class="Script" referent="53">
       <Properties>
-        <string name="Name">DisableLegacyChat</string>
-        <token name="RunContext">0</token>
-        <string name="Source"><![CDATA[--! DisableLegacyChat.server.luau (ServerScriptService)
---! Disables Roblox's built-in (legacy) chat so the benign
---! "GetCore: PlayerBlockedEvent" CoreScript warning never fires.
---! The default chat scripts only load if Chat.LoadDefaultChat is true.
-local ok, chat = pcall(function() return game:GetService("Chat") end)
-if ok and chat then
-	chat.LoadDefaultChat = false
-	warn("[JN] Legacy chat disabled (LoadDefaultChat = false)")
-end
-]]></string>
-      </Properties>
-    </Item>
-    <Item class="Script" referent="54">
-      <Properties>
         <string name="Name">GameServer</string>
         <token name="RunContext">0</token>
         <string name="Source"><![CDATA[--! GameServer.server.luau (ServerScriptService)
@@ -3734,20 +3718,20 @@ end
       </Properties>
     </Item>
   </Item>
-  <Item class="SoundService" referent="55">
+  <Item class="SoundService" referent="54">
     <Properties>
       <string name="Name">SoundService</string>
     </Properties>
   </Item>
-  <Item class="StarterPlayer" referent="56">
+  <Item class="StarterPlayer" referent="55">
     <Properties>
       <string name="Name">StarterPlayer</string>
     </Properties>
-    <Item class="StarterFolder" referent="57">
+    <Item class="StarterFolder" referent="56">
       <Properties>
         <string name="Name">StarterPlayerScripts</string>
       </Properties>
-      <Item class="LocalScript" referent="58">
+      <Item class="LocalScript" referent="57">
         <Properties>
           <string name="Name">GameClient</string>
           <string name="Source"><![CDATA[--! GameClient.client.luau (StarterPlayerScripts)
@@ -3779,12 +3763,23 @@ local function showBanner(text)
 	t.Font = Enum.Font.GothamBold
 	t.TextScaled = true
 	t.Parent = f
-	task.delay(4, function()
+	t.ZIndex = 10
+	local close = Instance.new("TextButton")
+	close.Size = UDim2.new(0.12, 0, 0.4, 0)
+	close.Position = UDim2.new(0.86, 0, 0.3, 0)
+	close.BackgroundColor3 = Color3.fromRGB(200, 60, 60)
+	close.Text = "X"
+	close.TextColor3 = Color3.fromRGB(255, 255, 255)
+	close.Font = Enum.Font.GothamBold
+	close.TextScaled = true
+	close.Parent = f
+	close.ZIndex = 11
+	close.Activated:Connect(function()
 		if sg.Parent ~= nil then sg:Destroy() end
 	end)
 end
 
-showBanner("JEGAK NUSANTARA - BOOTING...")
+showBanner("JEGAK NUSANTARA - GAME JALAN. Dekat kotak BIRU (Budi) lalu klik Bicara.")
 
 -- Disable legacy chat noise (best-effort).
 pcall(function()
@@ -3878,17 +3873,17 @@ end
       </Item>
     </Item>
   </Item>
-  <Item class="TextChatService" referent="59">
+  <Item class="TextChatService" referent="58">
     <Properties>
       <string name="Name">TextChatService</string>
     </Properties>
   </Item>
-  <Item class="Workspace" referent="60">
+  <Item class="Workspace" referent="59">
     <Properties>
       <string name="Name">Workspace</string>
       <bool name="NeedsPivotMigration">false</bool>
     </Properties>
-    <Item class="Part" referent="61">
+    <Item class="Part" referent="60">
       <Properties>
         <string name="Name">Baseplate</string>
         <bool name="Anchored">true</bool>
@@ -3905,7 +3900,7 @@ end
         </Vector3>
       </Properties>
     </Item>
-    <Item class="SpawnLocation" referent="62">
+    <Item class="SpawnLocation" referent="61">
       <Properties>
         <string name="Name">SpawnLocation</string>
         <bool name="Anchored">true</bool>

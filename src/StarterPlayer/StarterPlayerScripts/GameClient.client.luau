@@ -27,12 +27,23 @@ local function showBanner(text)
 	t.Font = Enum.Font.GothamBold
 	t.TextScaled = true
 	t.Parent = f
-	task.delay(4, function()
+	t.ZIndex = 10
+	local close = Instance.new("TextButton")
+	close.Size = UDim2.new(0.12, 0, 0.4, 0)
+	close.Position = UDim2.new(0.86, 0, 0.3, 0)
+	close.BackgroundColor3 = Color3.fromRGB(200, 60, 60)
+	close.Text = "X"
+	close.TextColor3 = Color3.fromRGB(255, 255, 255)
+	close.Font = Enum.Font.GothamBold
+	close.TextScaled = true
+	close.Parent = f
+	close.ZIndex = 11
+	close.Activated:Connect(function()
 		if sg.Parent ~= nil then sg:Destroy() end
 	end)
 end
 
-showBanner("JEGAK NUSANTARA - BOOTING...")
+showBanner("JEGAK NUSANTARA - GAME JALAN. Dekat kotak BIRU (Budi) lalu klik Bicara.")
 
 -- Disable legacy chat noise (best-effort).
 pcall(function()
