@@ -19,7 +19,7 @@
     - Added: Journal, Ending screen, quizId tracking
 ]]
 
-print("🎮 GameClient v5.5 - Loading...")
+print("🎮 GameClient v5.6 - Loading...")
 
 local Players = game:GetService("Players")
 local RS = game:GetService("ReplicatedStorage")
@@ -156,7 +156,7 @@ local versionLabel = Instance.new("TextLabel")
 versionLabel.Size = UDim2.new(0.2, 0, 0.04, 0)
 versionLabel.Position = UDim2.new(0.4, 0, 0.32, 0)
 versionLabel.BackgroundTransparency = 1
-versionLabel.Text = "v5.5 · Nusantara"
+versionLabel.Text = "v5.6 · Nusantara"
 versionLabel.TextColor3 = Color3.fromRGB(150, 150, 150)
 versionLabel.TextScaled = true
 versionLabel.Font = Enum.Font.Gotham
@@ -1026,7 +1026,7 @@ ProximityPromptService.PromptTriggered:Connect(function(prompt, plr)
 		local key = parent and parent.Name
 		if key and RE_PortalRequest then
 			print("[Client] Portal prompt -> " .. tostring(key))
-			RE_PortalRequest:FireServer(key)
+			print("[Client] Portal prompt - server handles (no double fire)")
 		end
 		return
 	end
@@ -1130,5 +1130,5 @@ UIS.InputBegan:Connect(function(input, processed)
 end)
 
 
-print("✅ GameClient v5.5 ready!")
+print("✅ GameClient v5.6 ready!")
 

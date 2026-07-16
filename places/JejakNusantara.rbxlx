@@ -233,6 +233,7 @@ local function createDefaultData()
     return {
         level = 1,
         xp = 0,
+        totalXp = 0,
         xpToNext = 1000,
         coins = 0,
         completedQuizzes = {},
@@ -319,6 +320,7 @@ end
 local function addXP(player, amount)
     local data = getPlayerData(player)
     data.xp = data.xp + amount
+    data.totalXp = (data.totalXp or 0) + amount
 
     -- Level up check
     while data.xp >= data.xpToNext do
@@ -362,10 +364,10 @@ local function checkAndTriggerEnding(player)
 
     local endingId, endingData
 
-    if quizCount >= 4 and data.xp >= 500 then
+    if quizCount >= 4 and (data.totalXp or data.xp) >= 500 then
         endingId = "budayawan"
         endingData = ENDINGS.budayawan
-    elseif quizCount >= 2 and data.xp >= 200 then
+    elseif quizCount >= 2 and (data.totalXp or data.xp) >= 200 then
         endingId = "penjelajah"
         endingData = ENDINGS.penjelajah
     else
@@ -399,7 +401,12 @@ local function unlockNextPortal(player, completedQuizId)
             quizCount = quizCount + 1
         end
     end
-    -- ending only from QuizAnswer handler
+    -- ending: check all 4 quizzes done -> trigger once
+    if quizCount >= 4 then
+        task.delay(2, function()
+            checkAndTriggerEnding(player)
+        end)
+    end
 end
 
 -- ============================================
@@ -2457,17 +2464,6 @@ RS.QuizAnswer.OnServerEvent:Connect(function(player, questionIndex, answerIndex,
             addCoins(player, 50)
             addJournalEntry(player, "🎉 Quiz selesai: " .. quiz.title)
             unlockNextPortal(player, quizId)
-
-            -- Check if all 4 quizzes are done -> trigger ending
-            local quizCount = 0
-            for _ in pairs(data.completedQuizzes) do
-                quizCount = quizCount + 1
-            end
-            if quizCount >= 4 then
-                task.delay(3, function()
-                    checkAndTriggerEnding(player)
-                end)
-            end
         end
         RS.QuizEnd:FireClient(player, quizId, results)
     end
@@ -2776,7 +2772,7 @@ print("🎮 ============================================")
     - Added: Journal, Ending screen, quizId tracking
 ]]
 
-print("🎮 GameClient v5.5 - Loading...")
+print("🎮 GameClient v5.6 - Loading...")
 
 local Players = game:GetService("Players")
 local RS = game:GetService("ReplicatedStorage")
@@ -2913,7 +2909,7 @@ local versionLabel = Instance.new("TextLabel")
 versionLabel.Size = UDim2.new(0.2, 0, 0.04, 0)
 versionLabel.Position = UDim2.new(0.4, 0, 0.32, 0)
 versionLabel.BackgroundTransparency = 1
-versionLabel.Text = "v5.5 · Nusantara"
+versionLabel.Text = "v5.6 · Nusantara"
 versionLabel.TextColor3 = Color3.fromRGB(150, 150, 150)
 versionLabel.TextScaled = true
 versionLabel.Font = Enum.Font.Gotham
@@ -3783,7 +3779,7 @@ ProximityPromptService.PromptTriggered:Connect(function(prompt, plr)
 		local key = parent and parent.Name
 		if key and RE_PortalRequest then
 			print("[Client] Portal prompt -> " .. tostring(key))
-			RE_PortalRequest:FireServer(key)
+			print("[Client] Portal prompt - server handles (no double fire)")
 		end
 		return
 	end
@@ -3887,7 +3883,7 @@ UIS.InputBegan:Connect(function(input, processed)
 end)
 
 
-print("✅ GameClient v5.5 ready!")
+print("✅ GameClient v5.6 ready!")
 
 ]]></string>
         </Properties>
