@@ -1,42 +1,28 @@
-# Jejak Nusantara — Roblox Game (Luau)
+# Jejak Nusantara (tugas)
 
-A complete, modular Roblox game built from a Game Design Document. Player explores
-Indonesian culture through mini-games and dialogue (not quizzes), learns 5 skills
-that gate unlocks, keeps a journal, and reaches one of 5 endings based on the
-whole journey.
+Playable Roblox edu-game: 5 NPCs, 4 regions, quiz, XP/level/coins, journal, 3 endings.
 
-## Structure
-- `src/` — all Luau ModuleScripts (Rojo-mapped via `default.project.json`)
-  - `ReplicatedStorage/JN/Modules/` — game code (Game orchestrator, Types, Util, Systems, UI, Data)
-  - `ServerScriptService/GameServer.luau` — server entry
-  - `StarterPlayer/StarterPlayerScripts/GameClient.luau` — client entry
-- `docs/` — GDD PDFs, TECHNICAL_DESIGN.md, ROADMAP.md
-- `tooling/` — build/verify pipeline (rojo, selene, stylua, luau binaries are gitignored)
+Built from the proven **jejak-nusantara-final v4.0** single-script architecture (CompleteGame + GameClient), not the broken modular UI tree.
 
-## Build
-```bash
-# Produce the .rbxlx place file
-tooling/bin/rojo build --output places/JejakNusantara.rbxlx
-```
-Prebuilt place also lives at `places/JejakNusantara.rbxlx` (open in Studio).
+## Play (ZIP download)
 
-**Studio tutorial (Indonesian):** [docs/STUDIO_SETUP.md](docs/STUDIO_SETUP.md)
+1. Download ZIP from `main`
+2. Open **`places/JejakNusantara.rbxlx`** in Roblox Studio
+3. Set **Break On Error → Never** (script editor debug menu)
+4. Press **Play**
 
+You should see:
+- Main menu **JEJAK NUSANTARA** → Start
+- Green world + campus + 5 NPCs + portals
+- Talk (E) → dialogue → portals → quiz
 
-## Verify (headless, no Studio needed)
-```bash
-bash tooling/verify.sh
-```
-Runs 5 layers: Luau syntax → selene lint → stylua format → rojo build →
-`luau` runtime smoke test (45 checks covering skill gating, orchestrated
-game loop, 8 mini-game scorings, and UI screen construction).
+## Source
 
-## Conventions
-- Small reusable ModuleScripts; no giant scripts.
-- All content is data-driven in `Modules/Data/Data.luau`.
-- Shared types/constants in `Modules/Types.luau` (no magic numbers).
-- Systems communicate via a hand-rolled `Signal` (testable headlessly).
+| File | Role |
+|------|------|
+| `src/ServerScriptService/CompleteGame.server.luau` | World, NPCs, portals, remotes, save, quiz |
+| `src/StarterPlayer/StarterPlayerScripts/GameClient.client.luau` | Menu, HUD, dialogue, quiz, journal, ending |
 
-## Audio / Art
-Sound and image asset IDs are placeholders in `Data` — wire real PG/SE assets
-in Studio (AudioManager already gates music/sfx toggles).
+## Docs
+
+GDD PDFs + TDD live under `docs/`.

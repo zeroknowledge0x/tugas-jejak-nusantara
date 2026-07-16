@@ -1,16 +1,9 @@
 {
 	"name": "JejakNusantara",
-	"globIgnorePaths": ["**/_*.luau", "docs/**", "tooling/**", "**/test_*.luau", "**/combined_*.luau"],
 	"tree": {
 		"$className": "DataModel",
 		"ReplicatedStorage": {
-			"$className": "ReplicatedStorage",
-			"JN": {
-				"$className": "Folder",
-				"Modules": {
-					"$path": "src/ReplicatedStorage/Modules"
-				}
-			}
+			"$className": "ReplicatedStorage"
 		},
 		"ServerScriptService": {
 			"$className": "ServerScriptService",
@@ -23,19 +16,14 @@
 				"$path": "src/StarterPlayer/StarterPlayerScripts"
 			}
 		},
-		"StarterGui": {
-			"$className": "StarterGui",
-			"$path": "src/StarterGui"
-		},
 		"Workspace": {
-			"$className": "Workspace",
-			"$path": "src/Workspace"
-		},
-		"SoundService": {
-			"$className": "SoundService"
+			"$className": "Workspace"
 		},
 		"Lighting": {
 			"$className": "Lighting"
+		},
+		"SoundService": {
+			"$className": "SoundService"
 		},
 		"TextChatService": {
 			"$className": "TextChatService",

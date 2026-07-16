@@ -1,46 +1,17 @@
-# How to test Jejak Nusantara (Studio ZIP flow)
+# How to test
 
-## Critical
-You open the **prebuilt place file**, not the source tree:
+1. Delete old extract folder
+2. Download ZIP (`main`)
+3. Open `places/JejakNusantara.rbxlx` (not Studio Recent `.rbxl`)
+4. **Break On Error → Never**
+5. Play
 
-```
-places/JejakNusantara.rbxlx
-```
+## Expected
+- Main menu with Start
+- Output: `JEJAK NUSANTARA v4.0 - READY!` and `GameClient v4.0 - Loading...`
+- NPCs with ProximityPrompt (E)
+- After Start: HUD level/XP/coins
 
-## Ritual (do not skip)
-1. **Delete** the old extracted folder completely.
-2. GitHub → repo `zeroknowledge0x/tugas-jejak-nusantara` → **Code → Download ZIP** (branch `main`).
-3. Extract to a **new** folder name (example: `jn_fresh`).
-4. Fully quit Roblox Studio (Task Manager: no `RobloxStudioBeta.exe`).
-5. Open **only** `jn_fresh/places/JejakNusantara.rbxlx` (double-click that file).
-6. Press **Play** (not just Run-server-only).
-
-## What you must see
-- Green grass baseplate + yellow spawn pad
-- Blue neon block labeled **BUDI**
-- Top bar: `JEJAK NUSANTARA — Play mode…`
-- Output: `[JN] GameClient STARTED` then `[JN] WorldBuilder ready…`
-- After ~1s: dialogue UI (`Halo! Mau belajar angklung?`)
-
-## Ignore these (engine noise, not your code)
-- `GetCore: PlayerBlockedEvent… ChatMain`
-- `PlatformLeaderboard…`
-
-## If Studio says "Rendering is paused for debugging"
-This is **Studio debugger**, not a dead game. Legacy chat throws once → Studio freezes the viewport if **Break On Error** is on.
-
-**Instant unblock (every Play):**
-1. Look at the top Script / debugger toolbar.
-2. Click **Resume** (play triangle) — or press **F5**.
-3. Viewport unfreezes; game continues.
-
-**Permanent fix (do once):**
-1. Open **any** script in Studio (even a blank one).
-2. In the script editor toolbar / debug dropdown, set **Break On Error** → **Never**.
-3. Also open **View → Breakpoints** → **Disable all** / clear red dots on the left gutter.
-4. Stop Play, Play again — no more freeze on chat noise.
-
-Optional: Home → Game Settings → (Options / Communication) prefer **TextChatService** if shown.
-
-## Do NOT reopen from Studio “Recent”
-Studio Recent may open an old saved `.rbxl` from Documents. Always open the new ZIP’s `.rbxlx`.
+## Ignore
+- `PlayerBlockedEvent` / `PlatformLeaderboard` (engine)
+- If viewport freezes: press **F5 / Resume**, then set Break On Error Never
