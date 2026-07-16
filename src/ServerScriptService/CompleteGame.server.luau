@@ -380,11 +380,7 @@ local function unlockNextPortal(player, completedQuizId)
             quizCount = quizCount + 1
         end
     end
-    if quizCount >= 4 then
-        task.delay(2, function()
-            checkAndTriggerEnding(player)
-        end)
-    end
+    -- ending only from QuizAnswer handler
 end
 
 -- ============================================
@@ -1600,7 +1596,7 @@ local function createWorld()
     -- Kampus platform (white stone)
     local kampus = Instance.new("Part")
     kampus.Name = "KampusPlatform"
-    kampus.Size = Vector3.new(60, 1, 60)
+    kampus.Size = Vector3.new(120, 1, 120)
     kampus.Position = Vector3.new(0, 0.5, 0)
     kampus.Anchored = true
     kampus.Color = Color3.fromRGB(220, 220, 210)
@@ -1670,10 +1666,10 @@ local function createWorld()
     -- ==========================================
     -- STONE PATHS between areas
     -- ==========================================
-    buildStonePath(workspace, Vector3.new(0, 0, 25), Vector3.new(0, 0, 60), 4)
-    buildStonePath(workspace, Vector3.new(0, 0, -25), Vector3.new(0, 0, -60), 4)
-    buildStonePath(workspace, Vector3.new(25, 0, 0), Vector3.new(60, 0, 0), 4)
-    buildStonePath(workspace, Vector3.new(-25, 0, 0), Vector3.new(-60, 0, 0), 4)
+    buildStonePath(workspace, Vector3.new(0, 0, 30), Vector3.new(0, 0, 50), 4)
+    buildStonePath(workspace, Vector3.new(0, 0, -30), Vector3.new(0, 0, -50), 4)
+    buildStonePath(workspace, Vector3.new(30, 0, 0), Vector3.new(50, 0, 0), 4)
+    buildStonePath(workspace, Vector3.new(-30, 0, 0), Vector3.new(-50, 0, 0), 4)
 
     -- ==========================================
     -- KAMPUS AREA (spawn) - MASSIVELY EXPANDED
@@ -2102,13 +2098,13 @@ local function createWorld()
     -- ==========================================
     createNPC("Pak Dosen", Vector3.new(15, 1, 15), "Dosen",
         Color3.fromRGB(200, 150, 100), Color3.fromRGB(50, 50, 150), Color3.fromRGB(40, 40, 80))
-    createNPC("Pak Karso", Vector3.new(-280, 1, -280), "Karso",
+    createNPC("Pak Karso", Vector3.new(-280, 1, -265), "Karso",
         Color3.fromRGB(180, 130, 90), Color3.fromRGB(200, 50, 50), Color3.fromRGB(80, 60, 30))
-    createNPC("Ibu Ratna", Vector3.new(280, 1, -280), "Ratna",
+    createNPC("Ibu Ratna", Vector3.new(280, 1, -265), "Ratna",
         Color3.fromRGB(210, 160, 110), Color3.fromRGB(200, 100, 150), Color3.fromRGB(60, 80, 40))
-    createNPC("Mang Wayan", Vector3.new(-280, 1, 280), "Wayan",
+    createNPC("Mang Wayan", Vector3.new(-280, 1, 265), "Wayan",
         Color3.fromRGB(170, 130, 80), Color3.fromRGB(255, 200, 100), Color3.fromRGB(50, 50, 50))
-    createNPC("Bapak Yanu", Vector3.new(280, 1, 280), "Yanu",
+    createNPC("Bapak Yanu", Vector3.new(280, 1, 265), "Yanu",
         Color3.fromRGB(90, 60, 40), Color3.fromRGB(150, 80, 30), Color3.fromRGB(60, 40, 20))
 
     -- Return portal to kampus

@@ -19,7 +19,7 @@
     - Added: Journal, Ending screen, quizId tracking
 ]]
 
-print("🎮 GameClient v5.4 - Loading...")
+print("🎮 GameClient v5.5 - Loading...")
 
 local Players = game:GetService("Players")
 local RS = game:GetService("ReplicatedStorage")
@@ -156,7 +156,7 @@ local versionLabel = Instance.new("TextLabel")
 versionLabel.Size = UDim2.new(0.2, 0, 0.04, 0)
 versionLabel.Position = UDim2.new(0.4, 0, 0.32, 0)
 versionLabel.BackgroundTransparency = 1
-versionLabel.Text = "v5.4 · Nusantara"
+versionLabel.Text = "v5.5 · Nusantara"
 versionLabel.TextColor3 = Color3.fromRGB(150, 150, 150)
 versionLabel.TextScaled = true
 versionLabel.Font = Enum.Font.Gotham
@@ -618,7 +618,7 @@ local function typewriterEffect(textLabel, fullText)
 end
 
 local function updateHUD()
-    local data = RF_GetPlayerData:InvokeServer()
+    local data = nil -- RF_GetPlayerData:InvokeServer() removed (yield risk)
     if data then
         levelLabel.Text = "Level " .. (data.level or 1)
         local xpPct = (data.xp or 0) / (data.xpToNext or 1000)
@@ -1130,5 +1130,5 @@ UIS.InputBegan:Connect(function(input, processed)
 end)
 
 
-print("✅ GameClient v5.4 ready!")
+print("✅ GameClient v5.5 ready!")
 
