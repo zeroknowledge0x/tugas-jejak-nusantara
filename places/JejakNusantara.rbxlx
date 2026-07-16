@@ -151,36 +151,9 @@ local DIALOGUES = {
         name = "Pak Dosen",
         lines = {
             {
-                text = "Selamat datang, mahasiswa! Saya akan mengajak kalian menjelajahi budaya Indonesia melalui game ini.",
+                text = "Selamat datang! Begini cara mainnya:\n1. Masuk PORTAL (E) di kampus untuk pergi ke wilayah\n2. Bicara NPC (E) di wilayah untuk BELAJAR budaya\n3. Tekan T untuk QUIZ (jawaban = materi NPC)\n4. Selesaikan 4 wilayah = Ending!\n\nPortal balik ke kampus ada di setiap wilayah.",
                 choices = {
-                    {text = "Siap, Pak! Apa caranya?", next = 2},
-                    {text = "Apa yang harus saya lakukan?", next = 3}
-                }
-            },
-            {
-                text = "Caranya: (1) Bicara dengan NPC di setiap wilayah untuk BELAJAR budaya. (2) Lalu MASUK PORTAL untuk mengerjakan QUIZ. Jawaban quiz ada di materi NPC!",
-                choices = {
-                    {text = "Jadi belajar dulu baru quiz?", next = 4},
-                    {text = "Mengerti! Tunjukkan portal", next = 5}
-                }
-            },
-            {
-                text = "Begini alurnunya: Bicara NPC (E) untuk belajar budaya → Masuk PORTAL (E) → QUIZ soal budaya yang diajarkan NPC → benar dapat XP & koin! Selesaikan 4 wilayah untuk ENDING!",
-                choices = {
-                    {text = "Siap! Saya mengerti", next = 4},
-                    {text = "Tunjukkan portalnya", next = 5}
-                }
-            },
-            {
-                text = "Penting: Jawaban QUIZ ada di materi yang NPC ajarkan! Jadi PASTIKAN bicara dengan NPC dulu sebelum masuk portal quiz. Selamat belajar!",
-                choices = {
-                    {text = "Terima kasih, Pak!", action = "end"}
-                }
-            },
-            {
-                text = "Lihat ada 4 portal berwarna di sekitar kampus: Jawa (kuning), Sumatra (hijau), Bali (biru), Papua (ungu). Tapi ingat: bicara NPC dulu untuk belajar!",
-                choices = {
-                    {text = "Baik, Pak! Saya bicara NPC dulu", action = "end"}
+                    {text = "Mengerti, Pak!", action = "end"}
                 }
             }
         }
@@ -189,40 +162,7 @@ local DIALOGUES = {
         name = "Pak Karso",
         lines = {
             {
-                text = "Sugeng rawuh! Saya Pak Karso, budayawan dari Jawa Tengah. Mau tahu apa tentang budaya Jawa?",
-                choices = {
-                    {text = "Apa itu Gamelan?", next = 2},
-                    {text = "Ceritakan tentang batik", next = 3},
-                    {text = "Apa rumah adat Jawa?", next = 4},
-                    {text = "Apa tarian khas Jawa?", next = 5}
-                }
-            },
-            {
-                text = "Gamelan adalah ansambel musik tradisional Jawa. Alat musiknya terdiri dari bonang, saron, gong, dan lainnya. Bunyinya khas dan menenangkan!",
-                choices = {
-                    {text = "Menarik!", next = 6}
-                }
-            },
-            {
-                text = "Batik adalah seni menggambar di kain menggunakan malam (lilin). Setiap motif punya makna filosofis. Batik sudah diakui UNESCO sebagai warisan dunia!",
-                choices = {
-                    {text = "Luar biasa!", next = 6}
-                }
-            },
-            {
-                text = "Rumah adat Jawa Tengah adalah Joglo. Bentuknya unik dengan atap menjulang tinggi, melambangkan gunung yang menjulang.",
-                choices = {
-                    {text = "Keren!", next = 6}
-                }
-            },
-            {
-                text = "Tari Gambyong adalah tarian klasik Jawa Tengah. Penari berpakaian indah, gerakannya lemah gemulai mengikuti irama gamelan. Sangat elegan!",
-                choices = {
-                    {text = "Ingin lihat!", next = 6}
-                }
-            },
-            {
-                text = "Jawa punya budaya yang sangat kaya. Dari wayang kulit, tari gambyong, gamelan, batik, hingga kuliner gudeg dan soto. Semua sudah diakui dunia!",
+                text = "Sugeng rawuh! Berikut budaya Jawa Tengah:\n\nGamelan: ansambel musik tradisional (bonang, saron, gong). Bunyi khas menenangkan.\nBatik: seni menggambar kain pakai lilin, tiap motif punya makna. Diakui UNESCO!\nRumah adat: Joglo, atap menjulang melambangkan gunung.\nTari Gambyong: tarian klasik, gerak lemah gemulai mengikuti gamelan. Sangat elegan!\n\nCatat baik-baik untuk quiz ya!",
                 choices = {
                     {text = "Terima kasih, Pak Karso!", action = "end"}
                 }
@@ -233,40 +173,7 @@ local DIALOGUES = {
         name = "Ibu Ratna",
         lines = {
             {
-                text = "Halo! Saya Ibu Ratna dari Sumatra Barat. Mau tahu tentang budaya Minangkabau?",
-                choices = {
-                    {text = "Apa itu Rumah Gadang?", next = 2},
-                    {text = "Ceritakan tentang rendang", next = 3},
-                    {text = "Apa tarian khas Sumatra?", next = 4},
-                    {text = "Alat musik dari Sumatra?", next = 5}
-                }
-            },
-            {
-                text = "Rumah Gadang adalah rumah adat Minangkabau dengan atap runcing seperti tanduk kerbau. Simbol kekuatan dan kearifan!",
-                choices = {
-                    {text = "Indah sekali!", next = 6}
-                }
-            },
-            {
-                text = "Rendang adalah masakan daging dengan santan dan rempah. Dimasak berjam-jam hingga kering. Dinobatkan sebagai makanan terenak di dunia!",
-                choices = {
-                    {text = "Lapar jadinya!", next = 6}
-                }
-            },
-            {
-                text = "Tari Piring berasal dari Sumatra Barat. Penari membawa piring di tangan dan bergerak lincah. Jangan lupa juga Tari Saman dari Aceh yang gerakannya cepat dan serentak!",
-                choices = {
-                    {text = "Ingin lihat!", next = 6}
-                }
-            },
-            {
-                text = "Sumatra punya alat musik seperti Talepong (gong Minang), Gambus, dan Rebana. Sumatra Barat terkenal dengan saluang (serunai bambu) yang bunyinya melengking!",
-                choices = {
-                    {text = "Unik!", next = 6}
-                }
-            },
-            {
-                text = "Sumatra kaya budaya! Dari Tor-tor Batak, randai Minang, Tari Piring, hingga pempek Palembang. Semua mencerminkan keberagaman Nusantara!",
+                text = "Halo! Berikut budaya Sumatra (Minangkabau):\n\nRumah Gadang: rumah adat dengan atap runcing seperti tanduk kerbau.\nRendang: masakan daging + santan + rempah, dimasak berjam-jam. Makanan terenak dunia!\nTari Piring: dari Sumatra Barat, penari bawa piring, gerak lincah.\nAlat musik: Talepong (gong Minang), saluang (serunai bambu).\n\nCatat baik-baik untuk quiz ya!",
                 choices = {
                     {text = "Terima kasih, Ibu Ratna!", action = "end"}
                 }
@@ -277,33 +184,7 @@ local DIALOGUES = {
         name = "Mang Wayan",
         lines = {
             {
-                text = "Om Swastiastu! Saya Mang Wayan dari Bali. Mau tahu tentang Pulau Dewata?",
-                choices = {
-                    {text = "Apa itu Pura?", next = 2},
-                    {text = "Ceritakan tentang Tari Kecak", next = 3},
-                    {text = "Apa upacara khas Bali?", next = 4}
-                }
-            },
-            {
-                text = "Pura adalah tempat ibadah umat Hindu Bali. Ada ribuan pura di Bali! Yang terkenal adalah Pura Besakih dan Tanah Lot.",
-                choices = {
-                    {text = "Megah!", next = 5}
-                }
-            },
-            {
-                text = "Tari Kecak adalah tari massal yang dibawakan puluhan penari sambil duduk melingkar dan meneriakkan 'cak-cak-cak'. Sangat ikonik!",
-                choices = {
-                    {text = "Ingin nonton!", next = 5}
-                }
-            },
-            {
-                text = "Ngaben adalah upacara kremasi jenazah. Bali memang unik! Ada juga Nyepi, hari di mana seluruh Bali sunyi senyap.",
-                choices = {
-                    {text = "Menarik!", next = 5}
-                }
-            },
-            {
-                text = "Bali terkenal dengan seni, budaya, dan alamnya. Dari tari barong, ukiran kayu, hingga kuliner babi guling!",
+                text = "Om Swastiastu! Berikut budaya Bali:\n\nPura: tempat ibadah Hindu Bali. Terkenal: Pura Besakih & Tanah Lot.\nTari Kecak: tari massal duduk melingkar, teriak 'cak-cak-cak'. Sangat ikonik!\nNgaben: upacara kremasi jenazah. Ada juga Nyepi (hari sunyi senyap).\n\nCatat baik-baik untuk quiz ya!",
                 choices = {
                     {text = "Terima kasih, Mang Wayan!", action = "end"}
                 }
@@ -314,33 +195,7 @@ local DIALOGUES = {
         name = "Bapak Yanu",
         lines = {
             {
-                text = "Halo! Saya Bapak Yanu dari Papua. Mau tahu tentang tanah Cenderawasih?",
-                choices = {
-                    {text = "Apa itu Honai?", next = 2},
-                    {text = "Ceritakan tentang tari Papua", next = 3},
-                    {text = "Apa senjata khas Papua?", next = 4}
-                }
-            },
-            {
-                text = "Honai adalah rumah tradisional Papua berbentuk bulat dengan atap jerami. Di dalamnya hangat dan nyaman!",
-                choices = {
-                    {text = "Unik!", next = 5}
-                }
-            },
-            {
-                text = "Tari Selamat Datang adalah tari penyambutan dari Papua. Penari membawa tombak dan perisai, gerakannya gagah!",
-                choices = {
-                    {text = "Keren!", next = 5}
-                }
-            },
-            {
-                text = "Papua punya senjata tradisional seperti tombak, panah, dan parang. Juga ada alat musik tifa yang bunyinya khas!",
-                choices = {
-                    {text = "Menarik!", next = 5}
-                }
-            },
-            {
-                text = "Papua surga tersembunyi Indonesia! Dari Raja Ampat, Danau Sentani, hingga burung Cenderawasih yang indah!",
+                text = "Halo! Berikut budaya Papua:\n\nHonai: rumah tradisional bulat, atap jerami, di dalamnya hangat.\nTari Selamat Datang: penari bawa tombak & perisai, gerak gagah!\nSenjata: tombak, panah, parang. Juga alat musik tifa yang bunyinya khas.\n\nCatat baik-baik untuk quiz ya!",
                 choices = {
                     {text = "Terima kasih, Bapak Yanu!", action = "end"}
                 }
@@ -350,24 +205,9 @@ local DIALOGUES = {
 }
 
 -- ============================================
--- PORTAL UNLOCK ORDER
--- ============================================
-local PORTAL_ORDER = {
-    {quizId = "quiz_jawa", portalName = "PortalJawa"},
-    {quizId = "quiz_sumatra", portalName = "PortalSumatra"},
-    {quizId = "quiz_bali", portalName = "PortalBali"},
-    {quizId = "quiz_papua", portalName = "PortalPapua"},
-}
-
--- ============================================
 -- ENDING DATA
 -- ============================================
 local ENDINGS = {
-    budayawan = {
-        title = "🏆 Budayawan Nusantara",
-        description = "Kamu telah menyelesaikan semua quiz dan mengumpulkan pengetahuan budaya yang luar biasa! Kamu adalah pewaris budaya Indonesia yang sesungguhnya. Teruslah melestarikan kekayaan nusantara!",
-        color = {255, 215, 0},
-    },
     penjelajah = {
         title = "🗺️ Penjelajah Budaya",
         description = "Kamu sudah menjelajahi cukup banyak budaya Indonesia! Meskipun belum sempurna, semangat eksplorasimu patut diacungi jempol. Teruslah belajar!",
@@ -2492,6 +2332,182 @@ local function createWorld()
     createNPC("Bapak Yanu", Vector3.new(280, 1, 280), "Yanu",
         Color3.fromRGB(90, 60, 40), Color3.fromRGB(150, 80, 30), Color3.fromRGB(60, 40, 20))
 
+    -- Return portal to kampus
+    local retPortal = Instance.new("Part")
+    retPortal.Name = "ReturnPortal_Papua"
+    retPortal.Size = Vector3.new(6, 8, 2)
+    retPortal.Position = Vector3.new(280, 1, 280) + Vector3.new(0, 5, 20)
+    retPortal.Anchored = true
+    retPortal.CanCollide = false
+    retPortal.Color = Color3.fromRGB(218, 165, 32)
+    retPortal.Material = Enum.Material.Neon
+    retPortal:SetAttribute("IsPortal", true)
+    retPortal:SetAttribute("IsReturn", true)
+    retPortal.Parent = workspace
+    local retBill = Instance.new("BillboardGui")
+    retBill.Size = UDim2.new(0, 200, 0, 50)
+    retBill.StudsOffset = Vector3.new(0, 6, 0)
+    retBill.Parent = retPortal
+    local retTxt = Instance.new("TextLabel")
+    retTxt.Size = UDim2.new(1, 0, 1, 0)
+    retTxt.BackgroundTransparency = 0.3
+    retTxt.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+    retTxt.Text = "🏛️ KAMPUS | [E] KEMBALI"
+    retTxt.TextColor3 = Color3.fromRGB(255, 215, 0)
+    retTxt.TextScaled = true
+    retTxt.Parent = retBill
+    local retPrompt = Instance.new("ProximityPrompt")
+    retPrompt.ActionText = "Kembali ke Kampus"
+    retPrompt.ObjectText = "Kampus"
+    retPrompt.MaxActivationDistance = 20
+    retPrompt.RequiresLineOfSight = false
+    retPrompt.HoldDuration = 0
+    retPrompt.KeyboardKeyCode = Enum.KeyCode.E
+    retPrompt.Parent = retPortal
+    retPrompt.Triggered:Connect(function(plr)
+        local char = plr.Character
+        local hrp = char and char:FindFirstChild("HumanoidRootPart")
+        if hrp then
+            local cf = CFrame.new(0, 6, 10)
+            hrp.CFrame = cf
+            lastSafeCFrame[plr.UserId] = cf
+            RS.ShowNotification:FireClient(plr, "🏛️ Kembali ke Kampus")
+            print("[Portal] " .. plr.Name .. " returned to kampus")
+        end
+    end)
+
+    -- Return portal to kampus
+    local retPortal = Instance.new("Part")
+    retPortal.Name = "ReturnPortal_Bali"
+    retPortal.Size = Vector3.new(6, 8, 2)
+    retPortal.Position = Vector3.new(-280, 1, 280) + Vector3.new(0, 5, 20)
+    retPortal.Anchored = true
+    retPortal.CanCollide = false
+    retPortal.Color = Color3.fromRGB(218, 165, 32)
+    retPortal.Material = Enum.Material.Neon
+    retPortal:SetAttribute("IsPortal", true)
+    retPortal:SetAttribute("IsReturn", true)
+    retPortal.Parent = workspace
+    local retBill = Instance.new("BillboardGui")
+    retBill.Size = UDim2.new(0, 200, 0, 50)
+    retBill.StudsOffset = Vector3.new(0, 6, 0)
+    retBill.Parent = retPortal
+    local retTxt = Instance.new("TextLabel")
+    retTxt.Size = UDim2.new(1, 0, 1, 0)
+    retTxt.BackgroundTransparency = 0.3
+    retTxt.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+    retTxt.Text = "🏛️ KAMPUS | [E] KEMBALI"
+    retTxt.TextColor3 = Color3.fromRGB(255, 215, 0)
+    retTxt.TextScaled = true
+    retTxt.Parent = retBill
+    local retPrompt = Instance.new("ProximityPrompt")
+    retPrompt.ActionText = "Kembali ke Kampus"
+    retPrompt.ObjectText = "Kampus"
+    retPrompt.MaxActivationDistance = 20
+    retPrompt.RequiresLineOfSight = false
+    retPrompt.HoldDuration = 0
+    retPrompt.KeyboardKeyCode = Enum.KeyCode.E
+    retPrompt.Parent = retPortal
+    retPrompt.Triggered:Connect(function(plr)
+        local char = plr.Character
+        local hrp = char and char:FindFirstChild("HumanoidRootPart")
+        if hrp then
+            local cf = CFrame.new(0, 6, 10)
+            hrp.CFrame = cf
+            lastSafeCFrame[plr.UserId] = cf
+            RS.ShowNotification:FireClient(plr, "🏛️ Kembali ke Kampus")
+            print("[Portal] " .. plr.Name .. " returned to kampus")
+        end
+    end)
+
+    -- Return portal to kampus
+    local retPortal = Instance.new("Part")
+    retPortal.Name = "ReturnPortal_Sumatra"
+    retPortal.Size = Vector3.new(6, 8, 2)
+    retPortal.Position = Vector3.new(280, 1, -280) + Vector3.new(0, 5, 20)
+    retPortal.Anchored = true
+    retPortal.CanCollide = false
+    retPortal.Color = Color3.fromRGB(218, 165, 32)
+    retPortal.Material = Enum.Material.Neon
+    retPortal:SetAttribute("IsPortal", true)
+    retPortal:SetAttribute("IsReturn", true)
+    retPortal.Parent = workspace
+    local retBill = Instance.new("BillboardGui")
+    retBill.Size = UDim2.new(0, 200, 0, 50)
+    retBill.StudsOffset = Vector3.new(0, 6, 0)
+    retBill.Parent = retPortal
+    local retTxt = Instance.new("TextLabel")
+    retTxt.Size = UDim2.new(1, 0, 1, 0)
+    retTxt.BackgroundTransparency = 0.3
+    retTxt.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+    retTxt.Text = "🏛️ KAMPUS | [E] KEMBALI"
+    retTxt.TextColor3 = Color3.fromRGB(255, 215, 0)
+    retTxt.TextScaled = true
+    retTxt.Parent = retBill
+    local retPrompt = Instance.new("ProximityPrompt")
+    retPrompt.ActionText = "Kembali ke Kampus"
+    retPrompt.ObjectText = "Kampus"
+    retPrompt.MaxActivationDistance = 20
+    retPrompt.RequiresLineOfSight = false
+    retPrompt.HoldDuration = 0
+    retPrompt.KeyboardKeyCode = Enum.KeyCode.E
+    retPrompt.Parent = retPortal
+    retPrompt.Triggered:Connect(function(plr)
+        local char = plr.Character
+        local hrp = char and char:FindFirstChild("HumanoidRootPart")
+        if hrp then
+            local cf = CFrame.new(0, 6, 10)
+            hrp.CFrame = cf
+            lastSafeCFrame[plr.UserId] = cf
+            RS.ShowNotification:FireClient(plr, "🏛️ Kembali ke Kampus")
+            print("[Portal] " .. plr.Name .. " returned to kampus")
+        end
+    end)
+
+    -- Return portal to kampus
+    local retPortal = Instance.new("Part")
+    retPortal.Name = "ReturnPortal_Jawa"
+    retPortal.Size = Vector3.new(6, 8, 2)
+    retPortal.Position = Vector3.new(-280, 1, -280) + Vector3.new(0, 5, 20)
+    retPortal.Anchored = true
+    retPortal.CanCollide = false
+    retPortal.Color = Color3.fromRGB(218, 165, 32)
+    retPortal.Material = Enum.Material.Neon
+    retPortal:SetAttribute("IsPortal", true)
+    retPortal:SetAttribute("IsReturn", true)
+    retPortal.Parent = workspace
+    local retBill = Instance.new("BillboardGui")
+    retBill.Size = UDim2.new(0, 200, 0, 50)
+    retBill.StudsOffset = Vector3.new(0, 6, 0)
+    retBill.Parent = retPortal
+    local retTxt = Instance.new("TextLabel")
+    retTxt.Size = UDim2.new(1, 0, 1, 0)
+    retTxt.BackgroundTransparency = 0.3
+    retTxt.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+    retTxt.Text = "🏛️ KAMPUS | [E] KEMBALI"
+    retTxt.TextColor3 = Color3.fromRGB(255, 215, 0)
+    retTxt.TextScaled = true
+    retTxt.Parent = retBill
+    local retPrompt = Instance.new("ProximityPrompt")
+    retPrompt.ActionText = "Kembali ke Kampus"
+    retPrompt.ObjectText = "Kampus"
+    retPrompt.MaxActivationDistance = 20
+    retPrompt.RequiresLineOfSight = false
+    retPrompt.HoldDuration = 0
+    retPrompt.KeyboardKeyCode = Enum.KeyCode.E
+    retPrompt.Parent = retPortal
+    retPrompt.Triggered:Connect(function(plr)
+        local char = plr.Character
+        local hrp = char and char:FindFirstChild("HumanoidRootPart")
+        if hrp then
+            local cf = CFrame.new(0, 6, 10)
+            hrp.CFrame = cf
+            lastSafeCFrame[plr.UserId] = cf
+            RS.ShowNotification:FireClient(plr, "🏛️ Kembali ke Kampus")
+            print("[Portal] " .. plr.Name .. " returned to kampus")
+        end
+    end)
+
     -- ==========================================
     -- REGION LABELS
     -- ==========================================
@@ -2966,7 +2982,7 @@ print("🎮 ============================================")
     - Added: Journal, Ending screen, quizId tracking
 ]]
 
-print("🎮 GameClient v4.9 - Loading...")
+print("🎮 GameClient v5.0 - Loading...")
 
 local Players = game:GetService("Players")
 local RS = game:GetService("ReplicatedStorage")
@@ -3101,7 +3117,7 @@ local versionLabel = Instance.new("TextLabel")
 versionLabel.Size = UDim2.new(0.2, 0, 0.04, 0)
 versionLabel.Position = UDim2.new(0.4, 0, 0.32, 0)
 versionLabel.BackgroundTransparency = 1
-versionLabel.Text = "v4.9 · Nusantara"
+versionLabel.Text = "v5.0 · Nusantara"
 versionLabel.TextColor3 = Color3.fromRGB(150, 150, 150)
 versionLabel.TextScaled = true
 versionLabel.Font = Enum.Font.Gotham
@@ -4057,7 +4073,7 @@ UIS.InputBegan:Connect(function(input, processed)
 end)
 
 
-print("✅ GameClient v4.9 ready!")
+print("✅ GameClient v5.0 ready!")
 
 ]]></string>
         </Properties>
