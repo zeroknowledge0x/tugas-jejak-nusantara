@@ -81,6 +81,7 @@ createRemote("RemoteEvent", "JournalUpdate")
 createRemote("RemoteEvent", "EndingTriggered")
 createRemote("RemoteEvent", "LevelUnlocked")
 createRemote("RemoteEvent", "TalkRequest")
+createRemote("RemoteEvent", "PortalRequest")
 
 print("✅ Remote events created!")
 
@@ -848,12 +849,18 @@ local function createPortal(name, position, destination, color, label, quizId)
     textLabel.Parent = billboard
 
     -- ProximityPrompt
+    portal:SetAttribute("IsPortal", true)
+    portal:SetAttribute("QuizId", quizId)
+    portal:SetAttribute("Destination", string.format("%f,%f,%f", destination.X, destination.Y, destination.Z))
+    portal:SetAttribute("Label", label)
+
     local prompt = Instance.new("ProximityPrompt")
     prompt.ActionText = "Masuk"
     prompt.ObjectText = label
-    prompt.MaxActivationDistance = 15
+    prompt.MaxActivationDistance = 22
     prompt.RequiresLineOfSight = false
     prompt.HoldDuration = 0
+    prompt.KeyboardKeyCode = Enum.KeyCode.E
     prompt.Parent = portal
 
     prompt.Triggered:Connect(function(player)
@@ -865,34 +872,35 @@ local function createPortal(name, position, destination, color, label, quizId)
 
         print("[Portal] " .. player.Name .. " trying to enter " .. name .. " (quiz: " .. quizId .. ")")
 
-        -- Level gating: check if portal is unlocked
         if not data.unlockedPortals[quizId] then
-            RS.ShowNotification:FireClient(player, "🔒 Portal ini belum terbuka! Selesaikan quiz sebelumnya.")
+            RS.ShowNotification:FireClient(player, "🔒 Portal terkunci. Bicara dengan Pak Dosen / selesaikan quiz sebelumnya.")
             print("[Portal] Portal locked for " .. player.Name)
             return
         end
 
-        -- Already completed?
-        if data.completedQuizzes[quizId] then
-            RS.ShowNotification:FireClient(player, "✅ Quiz ini sudah diselesaikan!")
-            print("[Portal] Quiz already completed by " .. player.Name)
-            return
-        end
-
-        -- Teleport
+        -- Always teleport into the region (gameplay = enter zone)
         local character = player.Character
         if character then
             local hrp2 = character:FindFirstChild("HumanoidRootPart")
             if hrp2 then
-                hrp2.CFrame = CFrame.new(destination)
+                hrp2.CFrame = CFrame.new(destination + Vector3.new(0, 3, 0))
                 print("[Portal] Teleported " .. player.Name .. " to " .. tostring(destination))
             end
         end
+        RS.ShowNotification:FireClient(player, "🌍 Memasuki " .. (label or name))
 
-        -- Bug #2 fix: send quizId along with quizData
+        -- Start quiz only if not finished yet
+        if data.completedQuizzes[quizId] then
+            RS.ShowNotification:FireClient(player, "✅ Wilayah ini sudah tuntas. Jelajahi atau kembali ke kampus.")
+            print("[Portal] Revisit completed zone: " .. quizId)
+            return
+        end
+
         local quizData = QUIZZES[quizId]
         if quizData then
-            RS.QuizStart:FireClient(player, quizData, quizId, 1)
+            task.delay(0.6, function()
+                RS.QuizStart:FireClient(player, quizData, quizId, 1)
+            end)
             addJournalEntry(player, "📝 Memasuki quiz: " .. quizData.title)
             print("[Portal] Quiz started: " .. quizId .. " for " .. player.Name)
         else
@@ -1547,50 +1555,50 @@ local function setupLighting()
         child:Destroy()
     end
 
-    -- Time of day: afternoon sun
-    Lighting.ClockTime = 14
-    Lighting.GeographicLatitude = -6  -- Indonesia latitude
-    Lighting.Brightness = 2
-    Lighting.Ambient = Color3.fromRGB(80, 80, 90)
-    Lighting.OutdoorAmbient = Color3.fromRGB(130, 130, 140)
-    Lighting.FogEnd = 1000
-    Lighting.FogColor = Color3.fromRGB(200, 220, 255)
+    -- Dusk / soft night — not blinding bright
+    Lighting.ClockTime = 19.5
+    Lighting.GeographicLatitude = -6
+    Lighting.Brightness = 1.1
+    Lighting.Ambient = Color3.fromRGB(45, 48, 60)
+    Lighting.OutdoorAmbient = Color3.fromRGB(70, 75, 95)
+    Lighting.FogStart = 40
+    Lighting.FogEnd = 280
+    Lighting.FogColor = Color3.fromRGB(30, 35, 50)
+    Lighting.GlobalShadows = true
+    Lighting.EnvironmentDiffuseScale = 0.4
+    Lighting.EnvironmentSpecularScale = 0.3
 
-    -- Atmosphere (warm tropical feel)
     local atmo = Instance.new("Atmosphere")
-    atmo.Name = "TropicalAtmosphere"
-    atmo.Density = 0.3
-    atmo.Offset = 0.25
-    atmo.Color = Color3.fromRGB(255, 230, 200)
-    atmo.Decay = Color3.fromRGB(180, 140, 100)
-    atmo.Glare = 0.1
-    atmo.Haze = 1.5
+    atmo.Name = "NusantaraDusk"
+    atmo.Density = 0.45
+    atmo.Offset = 0.15
+    atmo.Color = Color3.fromRGB(120, 130, 160)
+    atmo.Decay = Color3.fromRGB(60, 50, 70)
+    atmo.Glare = 0.05
+    atmo.Haze = 2.2
     atmo.Parent = Lighting
 
-    -- Bloom effect (soft glow)
     local bloom = Instance.new("BloomEffect")
     bloom.Name = "Bloom"
-    bloom.Intensity = 0.5
-    bloom.Size = 24
-    bloom.Threshold = 1.2
+    bloom.Intensity = 0.25
+    bloom.Size = 18
+    bloom.Threshold = 1.5
     bloom.Parent = Lighting
 
-    -- Sky
     local sky = Instance.new("Sky")
-    sky.Name = "TropicalSky"
+    sky.Name = "DuskSky"
     sky.CelestialBodiesShown = true
-    sky.StarCount = 3000
-    sky.SunAngularSize = 15
-    sky.MoonAngularSize = 10
+    sky.StarCount = 4000
+    sky.SunAngularSize = 12
+    sky.MoonAngularSize = 11
     sky.Parent = Lighting
 
-    -- Color correction for warmth
     local cc = Instance.new("ColorCorrectionEffect")
-    cc.Name = "WarmTone"
-    cc.Brightness = 0.02
-    cc.Contrast = 0.05
-    cc.Saturation = 0.1
-    cc.TintColor = Color3.fromRGB(255, 250, 240)
+    cc.Name = "SoftTone"
+    cc.Brightness = -0.04
+    cc.Contrast = 0.08
+    cc.Saturation = 0.05
+    cc.TintColor = Color3.fromRGB(230, 235, 255)
     cc.Parent = Lighting
 
     print("✅ Lighting setup complete!")
@@ -1864,15 +1872,33 @@ local function createWorld()
     -- ==========================================
     -- GROUND PLATFORMS (5 areas)
     -- ==========================================
-    -- Main ground (green grass)
-    local ground = Instance.new("Part")
-    ground.Name = "Ground"
-    ground.Size = Vector3.new(500, 1, 500)
-    ground.Position = Vector3.new(0, 0.5, 0)
-    ground.Anchored = true
-    ground.Color = Color3.fromRGB(90, 160, 70)
-    ground.Material = Enum.Material.Grass
-    ground.Parent = workspace
+    -- Dark void under islands (not one giant bright map)
+    local void = Instance.new("Part")
+    void.Name = "VoidFloor"
+    void.Size = Vector3.new(1200, 2, 1200)
+    void.Position = Vector3.new(0, -40, 0)
+    void.Anchored = true
+    void.CanCollide = true
+    void.Color = Color3.fromRGB(12, 14, 22)
+    void.Material = Enum.Material.SmoothPlastic
+    void.Parent = workspace
+
+    -- Soft mist slabs between islands (visual separation)
+    for i, pos in ipairs({
+        Vector3.new(0, -2, -100), Vector3.new(0, -2, 100),
+        Vector3.new(-100, -2, 0), Vector3.new(100, -2, 0),
+    }) do
+        local mist = Instance.new("Part")
+        mist.Name = "Mist" .. i
+        mist.Size = Vector3.new(40, 1, 40)
+        mist.Position = pos
+        mist.Anchored = true
+        mist.CanCollide = false
+        mist.Transparency = 0.7
+        mist.Color = Color3.fromRGB(40, 50, 70)
+        mist.Material = Enum.Material.ForceField
+        mist.Parent = workspace
+    end
 
     -- Kampus platform (white stone)
     local kampus = Instance.new("Part")
@@ -1888,7 +1914,7 @@ local function createWorld()
     local jawaP = Instance.new("Part")
     jawaP.Name = "JawaPlatform"
     jawaP.Size = Vector3.new(80, 1, 80)
-    jawaP.Position = Vector3.new(-120, 0.5, -120)
+    jawaP.Position = Vector3.new(-280, 0.5, -280)
     jawaP.Anchored = true
     jawaP.Color = Color3.fromRGB(180, 150, 100)
     jawaP.Material = Enum.Material.Sand
@@ -1898,7 +1924,7 @@ local function createWorld()
     local sumatraP = Instance.new("Part")
     sumatraP.Name = "SumatraPlatform"
     sumatraP.Size = Vector3.new(80, 1, 80)
-    sumatraP.Position = Vector3.new(120, 0.5, -120)
+    sumatraP.Position = Vector3.new(280, 0.5, -280)
     sumatraP.Anchored = true
     sumatraP.Color = Color3.fromRGB(140, 120, 80)
     sumatraP.Material = Enum.Material.Slate
@@ -1908,7 +1934,7 @@ local function createWorld()
     local baliP = Instance.new("Part")
     baliP.Name = "BaliPlatform"
     baliP.Size = Vector3.new(80, 1, 80)
-    baliP.Position = Vector3.new(-120, 0.5, 120)
+    baliP.Position = Vector3.new(-280, 0.5, 280)
     baliP.Anchored = true
     baliP.Color = Color3.fromRGB(200, 190, 170)
     baliP.Material = Enum.Material.Limestone
@@ -1918,7 +1944,7 @@ local function createWorld()
     local papuaP = Instance.new("Part")
     papuaP.Name = "PapuaPlatform"
     papuaP.Size = Vector3.new(80, 1, 80)
-    papuaP.Position = Vector3.new(120, 0.5, 120)
+    papuaP.Position = Vector3.new(280, 0.5, 280)
     papuaP.Anchored = true
     papuaP.Color = Color3.fromRGB(60, 100, 50)
     papuaP.Material = Enum.Material.Grass
@@ -2347,19 +2373,19 @@ local function createWorld()
     -- PORTALS (with visible gate frames + BIGGER glow)
     -- ==========================================
     buildPortalFrame(workspace, Vector3.new(-80, 0, -80), Color3.fromRGB(255, 215, 0))
-    createPortal("PortalJawa", Vector3.new(-80, 7, -80), Vector3.new(-120, 2, -120),
+    createPortal("PortalJawa", Vector3.new(-28, 6, -28), Vector3.new(-280, 4, -280),
         Color3.fromRGB(255, 215, 0), "🟡 Wilayah Jawa", "quiz_jawa")
 
     buildPortalFrame(workspace, Vector3.new(80, 0, -80), Color3.fromRGB(0, 200, 0))
-    createPortal("PortalSumatra", Vector3.new(80, 7, -80), Vector3.new(120, 2, -120),
+    createPortal("PortalSumatra", Vector3.new(28, 6, -28), Vector3.new(280, 4, -280),
         Color3.fromRGB(0, 200, 0), "🟢 Wilayah Sumatra", "quiz_sumatra")
 
     buildPortalFrame(workspace, Vector3.new(-80, 0, 80), Color3.fromRGB(0, 150, 255))
-    createPortal("PortalBali", Vector3.new(-80, 7, 80), Vector3.new(-120, 2, 120),
+    createPortal("PortalBali", Vector3.new(-28, 6, 28), Vector3.new(-280, 4, 280),
         Color3.fromRGB(0, 150, 255), "🔵 Wilayah Bali", "quiz_bali")
 
     buildPortalFrame(workspace, Vector3.new(80, 0, 80), Color3.fromRGB(150, 0, 200))
-    createPortal("PortalPapua", Vector3.new(80, 7, 80), Vector3.new(120, 2, 120),
+    createPortal("PortalPapua", Vector3.new(28, 6, 28), Vector3.new(280, 4, 280),
         Color3.fromRGB(150, 0, 200), "🟣 Wilayah Papua", "quiz_papua")
 
     -- Portal area decorations (flowers near portals)
@@ -2379,23 +2405,23 @@ local function createWorld()
     -- ==========================================
     createNPC("Pak Dosen", Vector3.new(15, 1, 15), "Dosen",
         Color3.fromRGB(200, 150, 100), Color3.fromRGB(50, 50, 150), Color3.fromRGB(40, 40, 80))
-    createNPC("Pak Karso", Vector3.new(-115, 1, -115), "Karso",
+    createNPC("Pak Karso", Vector3.new(-280, 1, -280), "Karso",
         Color3.fromRGB(180, 130, 90), Color3.fromRGB(200, 50, 50), Color3.fromRGB(80, 60, 30))
-    createNPC("Ibu Ratna", Vector3.new(125, 1, -115), "Ratna",
+    createNPC("Ibu Ratna", Vector3.new(280, 1, -280), "Ratna",
         Color3.fromRGB(210, 160, 110), Color3.fromRGB(200, 100, 150), Color3.fromRGB(60, 80, 40))
-    createNPC("Mang Wayan", Vector3.new(-115, 1, 125), "Wayan",
+    createNPC("Mang Wayan", Vector3.new(-280, 1, 280), "Wayan",
         Color3.fromRGB(170, 130, 80), Color3.fromRGB(255, 200, 100), Color3.fromRGB(50, 50, 50))
-    createNPC("Bapak Yanu", Vector3.new(125, 1, 125), "Yanu",
+    createNPC("Bapak Yanu", Vector3.new(280, 1, 280), "Yanu",
         Color3.fromRGB(90, 60, 40), Color3.fromRGB(150, 80, 30), Color3.fromRGB(60, 40, 20))
 
     -- ==========================================
     -- REGION LABELS
     -- ==========================================
     addLabel("🏫 KAMPUS (Spawn)", Vector3.new(0, 12, 0))
-    addLabel("🟡 Wilayah Jawa", Vector3.new(-120, 12, -120))
-    addLabel("🟢 Wilayah Sumatra", Vector3.new(120, 12, -120))
-    addLabel("🔵 Wilayah Bali", Vector3.new(-120, 12, 120))
-    addLabel("🟣 Wilayah Papua", Vector3.new(120, 12, 120))
+    addLabel("🟡 Wilayah Jawa", Vector3.new(-280, 14, -280))
+    addLabel("🟢 Wilayah Sumatra", Vector3.new(280, 14, -280))
+    addLabel("🔵 Wilayah Bali", Vector3.new(-280, 14, 280))
+    addLabel("🟣 Wilayah Papua", Vector3.new(280, 14, 280))
 
     -- ==========================================
     -- SCATTERED DECORATIVE TREES (main area)
@@ -2440,7 +2466,7 @@ RS.DialogueChoice.OnServerEvent:Connect(function(player, choiceIndex)
     
     local dialogueId = playerActiveNPC[player.UserId]
     if not dialogueId then
-        warn("[Dialogue] No active NPC for " .. player.Name)
+        print("[Dialogue] No active NPC for " .. player.Name .. " (ignored)")
         return
     end
 
@@ -2588,6 +2614,60 @@ RS.TalkRequest.OnServerEvent:Connect(function(player, dialogueId)
     beginDialogue(player, dialogueId)
 end)
 
+
+-- ============================================
+-- PORTAL REQUEST (client E / prompt fallback)
+-- ============================================
+local PORTAL_META = {
+    PortalJawa = { quizId = "quiz_jawa", destination = Vector3.new(-280, 4, -280), label = "Wilayah Jawa" },
+    PortalSumatra = { quizId = "quiz_sumatra", destination = Vector3.new(280, 4, -280), label = "Wilayah Sumatra" },
+    PortalBali = { quizId = "quiz_bali", destination = Vector3.new(-280, 4, 280), label = "Wilayah Bali" },
+    PortalPapua = { quizId = "quiz_papua", destination = Vector3.new(280, 4, 280), label = "Wilayah Papua" },
+    quiz_jawa = { quizId = "quiz_jawa", destination = Vector3.new(-280, 4, -280), label = "Wilayah Jawa" },
+    quiz_sumatra = { quizId = "quiz_sumatra", destination = Vector3.new(280, 4, -280), label = "Wilayah Sumatra" },
+    quiz_bali = { quizId = "quiz_bali", destination = Vector3.new(-280, 4, 280), label = "Wilayah Bali" },
+    quiz_papua = { quizId = "quiz_papua", destination = Vector3.new(280, 4, 280), label = "Wilayah Papua" },
+}
+
+local function enterPortalById(player, portalKey)
+    local meta = PORTAL_META[portalKey]
+    if not meta then
+        warn("[Portal] Unknown key " .. tostring(portalKey))
+        return
+    end
+    local data = getPlayerData(player)
+    if not data then return end
+    local quizId = meta.quizId
+    if not data.unlockedPortals[quizId] then
+        RS.ShowNotification:FireClient(player, "🔒 Portal terkunci. Selesaikan quiz sebelumnya / bicara Pak Dosen.")
+        return
+    end
+    local character = player.Character
+    if character then
+        local hrp2 = character:FindFirstChild("HumanoidRootPart")
+        if hrp2 then
+            hrp2.CFrame = CFrame.new(meta.destination + Vector3.new(0, 3, 0))
+        end
+    end
+    RS.ShowNotification:FireClient(player, "🌍 Memasuki " .. meta.label)
+    if data.completedQuizzes[quizId] then
+        RS.ShowNotification:FireClient(player, "✅ Wilayah ini sudah tuntas.")
+        return
+    end
+    local quizData = QUIZZES[quizId]
+    if quizData then
+        task.delay(0.6, function()
+            RS.QuizStart:FireClient(player, quizData, quizId, 1)
+        end)
+        addJournalEntry(player, "📝 Memasuki quiz: " .. quizData.title)
+    end
+end
+
+RS.PortalRequest.OnServerEvent:Connect(function(player, portalKey)
+    print("[PortalRequest] " .. player.Name .. " -> " .. tostring(portalKey))
+    enterPortalById(player, portalKey)
+end)
+
 -- ============================================
 -- GAME START HANDLER
 -- ============================================
@@ -2625,7 +2705,7 @@ local function setupPlayer(player)
         local hum = character:WaitForChild("Humanoid", 10)
         if hrp then
             -- Stand on golden spawn pad (kampus)
-            hrp.CFrame = CFrame.new(0, 5, 8)
+            hrp.CFrame = CFrame.new(0, 6, 10)
             print("[GameManager] Character placed for " .. player.Name)
         end
         if hum then

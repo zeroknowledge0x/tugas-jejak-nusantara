@@ -19,7 +19,7 @@
     - Added: Journal, Ending screen, quizId tracking
 ]]
 
-print("🎮 GameClient v4.2 - Loading...")
+print("🎮 GameClient v4.3 - Loading...")
 
 local Players = game:GetService("Players")
 local RS = game:GetService("ReplicatedStorage")
@@ -91,6 +91,7 @@ local RE_JournalUpdate    = waitRemote("JournalUpdate")
 local RE_EndingTriggered  = waitRemote("EndingTriggered")
 local RE_LevelUnlocked    = waitRemote("LevelUnlocked")
 local RE_TalkRequest      = waitRemote("TalkRequest")
+local RE_PortalRequest    = waitRemote("PortalRequest")
 
 print("✅ Remotes ready!")
 local currentQuestionIndex = 1
@@ -152,7 +153,7 @@ local versionLabel = Instance.new("TextLabel")
 versionLabel.Size = UDim2.new(0.2, 0, 0.04, 0)
 versionLabel.Position = UDim2.new(0.4, 0, 0.32, 0)
 versionLabel.BackgroundTransparency = 1
-versionLabel.Text = "v4.2 · Nusantara"
+versionLabel.Text = "v4.3 · Nusantara"
 versionLabel.TextColor3 = Color3.fromRGB(150, 150, 150)
 versionLabel.TextScaled = true
 versionLabel.Font = Enum.Font.Gotham
@@ -249,7 +250,7 @@ local hintLabel = Instance.new("TextLabel")
 hintLabel.Size = UDim2.new(1, -20, 0, 20)
 hintLabel.Position = UDim2.new(0, 10, 0, 85)
 hintLabel.BackgroundTransparency = 1
-hintLabel.Text = "Tekan J untuk Jurnal"
+hintLabel.Text = "E: Bicara/Masuk portal · J: Jurnal"
 hintLabel.TextColor3 = Color3.fromRGB(150, 150, 150)
 hintLabel.TextScaled = true
 hintLabel.Font = Enum.Font.Gotham
@@ -314,7 +315,7 @@ local quizFrame = Instance.new("Frame")
 quizFrame.Name = "Quiz"
 quizFrame.Size = UDim2.new(0.5, 0, 0.55, 0)
 quizFrame.Position = UDim2.new(0.25, 0, 0.2, 0)
-quizFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+quizFrame.BackgroundColor3 = Color3.fromRGB(16, 20, 28)
 quizFrame.BackgroundTransparency = 0.1
 quizFrame.Visible = false
 quizFrame.Parent = screenGui
@@ -940,6 +941,15 @@ end
 
 ProximityPromptService.PromptTriggered:Connect(function(prompt, plr)
 	if plr ~= player then return end
+	if prompt.ActionText == "Masuk" then
+		local parent = prompt.Parent
+		local key = parent and parent.Name
+		if key and RE_PortalRequest then
+			print("[Client] Portal prompt -> " .. tostring(key))
+			RE_PortalRequest:FireServer(key)
+		end
+		return
+	end
 	if prompt.ActionText ~= "Bicara" then return end
 	local parent = prompt.Parent
 	local dialogueId = nil
@@ -982,15 +992,36 @@ end
 UIS.InputBegan:Connect(function(input, processed)
 	if processed then return end
 	if input.KeyCode == Enum.KeyCode.E then
-		local id = findNearestNPC(22)
+		-- Prefer NPC if close, else portal
+		local id = findNearestNPC(18)
 		if id then
 			requestTalk(id, "KeyE")
-		else
-			print("[Client] E pressed but no NPC within 22 studs")
+			return
+		end
+		-- nearest portal
+		local char = player.Character
+		local hrp = char and char:FindFirstChild("HumanoidRootPart")
+		if hrp and RE_PortalRequest then
+			local bestKey, bestD = nil, 24
+			for _, inst in ipairs(workspace:GetChildren()) do
+				if inst:IsA("BasePart") and inst:GetAttribute("IsPortal") then
+					local d = (inst.Position - hrp.Position).Magnitude
+					if d < bestD then
+						bestD = d
+						bestKey = inst.Name
+					end
+				end
+			end
+			if bestKey then
+				print("[Client] E near portal -> " .. bestKey)
+				RE_PortalRequest:FireServer(bestKey)
+			else
+				print("[Client] E: no NPC/portal nearby")
+			end
 		end
 	end
 end)
 
 
-print("✅ GameClient v4.2 ready!")
+print("✅ GameClient v4.3 ready!")
 
