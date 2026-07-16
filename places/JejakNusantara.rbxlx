@@ -3739,6 +3739,8 @@ end
 --! module fails to load, you still see the game booted. Each require is wrapped
 --! in pcall and warns which one failed. Single-player client session.
 
+print("JN GameClient STARTED")
+
 -- ===== BANNER FIRST (no requires above this) =====
 local Players = game:GetService("Players")
 local player = Players.LocalPlayer
@@ -3760,7 +3762,6 @@ local function showBanner(text)
 	t.BackgroundTransparency = 1
 	t.Text = text
 	t.TextColor3 = Color3.fromRGB(240, 180, 60)
-	t.Font = Enum.Font.GothamBold
 	t.TextScaled = true
 	t.Parent = f
 	t.ZIndex = 10
@@ -3770,7 +3771,6 @@ local function showBanner(text)
 	close.BackgroundColor3 = Color3.fromRGB(200, 60, 60)
 	close.Text = "X"
 	close.TextColor3 = Color3.fromRGB(255, 255, 255)
-	close.Font = Enum.Font.GothamBold
 	close.TextScaled = true
 	close.Parent = f
 	close.ZIndex = 11

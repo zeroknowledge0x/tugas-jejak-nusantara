@@ -1,3 +1,32 @@
+
+local function inst(kind)
+  local t={ClassName=kind or "Instance",Children={},Parent=nil}
+  setmetatable(t,{__index=function(s,k)
+    if k=="GetChildren" then return function() return s.Children end end
+    if k=="WaitForChild" then return function(_,n) return inst(n) end end
+    if k=="FindFirstChild" then return function(_,n) return inst(n) end end
+    return rawget(s,k) end})
+  return t
+end
+local services={}
+local function svc(name)
+  if services[name]==nil then services[name]=inst(name) end
+  return services[name]
+end
+game={GetService=svc,PlaceId=0}
+local Players=inst("Players")
+Players.LocalPlayer=inst("Player")
+Players.LocalPlayer.PlayerGui=inst("PlayerGui")
+svc("Players").LocalPlayer=Players.LocalPlayer
+Instance={new=function(k) return inst(k) end}
+Enum={Font={GothamBold="GothamBold"}}
+Color3={fromRGB=function() return {} end}
+UDim2={new=function() return {} end}
+Vector3={new=function() return {} end}
+BrickColor={new=function() return {} end}
+task={delay=function() end,wait=function() end}
+require=function() error("mock require") end
+
 --! GameClient.client.luau (StarterPlayerScripts)
 --! Client bootstrap. BANNER is shown FIRST (before any require) so even if a
 --! module fails to load, you still see the game booted. Each require is wrapped
@@ -132,3 +161,5 @@ if not ok then
 	warn("GameClient session failed: " .. tostring(err))
 	showBanner("SESSION ERROR - lihat output")
 end
+
+print("MOCK_OK_BANNER_REACHED")
