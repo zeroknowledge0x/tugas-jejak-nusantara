@@ -131,69 +131,50 @@ local DIALOGUES = {
     Dosen = {
         name = "Pak Dosen",
         lines = {
-            {
-                text = "Selamat datang! Begini cara mainnya:\n1. Masuk PORTAL (E) di kampus untuk pergi ke wilayah\n2. Bicara NPC (E) di wilayah untuk BELAJAR budaya\n3. Tekan T untuk QUIZ (jawaban = materi NPC)\n4. Selesaikan 4 wilayah = Ending!\n\nPortal balik ke kampus ada di setiap wilayah.",
-                choices = {
-                    {text = "Mengerti, Pak!", action = "end"}
-                }
-            }
+            {text = "Selamat datang! Saya Pak Dosen. Saya akan bantu kamu menjelajah budaya Indonesia!", choices = {{text = "Siap, Pak!", next = 2}}},
+            {text = "Caranya: masuk PORTAL (E) ke wilayah, bicara NPC untuk belajar, lalu T untuk quiz.", choices = {{text = "Tahunya bagaimana mainnya?", next = 3}}},
+            {text = "Portal berwarna-warni di kampus. Tiap wilayah punya NPC yang ngajarin budaya. Baca pelajarannya satu per satu.", choices = {{text = "Lalu quiz?", next = 4}}},
+            {text = "Tekan T di wilayah untuk mulai quiz. Jawaban quiz = materi yang NPC ajarkan. Selesaikan 4 wilayah untuk Ending!", choices = {{text = "Mengerti, Pak!", action = "end"}}},
         }
-    },
+    }
     Karso = {
         name = "Pak Karso",
         lines = {
-            {
-                text = "Sugeng rawuh! Berikut budaya Jawa Tengah:\n\nGamelan: ansambel musik tradisional (bonang, saron, gong). Bunyi khas menenangkan.\nBatik: seni menggambar kain pakai lilin, tiap motif punya makna. Diakui UNESCO!\nRumah adat: Joglo, atap menjulang melambangkan gunung.\nTari Gambyong: tarian klasik, gerak lemah gemulai mengikuti gamelan. Sangat elegan!\n\nCatat baik-baik untuk quiz ya!",
-                choices = {
-                    {text = "Terima kasih, Pak Karso!", action = "end"}
-                }
-            }
+            {text = "Sugeng rawuh! Saya Pak Karso, budayawan Jawa Tengah. Saya akan ajarkan budaya Jawa.", choices = {{text = "Apa itu Gamelan?", next = 2}, {text = "Baik, lanjut", next = 2}}},
+            {text = "Gamelan adalah ansambel musik tradisional Jawa. Alatnya: bonang, saron, gong. Bunyinya khas dan menenangkan!", choices = {{text = "Selanjutnya?", next = 3}}},
+            {text = "Batik adalah seni menggambar kain pakai lilin. Tiap motif punya makna. Batik sudah diakui UNESCO sebagai warisan dunia!", choices = {{text = "Selanjutnya?", next = 4}}},
+            {text = "Rumah adat Jawa Tengah adalah Joglo. Atapnya menjulang tinggi, melambangkan gunung.", choices = {{text = "Selanjutnya?", next = 5}}},
+            {text = "Tari Gambyong adalah tarian klasik Jawa. Geraknya lemah gemulai mengikuti irama gamelan. Sangat elegan!", choices = {{text = "Terima kasih, Pak Karso!", action = "end"}}},
         }
-    },
+    }
     Ratna = {
         name = "Ibu Ratna",
         lines = {
-            {
-                text = "Halo! Berikut budaya Sumatra (Minangkabau):\n\nRumah Gadang: rumah adat dengan atap runcing seperti tanduk kerbau.\nRendang: masakan daging + santan + rempah, dimasak berjam-jam. Makanan terenak dunia!\nTari Piring: dari Sumatra Barat, penari bawa piring, gerak lincah.\nAlat musik: Talepong (gong Minang), saluang (serunai bambu).\n\nCatat baik-baik untuk quiz ya!",
-                choices = {
-                    {text = "Terima kasih, Ibu Ratna!", action = "end"}
-                }
-            }
+            {text = "Halo! Saya Ibu Ratna dari Sumatra Barat. Saya akan ajarkan budaya Minangkabau.", choices = {{text = "Apa itu Rumah Gadang?", next = 2}, {text = "Baik, lanjut", next = 2}}},
+            {text = "Rumah Gadang adalah rumah adat Minangkabau dengan atap runcing seperti tanduk kerbau. Simbol kekuatan!", choices = {{text = "Selanjutnya?", next = 3}}},
+            {text = "Rendang adalah masakan daging dengan santan dan rempah, dimasak berjam-jam. Dinobatkan sebagai makanan terenak di dunia!", choices = {{text = "Selanjutnya?", next = 4}}},
+            {text = "Tari Piring dari Sumatra Barat. Penari bawa piring di tangan, gerak lincah. Tari Saman dari Aceh juga terkenal!", choices = {{text = "Selanjutnya?", next = 5}}},
+            {text = "Alat musik Sumatra: Talepong (gong Minang) dan saluang (serunai bambu) yang bunyinya melengking!", choices = {{text = "Terima kasih, Ibu Ratna!", action = "end"}}},
         }
-    },
+    }
     Wayan = {
         name = "Mang Wayan",
         lines = {
-            {
-                text = "Om Swastiastu! Berikut budaya Bali:\n\nPura: tempat ibadah Hindu Bali. Terkenal: Pura Besakih & Tanah Lot.\nTari Kecak: tari massal duduk melingkar, teriak 'cak-cak-cak'. Sangat ikonik!\nNgaben: upacara kremasi jenazah. Ada juga Nyepi (hari sunyi senyap).\n\nCatat baik-baik untuk quiz ya!",
-                choices = {
-                    {text = "Terima kasih, Mang Wayan!", action = "end"}
-                }
-            }
+            {text = "Om Swastiastu! Saya Mang Wayan dari Bali. Mari belajar budaya Bali.", choices = {{text = "Apa itu Pura?", next = 2}, {text = "Baik, lanjut", next = 2}}},
+            {text = "Pura adalah tempat ibadah Hindu Bali. Yang terkenal: Pura Besakih dan Pura Tanah Lot.", choices = {{text = "Selanjutnya?", next = 3}}},
+            {text = "Tari Kecak adalah tari massal. Penari duduk melingkar dan teriak 'cak-cak-cak'. Sangat ikonik!", choices = {{text = "Selanjutnya?", next = 4}}},
+            {text = "Ngaben adalah upacara kremasi jenazah. Ada juga Nyepi, hari di mana seluruh Bali sunyi senyap.", choices = {{text = "Terima kasih, Mang Wayan!", action = "end"}}},
         }
-    },
+    }
     Yanu = {
         name = "Bapak Yanu",
         lines = {
-            {
-                text = "Halo! Berikut budaya Papua:\n\nHonai: rumah tradisional bulat, atap jerami, di dalamnya hangat.\nTari Selamat Datang: penari bawa tombak & perisai, gerak gagah!\nSenjata: tombak, panah, parang. Juga alat musik tifa yang bunyinya khas.\n\nCatat baik-baik untuk quiz ya!",
-                choices = {
-                    {text = "Terima kasih, Bapak Yanu!", action = "end"}
-                }
-            }
+            {text = "Halo! Saya Bapak Yanu dari Papua. Mari belajar budaya tanah Cenderawasih.", choices = {{text = "Apa itu Honai?", next = 2}, {text = "Baik, lanjut", next = 2}}},
+            {text = "Honai adalah rumah tradisional Papua. Bentuknya bulat dengan atap jerami, di dalamnya hangat dan nyaman.", choices = {{text = "Selanjutnya?", next = 3}}},
+            {text = "Tari Selamat Datang: penari bawa tombak dan perisai, gerakannya gagah! Penyambutan tamu istimewa.", choices = {{text = "Selanjutnya?", next = 4}}},
+            {text = "Senjata tradisional Papua: tombak, panah, parang. Juga ada alat musik tifa yang bunyinya khas!", choices = {{text = "Terima kasih, Bapak Yanu!", action = "end"}}},
         }
     }
-}
-
--- ============================================
--- ENDING DATA
--- ============================================
-local ENDINGS = {
-    penjelajah = {
-        title = "🗺️ Penjelajah Budaya",
-        description = "Kamu sudah menjelajahi cukup banyak budaya Indonesia! Meskipun belum sempurna, semangat eksplorasimu patut diacungi jempol. Teruslah belajar!",
-        color = {0, 200, 200},
-    },
     pemula = {
         title = "🌱 Pemula",
         description = "Perjalanan budaya baru dimulai! Masih banyak yang bisa dipelajari. Jangan menyerah, teruslah bertualang dan berinteraksi dengan NPC untuk belajar lebih banyak!",
@@ -369,19 +350,24 @@ end
 -- ============================================
 local function unlockNextPortal(player, completedQuizId)
     local data = getPlayerData(player)
-    -- Find which quiz was just completed and unlock the next one
-    for i, entry in ipairs(PORTAL_ORDER) do
-        if entry.quizId == completedQuizId and i < #PORTAL_ORDER then
-            local nextEntry = PORTAL_ORDER[i + 1]
-            if not data.unlockedPortals[nextEntry.quizId] then
-                data.unlockedPortals[nextEntry.quizId] = true
-                local quiz = QUIZZES[nextEntry.quizId]
-                RS.ShowNotification:FireClient(player, "🔓 Portal baru terbuka: " .. quiz.title)
-                RS.LevelUnlocked:FireClient(player, nextEntry.quizId)
-                addJournalEntry(player, "🔓 Portal terbuka: " .. quiz.title)
-            end
-            break
+    if not data then return end
+    -- All portals already unlocked by default; just notify completion
+    local quiz = QUIZZES[completedQuizId]
+    if quiz then
+        RS.ShowNotification:FireClient(player, "✅ " .. quiz.title .. " selesai!")
+        addJournalEntry(player, "✅ Quiz selesai: " .. quiz.title)
+    end
+    -- Check if all 4 quizzes are done -> trigger ending
+    local quizCount = 0
+    if data.completedQuizzes then
+        for _ in pairs(data.completedQuizzes) do
+            quizCount = quizCount + 1
         end
+    end
+    if quizCount >= 4 then
+        task.delay(2, function()
+            checkAndTriggerEnding(player)
+        end)
     end
 end
 
@@ -2067,20 +2053,20 @@ local function createWorld()
     -- ==========================================
     -- PORTALS (with visible gate frames + BIGGER glow)
     -- ==========================================
-    buildPortalFrame(workspace, Vector3.new(-80, 0, -80), Color3.fromRGB(255, 215, 0))
-    createPortal("PortalJawa", Vector3.new(-28, 6, -28), Vector3.new(-280, 4, -280),
+    buildPortalFrame(workspace, Vector3.new(-45, 0, -45), Color3.fromRGB(255, 215, 0))
+    createPortal("PortalJawa", Vector3.new(-42, 6, -42), Vector3.new(-280, 4, -280),
         Color3.fromRGB(255, 215, 0), "🟡 Wilayah Jawa", "quiz_jawa")
 
-    buildPortalFrame(workspace, Vector3.new(80, 0, -80), Color3.fromRGB(0, 200, 0))
-    createPortal("PortalSumatra", Vector3.new(28, 6, -28), Vector3.new(280, 4, -280),
+    buildPortalFrame(workspace, Vector3.new(45, 0, -45), Color3.fromRGB(0, 200, 0))
+    createPortal("PortalSumatra", Vector3.new(42, 6, -42), Vector3.new(280, 4, -280),
         Color3.fromRGB(0, 200, 0), "🟢 Wilayah Sumatra", "quiz_sumatra")
 
-    buildPortalFrame(workspace, Vector3.new(-80, 0, 80), Color3.fromRGB(0, 150, 255))
-    createPortal("PortalBali", Vector3.new(-28, 6, 28), Vector3.new(-280, 4, 280),
+    buildPortalFrame(workspace, Vector3.new(-45, 0, 45), Color3.fromRGB(0, 150, 255))
+    createPortal("PortalBali", Vector3.new(-42, 6, 42), Vector3.new(-280, 4, 280),
         Color3.fromRGB(0, 150, 255), "🔵 Wilayah Bali", "quiz_bali")
 
-    buildPortalFrame(workspace, Vector3.new(80, 0, 80), Color3.fromRGB(150, 0, 200))
-    createPortal("PortalPapua", Vector3.new(28, 6, 28), Vector3.new(280, 4, 280),
+    buildPortalFrame(workspace, Vector3.new(45, 0, 45), Color3.fromRGB(150, 0, 200))
+    createPortal("PortalPapua", Vector3.new(42, 6, 42), Vector3.new(280, 4, 280),
         Color3.fromRGB(150, 0, 200), "🟣 Wilayah Papua", "quiz_papua")
 
     -- Portal area decorations (flowers near portals)

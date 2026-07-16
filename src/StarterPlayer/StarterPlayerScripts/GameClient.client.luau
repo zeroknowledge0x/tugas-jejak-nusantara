@@ -19,7 +19,7 @@
     - Added: Journal, Ending screen, quizId tracking
 ]]
 
-print("🎮 GameClient v5.1 - Loading...")
+print("🎮 GameClient v5.2 - Loading...")
 
 local Players = game:GetService("Players")
 local RS = game:GetService("ReplicatedStorage")
@@ -156,7 +156,7 @@ local versionLabel = Instance.new("TextLabel")
 versionLabel.Size = UDim2.new(0.2, 0, 0.04, 0)
 versionLabel.Position = UDim2.new(0.4, 0, 0.32, 0)
 versionLabel.BackgroundTransparency = 1
-versionLabel.Text = "v5.1 · Nusantara"
+versionLabel.Text = "v5.2 · Nusantara"
 versionLabel.TextColor3 = Color3.fromRGB(150, 150, 150)
 versionLabel.TextScaled = true
 versionLabel.Font = Enum.Font.Gotham
@@ -315,7 +315,7 @@ end
 -- ============================================
 local dialogueFrame = Instance.new("Frame")
 dialogueFrame.Name = "Dialogue"
-dialogueFrame.Size = UDim2.new(0.7, 0, 0.42, 0)
+dialogueFrame.Size = UDim2.new(0.65, 0, 0.35, 0)
 dialogueFrame.Position = UDim2.new(0.5, 0, 0.72, 0)
 dialogueFrame.AnchorPoint = Vector2.new(0.5, 0.5)
 dialogueFrame.BackgroundColor3 = Color3.fromRGB(18, 24, 22)
@@ -339,12 +339,13 @@ npcName.Font = Enum.Font.GothamBold
 npcName.Parent = dialogueFrame
 
 local dialogueText = Instance.new("TextLabel")
-dialogueText.Size = UDim2.new(1, -20, 0, 50)
+dialogueText.Size = UDim2.new(1, -20, 1, -80)
 dialogueText.Position = UDim2.new(0, 10, 0, 45)
 dialogueText.BackgroundTransparency = 1
 dialogueText.Text = ""
 dialogueText.TextColor3 = Color3.fromRGB(255, 255, 255)
 dialogueText.TextScaled = true
+dialogueText.TextSize = 18
 dialogueText.Font = Enum.Font.Gotham
 dialogueText.TextWrapped = true
 dialogueText.Parent = dialogueFrame
@@ -1124,5 +1125,5 @@ UIS.InputBegan:Connect(function(input, processed)
 end)
 
 
-print("✅ GameClient v5.1 ready!")
+print("✅ GameClient v5.2 ready!")
 
