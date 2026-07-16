@@ -155,7 +155,7 @@ local DIALOGUES = {
             {text = "Portal berwarna-warni di kampus. Tiap wilayah punya NPC yang ngajarin budaya. Baca pelajarannya satu per satu.", choices = {{text = "Lalu quiz?", next = 4}}},
             {text = "Tekan T di wilayah untuk mulai quiz. Jawaban quiz = materi yang NPC ajarkan. Selesaikan 4 wilayah untuk Ending!", choices = {{text = "Mengerti, Pak!", action = "end"}}},
         }
-    }
+    },
     Karso = {
         name = "Pak Karso",
         lines = {
@@ -165,7 +165,7 @@ local DIALOGUES = {
             {text = "Rumah adat Jawa Tengah adalah Joglo. Atapnya menjulang tinggi, melambangkan gunung.", choices = {{text = "Selanjutnya?", next = 5}}},
             {text = "Tari Gambyong adalah tarian klasik Jawa. Geraknya lemah gemulai mengikuti irama gamelan. Sangat elegan!", choices = {{text = "Terima kasih, Pak Karso!", action = "end"}}},
         }
-    }
+    },
     Ratna = {
         name = "Ibu Ratna",
         lines = {
@@ -175,7 +175,7 @@ local DIALOGUES = {
             {text = "Tari Piring dari Sumatra Barat. Penari bawa piring di tangan, gerak lincah. Tari Saman dari Aceh juga terkenal!", choices = {{text = "Selanjutnya?", next = 5}}},
             {text = "Alat musik Sumatra: Talepong (gong Minang) dan saluang (serunai bambu) yang bunyinya melengking!", choices = {{text = "Terima kasih, Ibu Ratna!", action = "end"}}},
         }
-    }
+    },
     Wayan = {
         name = "Mang Wayan",
         lines = {
@@ -184,7 +184,7 @@ local DIALOGUES = {
             {text = "Tari Kecak adalah tari massal. Penari duduk melingkar dan teriak 'cak-cak-cak'. Sangat ikonik!", choices = {{text = "Selanjutnya?", next = 4}}},
             {text = "Ngaben adalah upacara kremasi jenazah. Ada juga Nyepi, hari di mana seluruh Bali sunyi senyap.", choices = {{text = "Terima kasih, Mang Wayan!", action = "end"}}},
         }
-    }
+    },
     Yanu = {
         name = "Bapak Yanu",
         lines = {
