@@ -101,8 +101,8 @@ local QUIZZES = {
         title = "Quiz Budaya Sumatra",
         questions = {
             {q = "Apa nama rumah adat Sumatra Barat?", a = {"Joglo", "Rumah Gadang", "Tongkonan", "Honai"}, correct = 2},
-            {q = "Tarian tradisional dari Sumatra?", a = {"Tari Kecak", "Tari Piring", "Tari Saman", "Tari Gambyong"}, correct = 3},
-            {q = "Alat musik dari Sumatra?", a = {"Gamelan", "Angklung", "Sasando", "Kolintang"}, correct = 2}
+            {q = "Tarian tradisional dari Sumatra Barat?", a = {"Tari Kecak", "Tari Piring", "Tari Saman", "Tari Gambyong"}, correct = 2},
+            {q = "Rendang berasal dari daerah?", a = {"Jawa Barat", "Sumatra Barat", "Bali", "Papua"}, correct = 2}
         }
     },
     quiz_bali = {
@@ -133,33 +133,34 @@ local DIALOGUES = {
             {
                 text = "Selamat datang, mahasiswa! Saya akan mengajak kalian menjelajahi budaya Indonesia melalui game ini.",
                 choices = {
-                    {text = "Siap, Pak!", next = 2},
+                    {text = "Siap, Pak! Apa caranya?", next = 2},
                     {text = "Apa yang harus saya lakukan?", next = 3}
                 }
             },
             {
-                text = "Bagus! Klik portal di setiap wilayah untuk mempelajari budayanya. Setiap wilayah punya quiz!",
+                text = "Caranya: (1) Bicara dengan NPC di setiap wilayah untuk BELAJAR budaya. (2) Lalu MASUK PORTAL untuk mengerjakan QUIZ. Jawaban quiz ada di materi NPC!",
                 choices = {
-                    {text = "Saya mengerti!", next = 4},
-                    {text = "Tunjukkan caranya", next = 5}
+                    {text = "Jadi belajar dulu baru quiz?", next = 4},
+                    {text = "Mengerti! Tunjukkan portal", next = 5}
                 }
             },
             {
-                text = "Kalian akan belajar budaya dari 4 wilayah: Jawa, Sumatra, Bali, dan Papua. Klik portal untuk mulai!",
+                text = "Begini alurnunya: Bicara NPC (E) untuk belajar budaya → Masuk PORTAL (E) → QUIZ soal budaya yang diajarkan NPC → benar dapat XP & koin! Selesaikan 4 wilayah untuk ENDING!",
                 choices = {
-                    {text = "Siap!", next = 4}
+                    {text = "Siap! Saya mengerti", next = 4},
+                    {text = "Tunjukkan portalnya", next = 5}
                 }
             },
             {
-                text = "Selamat belajar! Semoga kalian menjadi generasi yang mencintai budaya Indonesia!",
+                text = "Penting: Jawaban QUIZ ada di materi yang NPC ajarkan! Jadi PASTIKAN bicara dengan NPC dulu sebelum masuk portal quiz. Selamat belajar!",
                 choices = {
                     {text = "Terima kasih, Pak!", action = "end"}
                 }
             },
             {
-                text = "Lihat ada 4 portal berwarna di sekitar kalian. Klik salah satu untuk masuk ke wilayah tersebut!",
+                text = "Lihat ada 4 portal berwarna di sekitar kampus: Jawa (kuning), Sumatra (hijau), Bali (biru), Papua (ungu). Tapi ingat: bicara NPC dulu untuk belajar!",
                 choices = {
-                    {text = "Baik, Pak!", action = "end"}
+                    {text = "Baik, Pak! Saya bicara NPC dulu", action = "end"}
                 }
             }
         }
@@ -172,29 +173,36 @@ local DIALOGUES = {
                 choices = {
                     {text = "Apa itu Gamelan?", next = 2},
                     {text = "Ceritakan tentang batik", next = 3},
-                    {text = "Apa rumah adat Jawa?", next = 4}
+                    {text = "Apa rumah adat Jawa?", next = 4},
+                    {text = "Apa tarian khas Jawa?", next = 5}
                 }
             },
             {
                 text = "Gamelan adalah ansambel musik tradisional Jawa. Alat musiknya terdiri dari bonang, saron, gong, dan lainnya. Bunyinya khas dan menenangkan!",
                 choices = {
-                    {text = "Menarik!", next = 5}
+                    {text = "Menarik!", next = 6}
                 }
             },
             {
-                text = "Batik adalah seni menggambar di kain menggunakan malam (lilin). Setiap motif punya makna filosofis. Batik sudah diakui UNESCO!",
+                text = "Batik adalah seni menggambar di kain menggunakan malam (lilin). Setiap motif punya makna filosofis. Batik sudah diakui UNESCO sebagai warisan dunia!",
                 choices = {
-                    {text = "Luar biasa!", next = 5}
+                    {text = "Luar biasa!", next = 6}
                 }
             },
             {
                 text = "Rumah adat Jawa Tengah adalah Joglo. Bentuknya unik dengan atap menjulang tinggi, melambangkan gunung yang menjulang.",
                 choices = {
-                    {text = "Keren!", next = 5}
+                    {text = "Keren!", next = 6}
                 }
             },
             {
-                text = "Jawa punya budaya yang sangat kaya. Dari wayang kulit, tari gambyong, hingga kuliner gudeg dan soto!",
+                text = "Tari Gambyong adalah tarian klasik Jawa Tengah. Penari berpakaian indah, gerakannya lemah gemulai mengikuti irama gamelan. Sangat elegan!",
+                choices = {
+                    {text = "Ingin lihat!", next = 6}
+                }
+            },
+            {
+                text = "Jawa punya budaya yang sangat kaya. Dari wayang kulit, tari gambyong, gamelan, batik, hingga kuliner gudeg dan soto. Semua sudah diakui dunia!",
                 choices = {
                     {text = "Terima kasih, Pak Karso!", action = "end"}
                 }
@@ -209,29 +217,36 @@ local DIALOGUES = {
                 choices = {
                     {text = "Apa itu Rumah Gadang?", next = 2},
                     {text = "Ceritakan tentang rendang", next = 3},
-                    {text = "Apa tarian khas Sumatra?", next = 4}
+                    {text = "Apa tarian khas Sumatra?", next = 4},
+                    {text = "Alat musik dari Sumatra?", next = 5}
                 }
             },
             {
                 text = "Rumah Gadang adalah rumah adat Minangkabau dengan atap runcing seperti tanduk kerbau. Simbol kekuatan dan kearifan!",
                 choices = {
-                    {text = "Indah sekali!", next = 5}
+                    {text = "Indah sekali!", next = 6}
                 }
             },
             {
                 text = "Rendang adalah masakan daging dengan santan dan rempah. Dimasak berjam-jam hingga kering. Dinobatkan sebagai makanan terenak di dunia!",
                 choices = {
-                    {text = "Lapar jadinya!", next = 5}
+                    {text = "Lapar jadinya!", next = 6}
                 }
             },
             {
-                text = "Tari Piring berasal dari Sumatra Barat. Penari membawa piring di tangan dan bergerak lincah. Sangat indah!",
+                text = "Tari Piring berasal dari Sumatra Barat. Penari membawa piring di tangan dan bergerak lincah. Jangan lupa juga Tari Saman dari Aceh yang gerakannya cepat dan serentak!",
                 choices = {
-                    {text = "Ingin lihat!", next = 5}
+                    {text = "Ingin lihat!", next = 6}
                 }
             },
             {
-                text = "Sumatra kaya akan budaya! Dari Tor-tor Batak, randai Minang, hingga kuliner pempek Palembang!",
+                text = "Sumatra punya alat musik seperti Talepong (gong Minang), Gambus, dan Rebana. Sumatra Barat terkenal dengan saluang (serunai bambu) yang bunyinya melengking!",
+                choices = {
+                    {text = "Unik!", next = 6}
+                }
+            },
+            {
+                text = "Sumatra kaya budaya! Dari Tor-tor Batak, randai Minang, Tari Piring, hingga pempek Palembang. Semua mencerminkan keberagaman Nusantara!",
                 choices = {
                     {text = "Terima kasih, Ibu Ratna!", action = "end"}
                 }

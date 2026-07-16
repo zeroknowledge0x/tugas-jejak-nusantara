@@ -19,7 +19,7 @@
     - Added: Journal, Ending screen, quizId tracking
 ]]
 
-print("🎮 GameClient v4.6 - Loading...")
+print("🎮 GameClient v4.7 - Loading...")
 
 local Players = game:GetService("Players")
 local RS = game:GetService("ReplicatedStorage")
@@ -153,7 +153,7 @@ local versionLabel = Instance.new("TextLabel")
 versionLabel.Size = UDim2.new(0.2, 0, 0.04, 0)
 versionLabel.Position = UDim2.new(0.4, 0, 0.32, 0)
 versionLabel.BackgroundTransparency = 1
-versionLabel.Text = "v4.6 · Nusantara"
+versionLabel.Text = "v4.7 · Nusantara"
 versionLabel.TextColor3 = Color3.fromRGB(150, 150, 150)
 versionLabel.TextScaled = true
 versionLabel.Font = Enum.Font.Gotham
@@ -361,11 +361,12 @@ choicesLayout.Parent = choicesFrame
 -- ============================================
 local quizFrame = Instance.new("Frame")
 quizFrame.Name = "Quiz"
-quizFrame.Size = UDim2.new(0.5, 0, 0.55, 0)
-quizFrame.Position = UDim2.new(0.25, 0, 0.2, 0)
+quizFrame.Size = UDim2.new(0.6, 0, 0.65, 0)
+quizFrame.Position = UDim2.new(0.2, 0, 0.15, 0)
 quizFrame.BackgroundColor3 = Color3.fromRGB(16, 20, 28)
 quizFrame.BackgroundTransparency = 0.1
 quizFrame.Visible = false
+quizFrame.ZIndex = 60
 quizFrame.Parent = screenGui
 
 local quizCorner = Instance.new("UICorner")
@@ -393,11 +394,14 @@ quizQuestion.Font = Enum.Font.Gotham
 quizQuestion.TextWrapped = true
 quizQuestion.Parent = quizFrame
 
-local quizAnswers = Instance.new("Frame")
+local quizAnswers = Instance.new("ScrollingFrame")
 quizAnswers.Name = "Answers"
 quizAnswers.Size = UDim2.new(1, -20, 0, 200)
 quizAnswers.Position = UDim2.new(0, 10, 0, 120)
 quizAnswers.BackgroundTransparency = 1
+quizAnswers.ScrollBarThickness = 8
+quizAnswers.CanvasSize = UDim2.new(0, 0, 0, 0)
+quizAnswers.AutomaticCanvasSize = Enum.AutomaticSize.Y
 quizAnswers.Parent = quizFrame
 
 local quizAnswersLayout = Instance.new("UIListLayout")
@@ -880,7 +884,7 @@ startButton.MouseButton1Click:Connect(function()
         bindCamera(player.Character)
     end
     if setObjective then
-        setObjective("LANGKAH 1: Dekati Pak Dosen (label kuning) → tekan E / Bicara\nLalu cari PORTAL berwarna di tepi kampus → tekan E (Masuk) untuk QUIZ")
+        setObjective("1) Bicara Pak Dosen (E) untuk tutorial\n2) Bicara NPC di wilayah untuk BELAJAR\n3) Masuk PORTAL (E) untuk QUIZ\n4) Jawaban quiz = materi NPC!")
     end
 end)
 
@@ -1078,5 +1082,5 @@ UIS.InputBegan:Connect(function(input, processed)
 end)
 
 
-print("✅ GameClient v4.6 ready!")
+print("✅ GameClient v4.7 ready!")
 
