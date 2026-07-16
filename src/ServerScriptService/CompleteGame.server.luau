@@ -175,6 +175,12 @@ local DIALOGUES = {
             {text = "Senjata tradisional Papua: tombak, panah, parang. Juga ada alat musik tifa yang bunyinya khas!", choices = {{text = "Terima kasih, Bapak Yanu!", action = "end"}}},
         }
     }
+}
+
+-- ============================================
+-- ENDING DATA
+-- ============================================
+local ENDINGS = {
     pemula = {
         title = "🌱 Pemula",
         description = "Perjalanan budaya baru dimulai! Masih banyak yang bisa dipelajari. Jangan menyerah, teruslah bertualang dan berinteraksi dengan NPC untuk belajar lebih banyak!",
