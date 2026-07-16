@@ -19,7 +19,7 @@
     - Added: Journal, Ending screen, quizId tracking
 ]]
 
-print("🎮 GameClient v4.3 - Loading...")
+print("🎮 GameClient v4.5 - Loading...")
 
 local Players = game:GetService("Players")
 local RS = game:GetService("ReplicatedStorage")
@@ -143,7 +143,7 @@ local subtitleLabel = Instance.new("TextLabel")
 subtitleLabel.Size = UDim2.new(0.6, 0, 0.06, 0)
 subtitleLabel.Position = UDim2.new(0.2, 0, 0.25, 0)
 subtitleLabel.BackgroundTransparency = 1
-subtitleLabel.Text = "Jelajahi 4 wilayah · Bicara dengan NPC · Selesaikan quiz"
+subtitleLabel.Text = "Dialog → Portal → Quiz → 4 wilayah → Ending"
 subtitleLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
 subtitleLabel.TextScaled = true
 subtitleLabel.Font = Enum.Font.Gotham
@@ -153,7 +153,7 @@ local versionLabel = Instance.new("TextLabel")
 versionLabel.Size = UDim2.new(0.2, 0, 0.04, 0)
 versionLabel.Position = UDim2.new(0.4, 0, 0.32, 0)
 versionLabel.BackgroundTransparency = 1
-versionLabel.Text = "v4.3 · Nusantara"
+versionLabel.Text = "v4.5 · Nusantara"
 versionLabel.TextColor3 = Color3.fromRGB(150, 150, 150)
 versionLabel.TextScaled = true
 versionLabel.Font = Enum.Font.Gotham
@@ -250,11 +250,59 @@ local hintLabel = Instance.new("TextLabel")
 hintLabel.Size = UDim2.new(1, -20, 0, 20)
 hintLabel.Position = UDim2.new(0, 10, 0, 85)
 hintLabel.BackgroundTransparency = 1
-hintLabel.Text = "E: Bicara/Masuk portal · J: Jurnal"
+hintLabel.Text = "E=Bicara/Portal quiz · J=Jurnal"
 hintLabel.TextColor3 = Color3.fromRGB(150, 150, 150)
 hintLabel.TextScaled = true
 hintLabel.Font = Enum.Font.Gotham
+
 hintLabel.Parent = hud
+
+-- OBJECTIVE TRACKER (game loop visible)
+local objectivePanel = Instance.new("Frame")
+objectivePanel.Name = "ObjectivePanel"
+objectivePanel.Size = UDim2.new(0, 320, 0, 110)
+objectivePanel.Position = UDim2.new(0, 12, 0, 12)
+objectivePanel.BackgroundColor3 = Color3.fromRGB(18, 22, 30)
+objectivePanel.BackgroundTransparency = 0.15
+objectivePanel.Visible = false
+objectivePanel.Parent = screenGui
+local opCorner = Instance.new("UICorner")
+opCorner.CornerRadius = UDim.new(0, 10)
+opCorner.Parent = objectivePanel
+local opStroke = Instance.new("UIStroke")
+opStroke.Color = Color3.fromRGB(218, 165, 32)
+opStroke.Thickness = 1.5
+opStroke.Transparency = 0.3
+opStroke.Parent = objectivePanel
+local objTitle = Instance.new("TextLabel")
+objTitle.Size = UDim2.new(1, -16, 0, 24)
+objTitle.Position = UDim2.new(0, 8, 0, 6)
+objTitle.BackgroundTransparency = 1
+objTitle.Text = "TUJUAN MISI"
+objTitle.TextColor3 = Color3.fromRGB(255, 210, 80)
+objTitle.TextXAlignment = Enum.TextXAlignment.Left
+objTitle.Font = Enum.Font.GothamBold
+objTitle.TextScaled = true
+objTitle.Parent = objectivePanel
+local objBody = Instance.new("TextLabel")
+objBody.Name = "Body"
+objBody.Size = UDim2.new(1, -16, 0, 70)
+objBody.Position = UDim2.new(0, 8, 0, 32)
+objBody.BackgroundTransparency = 1
+objBody.Text = "1) Bicara dengan Pak Dosen (E)\n2) Masuk PORTAL di kampus (E)\n3) Kerjakan QUIZ di wilayah\n4) Selesaikan 4 wilayah → Ending"
+objBody.TextColor3 = Color3.fromRGB(230, 230, 235)
+objBody.TextXAlignment = Enum.TextXAlignment.Left
+objBody.TextYAlignment = Enum.TextYAlignment.Top
+objBody.Font = Enum.Font.Gotham
+objBody.TextSize = 14
+objBody.TextWrapped = true
+objBody.Parent = objectivePanel
+
+local function setObjective(text)
+	objBody.Text = text
+	objectivePanel.Visible = true
+end
+
 
 -- ============================================
 -- DIALOGUE UI
@@ -825,10 +873,14 @@ stylePanel(startButton, 12)
 startButton.MouseButton1Click:Connect(function()
     mainMenu.Visible = false
     hud.Visible = true
+    if objectivePanel then objectivePanel.Visible = true end
     RE_GameStart:FireServer()
     updateHUD()
     if player.Character then
         bindCamera(player.Character)
+    end
+    if setObjective then
+        setObjective("LANGKAH 1: Dekati Pak Dosen (label kuning) → tekan E / Bicara\nLalu cari PORTAL berwarna di tepi kampus → tekan E (Masuk) untuk QUIZ")
     end
 end)
 
@@ -858,6 +910,9 @@ end)
 -- Quiz Start (Bug #2 fix: receives quizId from server)
 RE_QuizStart.OnClientEvent:Connect(function(quizData, quizId, questionIndex)
     showQuiz(quizData, quizId, questionIndex)
+    if setObjective then
+        setObjective("QUIZ AKTIF: jawab semua soal di layar.\nBenar = XP + koin. Selesai 4 wilayah = Ending.")
+    end
 end)
 
 -- Quiz End
@@ -962,7 +1017,7 @@ ProximityPromptService.PromptTriggered:Connect(function(prompt, plr)
 	if not dialogueId then
 		dialogueId = NPC_NAME_TO_ID[prompt.ObjectText]
 	end
-	requestTalk(dialogueId, "PromptTriggered")
+	print("[Client] Bicara prompt — server handles dialogue (no double fire)")
 end)
 
 local function findNearestNPC(maxDist)
@@ -1023,5 +1078,5 @@ UIS.InputBegan:Connect(function(input, processed)
 end)
 
 
-print("✅ GameClient v4.3 ready!")
+print("✅ GameClient v4.5 ready!")
 

@@ -352,7 +352,8 @@ print("✅ Game data loaded!")
 -- ============================================
 local playerData = {}
 local playerActiveNPC = {} -- Bug #1 fix: track which NPC each player is talking to
-local playerDialogueLine = {} -- Bug #3 fix: track current dialogue line per player
+local playerDialogueLine = {}
+local lastDialogueFire = {} -- Bug #3 fix: track current dialogue line per player
 
 local function createDefaultData()
     return {
@@ -363,7 +364,12 @@ local function createDefaultData()
         completedQuizzes = {},
         talkCount = 0,
         journal = {},
-        unlockedPortals = {quiz_jawa = true},
+        unlockedPortals = {
+            quiz_jawa = true,
+            quiz_sumatra = true,
+            quiz_bali = true,
+            quiz_papua = true,
+        },
     }
 end
 
@@ -382,7 +388,12 @@ local function loadPlayerData(player)
             merged[k] = v
         end
         if not merged.unlockedPortals then
-            merged.unlockedPortals = {quiz_jawa = true}
+            merged.unlockedPortals = {
+            quiz_jawa = true,
+            quiz_sumatra = true,
+            quiz_bali = true,
+            quiz_papua = true,
+        }
         end
         if not merged.journal then
             merged.journal = {}
@@ -843,7 +854,8 @@ local function createPortal(name, position, destination, color, label, quizId)
     textLabel.BackgroundTransparency = 0.5
     textLabel.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
     textLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-    textLabel.Text = label
+    textLabel.Text = label .. "
+[E] MASUK = QUIZ"
     textLabel.TextScaled = true
     textLabel.Font = Enum.Font.GothamBold
     textLabel.Parent = billboard
@@ -2591,6 +2603,13 @@ end)
 -- ============================================
 local function beginDialogue(player, dialogueId)
     if not player or not dialogueId then return end
+    local now = os.clock()
+    local uid = player.UserId
+    if lastDialogueFire[uid] and (now - lastDialogueFire[uid]) < 0.5 then
+        print("[NPC] debounced duplicate dialogue")
+        return
+    end
+    lastDialogueFire[uid] = now
     local dialogue = DIALOGUES[dialogueId]
     if not dialogue then
         warn("[NPC] No dialogue for id " .. tostring(dialogueId))
@@ -2675,7 +2694,7 @@ RS.GameStart.OnServerEvent:Connect(function(player)
     local data = getPlayerData(player)
     data.gameStarted = true
     addJournalEntry(player, "🎮 Petualangan dimulai!")
-    RS.ShowNotification:FireClient(player, "Selamat datang di Jejak Nusantara!")
+    RS.ShowNotification:FireClient(player, "Selamat datang! Bicara Pak Dosen, lalu MASUK portal kuning di kampus untuk QUIZ.")
     print("[GameManager] Game started for: " .. player.Name)
 end)
 
